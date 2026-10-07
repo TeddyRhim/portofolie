@@ -187,7 +187,7 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import("./scene.js?v=8")); }
+try { ({ startScene } = await import("./scene.js?v=9")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -200,7 +200,7 @@ const T = {
     aPitch: "Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
     a1: "PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
     a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
-    a3: "Exploitation data et développement · 3 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.",
+    a3: "Exploitation data et développement · 2 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.",
     a4: "Aussi : Python, PostgreSQL et MySQL, Docker, CI/CD, tests et revues de code, Agile/Scrum.",
     aNote: "Trois projets vous attendent plus bas.",
     l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
@@ -227,7 +227,7 @@ const T = {
     aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
     a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
     a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
-    a3: "Data operations and development · 3 months: Next.js / FastAPI applications, automation, chatbot on a local LLM.",
+    a3: "Data operations and development · 2 months: Next.js / FastAPI applications, automation, chatbot on a local LLM.",
     a4: "Also: Python, PostgreSQL and MySQL, Docker, CI/CD, tests and code reviews, Agile/Scrum.",
     aNote: "Three projects await further down.",
     l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
