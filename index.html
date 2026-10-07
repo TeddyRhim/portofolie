@@ -58,6 +58,8 @@ a { color: inherit; }
 .lang button[aria-pressed="true"] { color: var(--gold); border-color: var(--gold-dim); }
 .alt { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-dim); text-decoration: none; border: 1px solid var(--gold-dim); padding: 6px 12px; }
 .alt:hover { color: var(--gold); border-color: var(--gold); }
+button.alt { background: none; cursor: pointer; font-family: var(--sans); }
+button.alt[aria-pressed="true"] { color: var(--gold); border-color: var(--gold); }
 
 .hero { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; text-align: center; pointer-events: none; padding: 0 var(--gutter); }
 .hero h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(54px, 11vw, 128px); line-height: 1.02; text-shadow: 0 0 60px rgba(0,0,0,.9), 0 0 30px rgba(140,28,43,.5); }
@@ -191,6 +193,7 @@ body.toon .gal-head h2 { font-weight: 600; }
       <button type="button" data-lang="fr" aria-pressed="true">FR</button>
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
     </div>
+    <button type="button" class="alt" id="snd" aria-pressed="false" hidden></button>
     <a class="alt" href="light.html" id="lightLink">Version légère</a>
   </div>
 </header>
@@ -251,14 +254,14 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=22")); }
+try { ({ startScene } = await import("./scene.js?v=23")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
 const T = {
   fr: {
     role: "Développeur back-end", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
-    sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)",
+    sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)", sndOff: "Son : coupé", sndOn: "Son : activé",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub", cv: "Télécharger mon CV",
     shots: "Voir les captures", tip: "Voir les captures", close: "Fermer", prev: "Image précédente", next: "Image suivante",
@@ -289,7 +292,7 @@ const T = {
   },
   en: {
     role: "Back-end developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
-    sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
+    sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)", sndOff: "Sound: off", sndOn: "Sound: on",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
     shots: "View screenshots", tip: "View screenshots", close: "Close", prev: "Previous image", next: "Next image",
@@ -339,6 +342,7 @@ const PROJECTS = [
 const $ = id => document.getElementById(id);
 const clamp01 = v => Math.min(1, Math.max(0, v));
 let lang = "fr";
+let amb = null, lastT = performance.now();
 try { const s = localStorage.getItem("lang"); lang = s === "en" || s === "fr" ? s : (navigator.language || "fr").toLowerCase().startsWith("fr") ? "fr" : "en"; } catch (e) {}
 
 /* ——— Panneaux ——— */
@@ -382,7 +386,7 @@ const wpBtns = WP.map(([k, sp]) => {
 function setLang(l) {
   lang = l; document.documentElement.lang = l;
   document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
-  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; $("galX").setAttribute("aria-label", T[l].close); $("galPrev").setAttribute("aria-label", T[l].prev); $("galNext").setAttribute("aria-label", T[l].next); if (typeof renderShot === "function" && !$("gallery").hidden) renderShot(); document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; }); wpEl.setAttribute("aria-label", T[l].navLabel);
+  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; $("galX").setAttribute("aria-label", T[l].close); $("galPrev").setAttribute("aria-label", T[l].prev); $("galNext").setAttribute("aria-label", T[l].next); if (typeof updSnd === "function") updSnd(); if (typeof renderShot === "function" && !$("gallery").hidden) renderShot(); document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; }); wpEl.setAttribute("aria-label", T[l].navLabel);
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   document.title = "Teddy Rhim — " + T[l].role;
   try { localStorage.setItem("lang", l); } catch (e) {}
@@ -447,6 +451,16 @@ addEventListener("keydown", e => {
 });
 document.querySelectorAll("[data-shots]").forEach(b => b.addEventListener("click", () => openGallery(PROJECTS.findIndex(p => p.id === b.dataset.shots))));
 
+/* ——— Ambiance sonore (prototype, visible seulement avec ?son) ——— */
+function updSnd() { const b = $("snd"); b.textContent = amb && amb.on ? T[lang].sndOn : T[lang].sndOff; b.setAttribute("aria-pressed", String(!!(amb && amb.on))); }
+if (q.has("son")) {
+  const b = $("snd"); b.hidden = false; updSnd();
+  b.addEventListener("click", async () => {
+    if (!amb) { const m = await import("./audio.js?v=2"); amb = m.createAmbience(); if (!amb) { b.hidden = true; return; } window.__snd = amb; }
+    await amb.enable(!amb.on); updSnd();
+  });
+}
+
 /* ——— Boucle ——— */
 const hero = $("hero"), contact = $("contact"), contactBtns = [...contact.querySelectorAll(".btn")];
 const pointer = { x: innerWidth / 2, y: innerHeight / 2 };
@@ -466,6 +480,7 @@ try {
     onPaintingHover: i => { if (i >= 0) { tip.textContent = T[lang].tip; tip.classList.add("on"); } else tip.classList.remove("on"); },
     onFrame(p) {
       if (first) { first = false; loading.classList.add("off"); }
+      if (amb) { const n = performance.now(); amb.setProgress(p); amb.tick(Math.min(0.1, (n - lastT) / 1000)); lastT = n; }
       tip.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 20}px)`;
       hero.style.opacity = String(clamp01(1 - p * 11));
       gFill.style.height = (p * 100) + "%";
