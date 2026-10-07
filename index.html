@@ -134,7 +134,7 @@ body.toon .btn { border-width: 2px; }
 
 /* Galerie des captures : même univers (cadre doré, bougies, encre) */
 body.gal-open { overflow: hidden; }
-.gallery { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 3.5vh 4vw;
+.gallery { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 2.5vh 2vw;
   background: radial-gradient(ellipse at center, rgba(26,11,16,.93) 0%, rgba(5,2,6,.985) 75%); backdrop-filter: blur(6px); opacity: 0; transition: opacity .35s; }
 .gallery[hidden] { display: none; }
 .gallery.on { opacity: 1; }
@@ -144,10 +144,10 @@ body.gal-open { overflow: hidden; }
 .gal-lvl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
 .gal-head h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 3.4vw, 44px); line-height: 1.05; margin-top: 4px; }
 .gal-stage { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 28px); width: 100%; }
-.gal-frame { position: relative; margin: 0; padding: 10px; background: #0d0709; max-width: min(1080px, 78vw);
+.gal-frame { position: relative; margin: 0; padding: 10px; background: #0d0709; width: min(1240px, 84vw, calc((100vh - 290px) * 1.6 + 36px));
   border: 8px solid transparent; border-image: linear-gradient(135deg, #6a4e20, #e2c274 28%, #8a6c36 52%, #d4b365 78%, #6a4e20) 1;
   box-shadow: 0 0 0 1px #120a07, 0 0 80px rgba(201,164,92,.16), 0 24px 90px #000; }
-.gal-frame img { display: block; max-width: 100%; max-height: 58vh; object-fit: contain; margin: 0 auto; transition: opacity .18s; }
+.gal-frame img { display: block; width: 100%; height: auto; object-fit: contain; margin: 0 auto; transition: opacity .18s; }
 .gal-frame .c { position: absolute; width: 16px; height: 16px; background: #c9a45c; transform: rotate(45deg); box-shadow: 0 0 10px rgba(255,200,110,.5); }
 .gal-frame .c.tl { top: -17px; left: -17px; } .gal-frame .c.tr { top: -17px; right: -17px; } .gal-frame .c.bl { bottom: -17px; left: -17px; } .gal-frame .c.br { bottom: -17px; right: -17px; }
 .gal-nav { flex: none; background: none; border: 1px solid var(--gold-dim); color: var(--gold); width: 46px; height: 46px; font-size: 30px; line-height: 1; cursor: pointer; transition: background .2s, color .2s; }
@@ -167,7 +167,7 @@ button.btn:hover { background: var(--gold); color: var(--bg); }
 body.toon .gal-frame { border-image: none; border: 3px solid var(--ivory); box-shadow: 8px 8px 0 #7a0f1f; }
 body.toon .gal-frame .c { background: #b3263a; box-shadow: none; }
 body.toon .gal-head h2 { font-weight: 600; }
-@media (max-width: 860px) { .gal-nav { width: 38px; height: 38px; font-size: 24px; } .gal-frame { max-width: 70vw; } .gal-thumbs button img { width: 64px; height: 40px; } }
+@media (max-width: 860px) { .gal-nav { width: 38px; height: 38px; font-size: 24px; } .gal-frame { width: min(84vw, calc((100vh - 260px) * 1.6 + 36px)); } .gal-thumbs button img { width: 64px; height: 40px; } }
 @media (max-width: 860px) {
   .gauge .rail, .gauge .depth { display: none; }
   .gauge { top: auto; bottom: auto; top: 76px; right: 16px; transform: none; }
@@ -251,7 +251,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=19")); }
+try { ({ startScene } = await import("./scene.js?v=20")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
