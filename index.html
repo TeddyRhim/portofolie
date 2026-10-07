@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teddy Rhim — Développeur full-stack</title>
+<meta name="description" content="Portfolio de Teddy Rhim, développeur full-stack : FastAPI, Next.js, Python, RAG local. Une descente en 3D à la lueur des bougies.">
+<meta property="og:title" content="Teddy Rhim — Développeur full-stack">
+<meta property="og:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0709'/%3E%3Cpath d='M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z' fill='%23ff9a3d' stroke='%23c9a45c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<style>
+:root { --bg:#0b0709; --gold:#c9a45c; --gold-dim:rgba(201,164,92,.35); --ivory:#e8dfd0; --ivory-dim:#b9ae9f; --blood-soft:#b3263a;
+  --serif:"Cormorant Garamond",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --gutter:clamp(20px,5vw,72px); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: auto; }
+body { background: var(--bg); color: var(--ivory); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; line-height: 1.55; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
+.vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%); }
+.track { height: 900vh; position: relative; z-index: 2; }
+
+.top { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 18px var(--gutter); background: linear-gradient(to bottom, rgba(11,7,9,.8), transparent); }
+.mark { font-family: var(--serif); font-size: 22px; letter-spacing: .12em; color: var(--gold); text-decoration: none; }
+.tools { display: flex; align-items: center; gap: 14px; }
+.lang { display: flex; gap: 4px; font-size: 13px; letter-spacing: .14em; }
+.lang button { background: none; border: 1px solid transparent; color: var(--ivory-dim); padding: 6px 10px; cursor: pointer; font: inherit; letter-spacing: inherit; }
+.lang button[aria-pressed="true"] { color: var(--gold); border-color: var(--gold-dim); }
+.alt { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-dim); text-decoration: none; border: 1px solid var(--gold-dim); padding: 6px 12px; }
+.alt:hover { color: var(--gold); border-color: var(--gold); }
+
+.hero { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; text-align: center; pointer-events: none; padding: 0 var(--gutter); }
+.hero h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(54px, 11vw, 128px); line-height: 1.02; text-shadow: 0 0 60px rgba(0,0,0,.9), 0 0 30px rgba(140,28,43,.5); }
+.hero h1 em { color: var(--blood-soft); font-style: italic; }
+.hero p { margin-top: 18px; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 3vw, 32px); color: var(--gold); text-shadow: 0 0 20px rgba(0,0,0,.9); }
+.hero small { display: block; margin-top: 44px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ivory-dim); }
+
+/* Panneaux de texte à côté des tableaux */
+.panel { position: fixed; top: 50%; transform: translateY(-50%); z-index: 7; width: min(470px, 40vw); padding: 26px 28px 24px;
+  background: rgba(11,7,9,.76); border: 1px solid rgba(201,164,92,.26); backdrop-filter: blur(5px);
+  opacity: 0; visibility: hidden; pointer-events: none; }
+.panel.left { left: var(--gutter); } .panel.right { right: calc(var(--gutter) + 56px); }
+.panel::before, .panel::after { content: ""; position: absolute; width: 22px; height: 22px; border: 1px solid var(--gold); }
+.panel::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .panel::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+.panel.live { pointer-events: auto; }
+.panel .lvl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.panel h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.05; margin: 8px 0 8px; }
+.panel .pitch { font-family: var(--serif); font-style: italic; font-size: clamp(17px, 1.7vw, 21px); color: var(--ivory-dim); line-height: 1.3; }
+.panel .sub { margin-top: 16px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
+.panel ul { list-style: none; display: grid; gap: 9px; margin-top: 10px; font-size: 14px; }
+.panel li { padding-left: 18px; position: relative; }
+.panel li::before { content: ""; position: absolute; left: 0; top: .6em; width: 6px; height: 6px; border: 1px solid var(--blood-soft); transform: rotate(45deg); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 16px; }
+.chips span { border: 1px solid var(--gold-dim); padding: 2px 9px; font-size: 12px; background: rgba(26,13,18,.7); }
+.btn { display: inline-block; padding: 9px 18px; border: 1px solid var(--gold); color: var(--gold); text-decoration: none; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; transition: background .25s, color .25s; }
+.btn:hover { background: var(--gold); color: var(--bg); }
+.note { margin-top: 12px; font-size: 12px; color: var(--ivory-dim); font-style: italic; }
+
+/* Contact : éclairé par le brasero */
+.contact { position: fixed; left: 50%; top: 5vh; transform: translateX(-50%); z-index: 7; text-align: center; width: min(640px, 88vw); opacity: 0; visibility: hidden; pointer-events: none; }
+.contact.live { pointer-events: auto; }
+.contact h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(32px, 4.4vw, 56px); line-height: 1.05; text-shadow: 0 0 40px rgba(0,0,0,.95); }
+.contact p { margin: 8px auto 0; max-width: 480px; color: var(--ivory-dim); text-shadow: 0 0 20px rgba(0,0,0,.95); }
+.contact .links { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+.contact .btn { background: rgba(11,7,9,.55); box-shadow: 0 0 calc(var(--near, 0) * 30px) rgba(255,122,47, calc(var(--near, 0) * .55)); text-shadow: 0 0 calc(var(--near, 0) * 14px) rgba(255,184,77, calc(var(--near, 0) * .9)); }
+.contact .btn:hover { background: var(--gold); }
+.contact .btn.ghost { border-color: rgba(255,170,90, calc(.4 + var(--near, 0) * .6)); color: var(--ivory); }
+.contact .btn.ghost:hover { color: var(--bg); background: var(--gold); }
+.cap { position: fixed; left: 50%; bottom: 12vh; transform: translateX(-50%); z-index: 6; pointer-events: none; opacity: 0; transition: opacity .6s; text-align: center; }
+.cap b { display: block; font-size: 12px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.cap span { display: block; margin-top: 6px; font-family: var(--serif); font-size: clamp(34px, 5vw, 60px); line-height: 1.05; text-shadow: 0 0 40px rgba(0,0,0,.9); }
+.cap.on { opacity: 1; }
+
+.gauge { position: fixed; right: clamp(12px,2.4vw,36px); top: 50%; transform: translateY(-50%); z-index: 9; display: flex; flex-direction: column; align-items: center; gap: 10px; font-family: var(--serif); color: var(--gold); }
+.gauge .num { font-size: 30px; line-height: 1; min-width: 2ch; text-align: center; }
+.gauge .depth { font-family: var(--sans); font-size: 10px; letter-spacing: .12em; color: var(--ivory-dim); font-variant-numeric: tabular-nums; }
+.gauge .rail { width: 1px; height: 24vh; background: var(--gold-dim); position: relative; }
+.gauge .fill { position: absolute; top: 0; left: -1px; width: 3px; height: 0; background: var(--gold); }
+
+.loading { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--bg); color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 26px; transition: opacity 1s; }
+.loading.off { opacity: 0; pointer-events: none; }
+
+@media (max-width: 860px) {
+  .gauge .rail, .gauge .depth { display: none; }
+  .gauge { top: auto; bottom: auto; top: 76px; right: 16px; transform: none; }
+  .panel { top: auto; bottom: 0; left: 0 !important; right: 0 !important; width: auto; transform: none; padding: 18px 20px 20px; max-height: 52vh; border-left: 0; border-right: 0; border-bottom: 0; }
+  .panel ul, .panel .sub { display: none; }
+  .alt { display: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+
+<header class="top">
+  <a class="mark" href="#" aria-label="Teddy Rhim">T·R</a>
+  <div class="tools">
+    <div class="lang" role="group" aria-label="Langue / Language">
+      <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="alt" href="light.html" id="lightLink">Version légère</a>
+  </div>
+</header>
+
+<div class="hero" id="hero">
+  <div>
+    <h1>Teddy <em>Rhim</em></h1>
+    <p id="role">Développeur full-stack</p>
+    <small id="cue">Faites défiler pour descendre</small>
+  </div>
+</div>
+
+<div id="panels"></div>
+<section class="contact" id="contact" aria-label="Contact">
+  <h2 data-t="cTitle"></h2>
+  <p data-t="cLead"></p>
+  <div class="links">
+    <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn ghost" href="mailto:teddyrhimpro@gmail.com" data-t="mail"></a>
+  </div>
+</section>
+<div class="cap" id="cap"><b></b><span></span></div>
+
+<aside class="gauge" aria-hidden="true">
+  <span class="num" id="gNum">0</span>
+  <span class="depth" id="gDepth">−0 m</span>
+  <div class="rail"><div class="fill" id="gFill"></div></div>
+</aside>
+
+<div class="track" id="track"></div>
+<div class="loading" id="loading">Allumage des bougies…</div>
+
+<noscript><p style="position:fixed;inset:auto 20px 20px;z-index:99">JavaScript est nécessaire. <a href="light.html" style="color:#c9a45c">Version légère</a></p></noscript>
+
+<script type="module">
+/* Repli automatique vers la version légère : WebGL absent, « réduire les animations », petit écran
+   (sauf si l'on force la 3D avec ?3d), ou échec du chargement de la scène. */
+const LIGHT = "light.html";
+const canWebGL = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
+const wantsLight = !canWebGL || matchMedia("(prefers-reduced-motion: reduce)").matches || (!new URLSearchParams(location.search).has("3d") && innerWidth < 700);
+if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
+let startScene;
+try { ({ startScene } = await import("./scene.js")); }
+catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
+
+/* ——— Textes ——— */
+const T = {
+  fr: {
+    role: "Développeur full-stack", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
+    sub: "Ce que j'ai construit", code: "Voir le code",
+    l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
+    p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
+    p1a: "API REST FastAPI avec authentification JWT, rôles utilisateurs et routes protégées.",
+    p1b: "Backend en couches (routers, services, schémas, modèles) et migrations avec Alembic.",
+    p1c: "Interface Next.js et TypeScript : tableau de bord, détail des campagnes, recherche de contacts, imports.",
+    p2: "Un outil local qui collecte des offres, les compare à mon profil et prépare des dossiers de candidature ciblés.",
+    p2a: "Connecteurs vers plusieurs sources d'offres (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), avec compteur de quota.",
+    p2b: "CV ciblé et lettre en PDF pour chaque offre, à partir d'un CV de référence, sans rien inventer.",
+    p2c: "Suivi des candidatures par statut avec relances. Tout reste sur la machine, rien n'est envoyé automatiquement.",
+    p3: "Un chatbot en français qui répond à partir d'une base de connaissances, en citant ses sources, avec un modèle qui tourne sur ma machine.",
+    p3a: "RAG 100 % local : Qwen2.5 7B via Ollama, embeddings multilingues dans ChromaDB, fusion hybride mots-clés et sens.",
+    p3b: "Réponses mesurées : hit@k, MRR, abstention et ancrage dans les sources. Le bot répond « je ne sais pas » quand rien de pertinent n'est trouvé.",
+    p3c: "Base structurée en fiches liées entre elles, et un fine-tuning LoRA abandonné en connaissance de cause (données trop limitées).",
+    note1: "Captures : données fictives.", note2: "Captures : profil et offres d'exemple, aucune donnée personnelle.", note3: "Captures : univers fictif d'exemple.",
+    cTitle: "Approchez-vous du feu", cLead: "Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.", mail: "Écrire un e-mail",
+  },
+  en: {
+    role: "Full-stack developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
+    sub: "What I built", code: "View the code",
+    l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
+    p1: "A web application to track campaigns, manage contacts and import data.",
+    p1a: "FastAPI REST API with JWT authentication, user roles and protected routes.",
+    p1b: "Layered backend (routers, services, schemas, models) and migrations with Alembic.",
+    p1c: "Next.js and TypeScript interface: dashboard, campaign details, contact search, imports.",
+    p2: "A local tool that collects job offers, compares them with my profile and prepares targeted application files.",
+    p2a: "Connectors to several job sources (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), with a quota counter.",
+    p2b: "A tailored CV and cover letter as PDF for each offer from a reference CV, without making anything up.",
+    p2c: "Application tracking by status with reminders. Everything stays on the machine and nothing is sent automatically.",
+    p3: "A French-language chatbot that answers from a knowledge base and cites its sources, using a model that runs on my own machine.",
+    p3a: "100% local RAG: Qwen2.5 7B via Ollama, multilingual embeddings in ChromaDB, hybrid keyword and semantic fusion.",
+    p3b: "Measured answers: hit@k, MRR, abstention and source grounding. The bot says \"I don't know\" when nothing relevant is found.",
+    p3c: "A knowledge base of linked entries, and a LoRA fine-tuning attempt deliberately dropped (too little data).",
+    note1: "Screenshots: fictional data.", note2: "Screenshots: sample profile and offers, no personal data.", note3: "Screenshots: sample fictional universe.",
+    cTitle: "Come closer to the fire", cLead: "A project, an opportunity, a technical question: write to me, I'd be glad to talk.", mail: "Send an email",
+  },
+};
+
+/* ——— Projets (positions dans le couloir, côté du mur, fenêtre de défilement) ——— */
+const PROJECTS = [
+  { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], note: "note1",
+    chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
+    href: "https://github.com/TeddyRhim/cta-campaign-manager",
+    imgs: ["media/cta-1.jpg", "media/cta-2.jpg", "media/cta-3.jpg"], side: 1, z: -24, win: [0.20, 0.36] },
+  { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], note: "note2",
+    chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
+    href: "https://github.com/TeddyRhim/assistant-candidature",
+    imgs: ["media/assistant-2.jpg", "media/assistant-1.jpg"], side: -1, z: -48, win: [0.44, 0.60] },
+  { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], note: "note3",
+    chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
+    href: "https://github.com/TeddyRhim/ChatbotIA",
+    imgs: ["media/chatbot-1.jpg", "media/chatbot-2.jpg"], side: 1, z: -72, win: [0.68, 0.84] },
+];
+
+const $ = id => document.getElementById(id);
+const clamp01 = v => Math.min(1, Math.max(0, v));
+let lang = "fr";
+try { const s = localStorage.getItem("lang"); lang = s === "en" || s === "fr" ? s : (navigator.language || "fr").toLowerCase().startsWith("fr") ? "fr" : "en"; } catch (e) {}
+
+/* ——— Panneaux ——— */
+const panelsEl = $("panels");
+const panels = PROJECTS.map(pr => {
+  const el = document.createElement("section");
+  el.className = "panel " + (pr.side === 1 ? "left" : "right");
+  el.setAttribute("aria-label", pr.title);
+  el.innerHTML = `<div class="lvl" data-t="${pr.lvl}"></div><h2>${pr.title}</h2><p class="pitch" data-t="${pr.pitch}"></p>
+    <p class="sub" data-t="sub"></p><ul>${pr.pts.map(k => `<li data-t="${k}"></li>`).join("")}</ul>
+    <div class="chips">${pr.chips.map(c => `<span>${c}</span>`).join("")}</div>
+    <a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a>
+    <p class="note" data-t="${pr.note}"></p>`;
+  panelsEl.appendChild(el);
+  return el;
+});
+
+function setLang(l) {
+  lang = l; document.documentElement.lang = l;
+  document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
+  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+  document.title = "Teddy Rhim — " + T[l].role;
+  try { localStorage.setItem("lang", l); } catch (e) {}
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
+setLang(lang);
+
+/* ——— Boucle ——— */
+const hero = $("hero"), contact = $("contact"), contactBtns = [...contact.querySelectorAll(".btn")];
+const pointer = { x: innerWidth / 2, y: innerHeight / 2 };
+addEventListener("pointermove", e => { pointer.x = e.clientX; pointer.y = e.clientY; }, { passive: true });
+const gNum = $("gNum"), gDepth = $("gDepth"), gFill = $("gFill"), loading = $("loading");
+const progress = () => { const m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? clamp01(scrollY / m) : 0; };
+const win = (p, a, b, f = 0.03) => clamp01((p - a) / f) * clamp01((b - p) / f);
+
+let first = true;
+try {
+  startScene({
+    canvas: $("gl"),
+    projects: PROJECTS,
+    getProgress: progress,
+    onFrame(p) {
+      if (first) { first = false; loading.classList.add("off"); }
+      hero.style.opacity = String(clamp01(1 - p * 11));
+      gFill.style.height = (p * 100) + "%";
+      gDepth.textContent = "−" + Math.round(p * 66) + " m";
+      PROJECTS.forEach((pr, i) => {
+        const o = win(p, pr.win[0], pr.win[1]), el = panels[i];
+        el.style.opacity = o.toFixed(3);
+        el.style.visibility = o > 0.01 ? "visible" : "hidden";
+        el.classList.toggle("live", o > 0.7);
+      });
+      const num = p < 0.2 ? "0" : p < 0.4 ? "I" : p < 0.62 ? "II" : p < 0.86 ? "III" : "IV";
+      gNum.textContent = num;
+      const co = win(p, 0.9, 1.2, 0.04);
+      contact.style.opacity = co.toFixed(3);
+      contact.style.visibility = co > 0.01 ? "visible" : "hidden";
+      contact.classList.toggle("live", co > 0.7);
+      if (co > 0.3) contactBtns.forEach(b => {
+        const r = b.getBoundingClientRect();
+        const d = Math.hypot(pointer.x - (r.left + r.width / 2), pointer.y - (r.top + r.height / 2));
+        b.style.setProperty("--near", Math.max(co * 0.35, 1 - d / 280).toFixed(3));
+      });
+    },
+  });
+} catch (e) {
+  console.error(e);
+  location.replace(LIGHT);
+}
+// filet de sécurité : si la scène met trop longtemps, on propose la version légère
+setTimeout(() => { if (first) loading.innerHTML = `${T[lang].loading}<br><a href="${LIGHT}" style="color:var(--gold);font-size:16px;font-style:normal">${T[lang].light}</a>`; }, 15000);
+</script>
+</body>
+</html>
