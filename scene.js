@@ -328,6 +328,13 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   const stoneS = TOON ? null : stoneSet(); if (stoneS) stoneS.forEach(t => t.repeat.set(1, 2));
   const stone = new THREE.MeshStandardMaterial(TOON ? { color: 0x2a1c20, roughness: 0.8, metalness: 0.05 } : { color: 0xffffff, map: stoneS[0], bumpMap: stoneS[1], bumpScale: 2, roughness: 0.85, metalness: 0.04 });
   const oldGold = new THREE.MeshStandardMaterial({ color: 0x6a5226, roughness: 0.62, metalness: 0.6, envMap: envTex, envMapIntensity: 0.3 });
+  const patinaTex = TOON ? null : canvasTexture(256, 256, (g, w, h) => {
+    g.fillStyle = "#a07f3a"; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 26; i++) { const x = rnd(0, w), y = rnd(0, h), r = rnd(20, 70), gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, i % 4 === 0 ? "rgba(70,110,90,.22)" : "rgba(34,20,6,.38)"); gr.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
+    for (let i = 0; i < 90; i++) { g.strokeStyle = `rgba(255,232,170,${rnd(.08, .3)})`; g.lineWidth = rnd(.6, 1.4); const x = rnd(0, w), y = rnd(0, h); g.beginPath(); g.moveTo(x, y); g.lineTo(x + rnd(-30, 30), y + rnd(-8, 8)); g.stroke(); }
+    for (let i = 0; i < 4000; i++) { g.fillStyle = `rgba(${Math.random() < .6 ? "20,10,0" : "230,200,140"},${Math.random() * .16})`; g.fillRect(rnd(0, w), rnd(0, h), rnd(1, 3), rnd(1, 3)); }
+  });
+  const patinaGold = new THREE.MeshStandardMaterial({ color: TOON ? 0x8a5e24 : 0xffffff, map: patinaTex, roughness: 0.5, metalness: 0.78, envMap: envTex, envMapIntensity: 0.42 });
   const gold = new THREE.MeshStandardMaterial({ color: 0x9a7a38, roughness: 0.36, metalness: 0.85, envMap: envTex, envMapIntensity: 0.55 });
   const colGeo = new THREE.CylinderGeometry(0.42, 0.5, 6.2, 18);
   const baseGeo = new THREE.BoxGeometry(1.3, 0.5, 1.3);
@@ -398,22 +405,22 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     for (const [w, h, x, y] of [
       [PW + FB * 2, FB, 0, PH / 2 + FB / 2], [PW + FB * 2, FB, 0, -PH / 2 - FB / 2],
       [FB, PH, -PW / 2 - FB / 2, 0], [FB, PH, PW / 2 + FB / 2, 0],
-    ]) { const bar = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.24), gold); bar.position.set(x, y, 0); g.add(bar); }
+    ]) { const bar = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.24), patinaGold); bar.position.set(x, y, 0); g.add(bar); }
     const liner = new THREE.Mesh(new THREE.BoxGeometry(PW + 0.02, PH + 0.02, 0.06), darkLiner);
     liner.position.z = -0.03; g.add(liner);
     // doubles filets intérieurs
     for (const [w, h, y, x] of [[PW + 0.3, 0.06, PH / 2 + 0.14, 0], [PW + 0.3, 0.06, -PH / 2 - 0.14, 0], [0.06, PH + 0.3, 0, PW / 2 + 0.14], [0.06, PH + 0.3, 0, -PW / 2 - 0.14]]) {
-      const f = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), gold); f.position.set(x, y, 0.13); g.add(f);
+      const f = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.05), patinaGold); f.position.set(x, y, 0.13); g.add(f);
     }
     // ornements d'angle, fronton et culot
     for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
-      const o = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), gold);
+      const o = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), patinaGold);
       o.scale.set(1, 1.35, 0.55); o.position.set(sx * (PW / 2 + FB), sy * (PH / 2 + FB), 0.14); g.add(o);
     }
-    const crown = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.065, 8, 28, Math.PI), gold);
+    const crown = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.065, 8, 28, Math.PI), patinaGold);
     crown.position.set(0, PH / 2 + FB + 0.02, 0.1); g.add(crown);
-    const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.17), gold); jewel.scale.set(1, 1.5, .6); jewel.position.set(0, PH / 2 + FB + 0.78, 0.1); g.add(jewel);
-    const drop = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), gold); drop.scale.set(1, 1.6, .6); drop.position.set(0, -PH / 2 - FB - 0.22, 0.1); g.add(drop);
+    const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.17), patinaGold); jewel.scale.set(1, 1.5, .6); jewel.position.set(0, PH / 2 + FB + 0.78, 0.1); g.add(jewel);
+    const drop = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), patinaGold); drop.scale.set(1, 1.6, .6); drop.position.set(0, -PH / 2 - FB - 0.22, 0.1); g.add(drop);
 
     // toile (deux plans pour fondre d'une capture à l'autre)
     const texs = pr.imgs.map(loadTex);
@@ -424,8 +431,8 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     const base = mk(texs[0], 1, 0.07), over = mk(texs[Math.min(1, texs.length - 1)], 0, 0.075);
 
     // lampe de tableau
-    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.5, 8), gold); arm.rotation.x = Math.PI / 2; arm.position.set(0, PH / 2 + FB + 1.0, 0.75); g.add(arm);
-    const lampHead = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.24, 0.28, 14, 1, true), gold); lampHead.position.set(0, PH / 2 + FB + 0.98, 1.5); g.add(lampHead);
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.5, 8), patinaGold); arm.rotation.x = Math.PI / 2; arm.position.set(0, PH / 2 + FB + 1.0, 0.75); g.add(arm);
+    const lampHead = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.24, 0.28, 14, 1, true), patinaGold); lampHead.position.set(0, PH / 2 + FB + 0.98, 1.5); g.add(lampHead);
     const bulb = new THREE.Sprite(new THREE.SpriteMaterial({ map: softDot("255,214,150", 1), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 }));
     bulb.position.set(0, PH / 2 + FB + 0.9, 1.5); bulb.scale.set(0.45, 0.45, 1); bulb.material.opacity = 0.28; g.add(bulb);
     const spot = new THREE.SpotLight(0xffd29a, 12, 14, 0.75, 0.8, 1.6);
@@ -593,25 +600,25 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   const RIM = 2.3;
   const bz = new THREE.Group(); bz.position.set(0, 0, -91); world.add(bz);
   const dais = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 0.3, 48), stone); dais.position.y = 0.15; bz.add(dais);
-  const daisRing = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.035, 8, 72), gold); daisRing.rotation.x = Math.PI / 2; daisRing.position.y = 0.31; bz.add(daisRing);
+  const daisRing = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.035, 8, 72), patinaGold); daisRing.rotation.x = Math.PI / 2; daisRing.position.y = 0.31; bz.add(daisRing);
   const profile = [[0.001, 1.6], [0.4, 1.63], [0.8, 1.78], [1.08, 2.02], [1.24, 2.22], [1.32, 2.34], [1.26, 2.36], [1.18, 2.28]].map(([r, y]) => new THREE.Vector2(r, y));
-  const bowl = new THREE.Mesh(new THREE.LatheGeometry(profile, 56), new THREE.MeshStandardMaterial({ color: 0x9a7a38, roughness: 0.34, metalness: 0.85, envMap: envTex, envMapIntensity: 0.6, side: THREE.DoubleSide }));
+  const bowl = new THREE.Mesh(new THREE.LatheGeometry(profile, 56), (TOON ? new THREE.MeshStandardMaterial({ color: 0x9a7a38, side: THREE.DoubleSide }) : new THREE.MeshStandardMaterial({ color: 0xffffff, map: canvasTexture(64, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#a07f3a"); gr.addColorStop(.3, "#6a5226"); gr.addColorStop(.62, "#1c130c"); gr.addColorStop(1, "#0a0706"); g.fillStyle = gr; g.fillRect(0, 0, w, h); for (let i = 0; i < 700; i++) { g.fillStyle = `rgba(${Math.random() < .5 ? "0,0,0" : "200,170,110"},${Math.random() * .18})`; g.fillRect(rnd(0, w), rnd(0, h), rnd(1, 4), rnd(1, 4)); } }), roughness: 0.55, metalness: 0.6, envMap: envTex, envMapIntensity: 0.4, side: THREE.DoubleSide })));
   bz.add(bowl);
   const coals = new THREE.Mesh(new THREE.CircleGeometry(1.2, 40), new THREE.MeshBasicMaterial({ color: 0x4a1208 }));
   coals.rotation.x = -Math.PI / 2; coals.position.y = RIM - 0.08; bz.add(coals);
   for (const [r, y, w] of [[1.31, 2.34, 0.05], [1.12, 1.96, 0.03], [0.74, 1.74, 0.025]]) {
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, w, 8, 56), gold); ring.rotation.x = Math.PI / 2; ring.position.y = y; bz.add(ring);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, w, 8, 56), patinaGold); ring.rotation.x = Math.PI / 2; ring.position.y = y; bz.add(ring);
   }
   for (const sx of [-1, 1]) {
-    const h = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 8, 24), gold); h.position.set(sx * 1.4, 2.06, 0); h.rotation.y = Math.PI / 2; bz.add(h);
+    const h = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 8, 24), patinaGold); h.position.set(sx * 1.4, 2.06, 0); h.rotation.y = Math.PI / 2; bz.add(h);
   }
-  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.2, 0.95, 18), gold); stem.position.y = 1.13; bz.add(stem);
-  for (const [y, r] of [[1.15, 0.27], [0.78, 0.2]]) { const k = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), gold); k.position.y = y; k.scale.y = 0.8; bz.add(k); }
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.2, 0.95, 18), patinaGold); stem.position.y = 1.13; bz.add(stem);
+  for (const [y, r] of [[1.15, 0.27], [0.78, 0.2]]) { const k = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), patinaGold); k.position.y = y; k.scale.y = 0.8; bz.add(k); }
   for (let i = 0; i < 3; i++) {
     const ang = Math.PI / 2 + i * (Math.PI * 2 / 3), dx = Math.cos(ang), dz = Math.sin(ang);
     const path = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 0.95, 0), new THREE.Vector3(0.28 * dx, 0.82, 0.28 * dz), new THREE.Vector3(0.8 * dx, 0.5, 0.8 * dz), new THREE.Vector3(1.15 * dx, 0.34, 1.15 * dz)]);
-    bz.add(new THREE.Mesh(new THREE.TubeGeometry(path, 24, 0.065, 8), gold));
-    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), gold); foot.position.set(1.18 * dx, 0.34, 1.18 * dz); bz.add(foot);
+    bz.add(new THREE.Mesh(new THREE.TubeGeometry(path, 24, 0.065, 8), patinaGold));
+    const foot = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), patinaGold); foot.position.set(1.18 * dx, 0.34, 1.18 * dz); bz.add(foot);
   }
 
   /* Flammes : shader de bruit (trois couches additives, toujours face à la caméra) */
@@ -790,7 +797,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     }
 
     // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
-    const over = new Map([[oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
+    const over = new Map([[patinaGold, 0x8a5e24], [oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
     const cache = new Map();
     const conv = m => {
       if (!m || !m.isMeshStandardMaterial) return m;
