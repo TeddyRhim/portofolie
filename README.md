@@ -4,6 +4,7 @@ Portfolio de développeur back-end : une descente en 3D dans un couloir gothique
 
 - **`index.html`** : version 3D (Three.js, WebGL), pilotée par le défilement.
 - **`light.html`** : version légère en 2D, utilisée automatiquement sur petit écran, sans WebGL ou avec « réduire les animations ». Accessible aussi via le lien « Version légère ».
+- **`cv/`** : le CV (PDF) et sa source HTML.
 - **`scene.js`** : la scène 3D (porte, couloir, bannières, tableaux, brasero). Un style « dessiné » sombre est caché derrière `?toon` (triple clic sur le logo T·R).
 - **`media/`** : captures des projets, réalisées avec des **données fictives**.
 
