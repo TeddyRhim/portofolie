@@ -120,7 +120,7 @@ export function createAmbience() {
       if (on) { try { await ctx.resume(); } catch (e) {} }
       const t = ctx.currentTime;
       master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.62 : 0, t + (on ? 2.0 : 0.5));
+      master.gain.linearRampToValueAtTime(on ? 0.28 : 0, t + (on ? 3.0 : 0.5));
       if (!on) setTimeout(() => { if (!on) ctx.suspend(); }, 700);
     },
     setProgress(v) { p = v; },

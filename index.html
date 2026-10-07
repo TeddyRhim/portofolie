@@ -254,7 +254,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=23")); }
+try { ({ startScene } = await import("./scene.js?v=24")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -451,12 +451,12 @@ addEventListener("keydown", e => {
 });
 document.querySelectorAll("[data-shots]").forEach(b => b.addEventListener("click", () => openGallery(PROJECTS.findIndex(p => p.id === b.dataset.shots))));
 
-/* ——— Ambiance sonore (prototype, visible seulement avec ?son) ——— */
+/* ——— Ambiance sonore (coupée par défaut : un clic sur le bouton l'active) ——— */
 function updSnd() { const b = $("snd"); b.textContent = amb && amb.on ? T[lang].sndOn : T[lang].sndOff; b.setAttribute("aria-pressed", String(!!(amb && amb.on))); }
-if (q.has("son")) {
+{
   const b = $("snd"); b.hidden = false; updSnd();
   b.addEventListener("click", async () => {
-    if (!amb) { const m = await import("./audio.js?v=2"); amb = m.createAmbience(); if (!amb) { b.hidden = true; return; } window.__snd = amb; }
+    if (!amb) { const m = await import("./audio.js?v=3"); amb = m.createAmbience(); if (!amb) { b.hidden = true; return; } window.__snd = amb; }
     await amb.enable(!amb.on); updSnd();
   });
 }

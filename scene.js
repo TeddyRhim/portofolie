@@ -975,8 +975,8 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     if (pk !== hovIdx) { hovIdx = pk; document.body.style.cursor = pk >= 0 ? "pointer" : ""; onPaintingHover && onPaintingHover(pk); }
     paintings.forEach((pt, k) => {
       pt.hv += ((k === hovIdx ? 1 : 0) - pt.hv) * 0.15;
-      if (TOON) { pt.base.color.setScalar(0.8 + 0.2 * pt.hv); pt.over.color.setScalar(0.8 + 0.2 * pt.hv); }
-      else { pt.base.emissiveIntensity = pt.over.emissiveIntensity = 0.34 + 0.3 * pt.hv; }
+      if (TOON) { pt.base.color.setScalar(0.8 + 0.07 * pt.hv); pt.over.color.setScalar(0.8 + 0.07 * pt.hv); }
+      else { pt.base.emissiveIntensity = pt.over.emissiveIntensity = 0.34 + 0.07 * pt.hv; }
     });
     updateDoor(t); updateBrazier(t, dt);
 
