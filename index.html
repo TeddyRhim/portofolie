@@ -251,7 +251,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=20")); }
+try { ({ startScene } = await import("./scene.js?v=22")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -325,15 +325,15 @@ const PROJECTS = [
   { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], note: "note1",
     chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
     href: "https://github.com/TeddyRhim/cta-campaign-manager",
-    imgs: ["media/cta-1.jpg", "media/cta-2.jpg", "media/cta-3.jpg"], side: 1, z: -24, win: [0.20, 0.36] },
+    imgs: ["media/cta-1.jpg?v=2", "media/cta-2.jpg?v=2", "media/cta-3.jpg?v=2"], side: 1, z: -24, win: [0.20, 0.36] },
   { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], note: "note2",
     chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
     href: "https://github.com/TeddyRhim/assistant-candidature",
-    imgs: ["media/assistant-2.jpg", "media/assistant-1.jpg"], side: -1, z: -48, win: [0.44, 0.60] },
+    imgs: ["media/assistant-2.jpg?v=2", "media/assistant-1.jpg?v=2"], side: -1, z: -48, win: [0.44, 0.60] },
   { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], note: "note3",
     chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
     href: "https://github.com/TeddyRhim/ChatbotIA",
-    imgs: ["media/chatbot-1.jpg", "media/chatbot-2.jpg"], side: 1, z: -72, win: [0.68, 0.84] },
+    imgs: ["media/chatbot-1.jpg?v=2", "media/chatbot-2.jpg?v=2"], side: 1, z: -72, win: [0.68, 0.84] },
 ];
 
 const $ = id => document.getElementById(id);
