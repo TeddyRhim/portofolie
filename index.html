@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Teddy Rhim — Développeur full-stack</title>
-<meta name="description" content="Portfolio de Teddy Rhim, développeur full-stack : FastAPI, Next.js, Python, RAG local. Une descente en 3D à la lueur des bougies.">
+<meta name="description" content="Portfolio de Teddy Rhim, développeur full-stack : PHP/Symfony, Python/FastAPI, Next.js, RAG local. Une descente en 3D à la lueur des bougies.">
 <link rel="canonical" href="https://teddyrhim.github.io/portofolie/">
 <meta name="theme-color" content="#0b0709">
 <meta name="author" content="Teddy Rhim">
@@ -26,7 +26,7 @@
 <script type="application/ld+json">
 { "@context": "https://schema.org", "@type": "Person", "name": "Teddy Rhim", "jobTitle": "Développeur full-stack",
   "url": "https://teddyrhim.github.io/portofolie/", "sameAs": ["https://github.com/TeddyRhim"],
-  "knowsAbout": ["Python", "FastAPI", "Next.js", "TypeScript", "PostgreSQL", "RAG", "Ollama"] }
+  "knowsAbout": ["PHP", "Symfony", "Python", "FastAPI", "Next.js", "PostgreSQL", "Docker", "RAG", "Ollama"] }
 </script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0709'/%3E%3Cpath d='M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z' fill='%23ff9a3d' stroke='%23c9a45c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -186,7 +186,7 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import("./scene.js?v=5")); }
+try { ({ startScene } = await import("./scene.js?v=6")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -196,11 +196,11 @@ const T = {
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub",
-    aPitch: "Développeur full-stack : je conçois des applications de bout en bout, de l'API à l'interface, avec une préférence pour l'IA qui tourne en local.",
-    a1: "Backend : Python, FastAPI, SQL (PostgreSQL, SQLite), authentification et migrations.",
-    a2: "Frontend : Next.js, TypeScript et Tailwind CSS.",
-    a3: "IA locale : RAG avec Ollama et ChromaDB, réponses mesurées et sourcées.",
-    a4: "Qualité : tests avec pytest, lint avec ruff, un soin particulier pour les données.",
+    aPitch: "Développeur avec 5 ans d'expérience : PHP et Symfony pendant près de cinq ans sur un CRM immobilier international, puis des missions freelance, de plus en plus de Python et d'IA locale.",
+    a1: "PHP / Symfony : API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
+    a2: "Python / FastAPI : traitement de données, automatisation, LLM exécutés en local.",
+    a3: "Front et données : Next.js, TypeScript, Vue.js, jQuery ; PostgreSQL et MySQL.",
+    a4: "Sécurité, tests et revues de code ; Docker, CI/CD, Agile/Scrum.",
     aNote: "Trois projets vous attendent plus bas.",
     l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
     p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
@@ -223,11 +223,11 @@ const T = {
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub",
-    aPitch: "Full-stack developer: I build applications end to end, from the API to the interface, with a taste for AI that runs locally.",
-    a1: "Backend: Python, FastAPI, SQL (PostgreSQL, SQLite), authentication and migrations.",
-    a2: "Frontend: Next.js, TypeScript and Tailwind CSS.",
-    a3: "Local AI: RAG with Ollama and ChromaDB, measured and sourced answers.",
-    a4: "Quality: tests with pytest, linting with ruff, extra care for data.",
+    aPitch: "Developer with 5 years of experience: PHP and Symfony for nearly five years on an international real-estate CRM, then freelance missions, with more and more Python and local AI.",
+    a1: "PHP / Symfony: REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
+    a2: "Python / FastAPI: data processing, automation, locally run LLMs.",
+    a3: "Front end and data: Next.js, TypeScript, Vue.js, jQuery; PostgreSQL and MySQL.",
+    a4: "Security, tests and code reviews; Docker, CI/CD, Agile/Scrum.",
     aNote: "Three projects await further down.",
     l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
     p1: "A web application to track campaigns, manage contacts and import data.",
@@ -287,7 +287,7 @@ const aboutEl = document.createElement("section");
 aboutEl.className = "panel right"; aboutEl.setAttribute("aria-labelledby", "aTitleH");
 aboutEl.innerHTML = `<div class="lvl" data-t="lAbout"></div><h2 id="aTitleH" data-t="aTitle"></h2><p class="pitch" data-t="aPitch"></p>
   <p class="sub" data-t="aSub"></p><ul><li data-t="a1"></li><li data-t="a2"></li><li data-t="a3"></li><li data-t="a4"></li></ul>
-  <div class="chips">${["Python", "FastAPI", "Next.js", "TypeScript", "PostgreSQL", "Ollama"].map(c => `<span>${c}</span>`).join("")}</div>
+  <div class="chips">${["PHP", "Symfony", "Python", "FastAPI", "Next.js", "PostgreSQL", "Docker", "Vue.js"].map(c => `<span>${c}</span>`).join("")}</div>
   <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener" data-t="aGit"></a>
   <p class="note" data-t="aNote"></p>`;
 panelsEl.appendChild(aboutEl);
