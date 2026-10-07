@@ -131,6 +131,43 @@ body.toon .vignette::after { content: ""; position: absolute; inset: 0; backgrou
 body.toon::before, body.toon::after { content: ""; position: fixed; left: 0; right: 0; height: 3.2vh; background: #020106; z-index: 8; pointer-events: none; }
 body.toon::before { top: 0; border-bottom: 2px solid #8c1c2b; } body.toon::after { bottom: 0; border-top: 2px solid #8c1c2b; }
 body.toon .btn { border-width: 2px; }
+
+/* Galerie des captures : même univers (cadre doré, bougies, encre) */
+body.gal-open { overflow: hidden; }
+.gallery { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 3.5vh 4vw;
+  background: radial-gradient(ellipse at center, rgba(26,11,16,.93) 0%, rgba(5,2,6,.985) 75%); backdrop-filter: blur(6px); opacity: 0; transition: opacity .35s; }
+.gallery[hidden] { display: none; }
+.gallery.on { opacity: 1; }
+.gal-x { position: absolute; top: 18px; right: clamp(16px, 3vw, 40px); background: none; border: 1px solid var(--gold-dim); color: var(--gold); width: 42px; height: 42px; font-size: 26px; line-height: 1; cursor: pointer; transition: background .2s, color .2s; }
+.gal-x:hover { background: var(--gold); color: var(--bg); }
+.gal-head { text-align: center; }
+.gal-lvl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+.gal-head h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 3.4vw, 44px); line-height: 1.05; margin-top: 4px; }
+.gal-stage { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 28px); width: 100%; }
+.gal-frame { position: relative; margin: 0; padding: 10px; background: #0d0709; max-width: min(1080px, 78vw);
+  border: 8px solid transparent; border-image: linear-gradient(135deg, #6a4e20, #e2c274 28%, #8a6c36 52%, #d4b365 78%, #6a4e20) 1;
+  box-shadow: 0 0 0 1px #120a07, 0 0 80px rgba(201,164,92,.16), 0 24px 90px #000; }
+.gal-frame img { display: block; max-width: 100%; max-height: 58vh; object-fit: contain; margin: 0 auto; transition: opacity .18s; }
+.gal-frame .c { position: absolute; width: 16px; height: 16px; background: #c9a45c; transform: rotate(45deg); box-shadow: 0 0 10px rgba(255,200,110,.5); }
+.gal-frame .c.tl { top: -17px; left: -17px; } .gal-frame .c.tr { top: -17px; right: -17px; } .gal-frame .c.bl { bottom: -17px; left: -17px; } .gal-frame .c.br { bottom: -17px; right: -17px; }
+.gal-nav { flex: none; background: none; border: 1px solid var(--gold-dim); color: var(--gold); width: 46px; height: 46px; font-size: 30px; line-height: 1; cursor: pointer; transition: background .2s, color .2s; }
+.gal-nav:hover { background: var(--gold); color: var(--bg); }
+.gal-nav[disabled] { opacity: .25; pointer-events: none; }
+.gal-cap { text-align: center; max-width: 720px; font-size: 13px; color: var(--ivory-dim); font-style: italic; }
+.gal-cap b { font-style: normal; font-weight: 500; color: var(--gold); letter-spacing: .12em; margin-right: 8px; }
+.gal-thumbs { display: flex; gap: 10px; justify-content: center; }
+.gal-thumbs button { padding: 0; border: 1px solid var(--gold-dim); background: #0d0709; cursor: pointer; opacity: .55; transition: opacity .2s, border-color .2s, box-shadow .2s; }
+.gal-thumbs button img { display: block; width: 92px; height: 58px; object-fit: cover; }
+.gal-thumbs button[aria-current="true"], .gal-thumbs button:hover { opacity: 1; border-color: var(--gold); box-shadow: 0 0 14px rgba(201,164,92,.35); }
+.tip { position: fixed; left: 0; top: 0; z-index: 12; pointer-events: none; opacity: 0; transition: opacity .2s; padding: 5px 11px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; background: rgba(11,7,9,.88); border: 1px solid var(--gold); color: var(--gold); white-space: nowrap; }
+.tip.on { opacity: 1; }
+.panel .row { margin-top: 2px; }
+button.btn { background: none; font: inherit; font-size: 12px; cursor: pointer; }
+button.btn:hover { background: var(--gold); color: var(--bg); }
+body.toon .gal-frame { border-image: none; border: 3px solid var(--ivory); box-shadow: 8px 8px 0 #7a0f1f; }
+body.toon .gal-frame .c { background: #b3263a; box-shadow: none; }
+body.toon .gal-head h2 { font-weight: 600; }
+@media (max-width: 860px) { .gal-nav { width: 38px; height: 38px; font-size: 24px; } .gal-frame { max-width: 70vw; } .gal-thumbs button img { width: 64px; height: 40px; } }
 @media (max-width: 860px) {
   .gauge .rail, .gauge .depth { display: none; }
   .gauge { top: auto; bottom: auto; top: 76px; right: 16px; transform: none; }
@@ -187,6 +224,18 @@ body.toon .btn { border-width: 2px; }
 </aside>
 
 <div class="track" id="track"></div>
+<div class="gallery" id="gallery" role="dialog" aria-modal="true" aria-labelledby="galTitle" hidden>
+  <button type="button" class="gal-x" id="galX" aria-label="Fermer">×</button>
+  <div class="gal-head"><div class="gal-lvl" id="galLvl"></div><h2 id="galTitle"></h2></div>
+  <div class="gal-stage" id="galStage">
+    <button type="button" class="gal-nav" id="galPrev" aria-label="Précédent">‹</button>
+    <figure class="gal-frame"><img id="galImg" alt=""><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></figure>
+    <button type="button" class="gal-nav" id="galNext" aria-label="Suivant">›</button>
+  </div>
+  <p class="gal-cap" id="galCap"></p>
+  <div class="gal-thumbs" id="galThumbs"></div>
+</div>
+<div class="tip" id="tip"></div>
 <div class="loading" id="loading">Allumage des bougies…</div>
 
 <noscript><p style="position:fixed;inset:auto 20px 20px;z-index:99">JavaScript est nécessaire. <a href="light.html" style="color:#c9a45c">Version légère</a></p></noscript>
@@ -202,7 +251,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=18")); }
+try { ({ startScene } = await import("./scene.js?v=19")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -212,6 +261,10 @@ const T = {
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub", cv: "Télécharger mon CV",
+    shots: "Voir les captures", tip: "Voir les captures", close: "Fermer", prev: "Image précédente", next: "Image suivante",
+    alt1: "Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord.",
+    alt2: "Captures de l'assistant candidatures : suivi des candidatures, offres classées par correspondance avec le profil.",
+    alt3: "Captures du chatbot : réponse avec sources, réponse « je ne sais pas ».",
     aPitch: "Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
     a1: "PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
     a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
@@ -239,6 +292,10 @@ const T = {
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
+    shots: "View screenshots", tip: "View screenshots", close: "Close", prev: "Previous image", next: "Next image",
+    alt1: "Screenshots of CTA Campaign Manager: campaign list, campaign details, dashboard.",
+    alt2: "Screenshots of the job-application assistant: application tracking, offers ranked by match with the profile.",
+    alt3: "Screenshots of the chatbot: answer with sources, \"I don't know\" answer.",
     aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
     a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
     a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
@@ -293,7 +350,8 @@ const panels = PROJECTS.map(pr => {
   el.innerHTML = `<div class="lvl" data-t="${pr.lvl}"></div><h2>${pr.title}</h2><p class="pitch" data-t="${pr.pitch}"></p>
     <p class="sub" data-t="sub"></p><ul>${pr.pts.map(k => `<li data-t="${k}"></li>`).join("")}</ul>
     <div class="chips">${pr.chips.map(c => `<span>${c}</span>`).join("")}</div>
-    <a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a>
+    <div class="row"><button type="button" class="btn" data-shots="${pr.id}" data-t="shots"></button>
+    <a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a></div>
     <p class="note" data-t="${pr.note}"></p>`;
   panelsEl.appendChild(el);
   return el;
@@ -324,7 +382,7 @@ const wpBtns = WP.map(([k, sp]) => {
 function setLang(l) {
   lang = l; document.documentElement.lang = l;
   document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
-  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; }); wpEl.setAttribute("aria-label", T[l].navLabel);
+  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; $("galX").setAttribute("aria-label", T[l].close); $("galPrev").setAttribute("aria-label", T[l].prev); $("galNext").setAttribute("aria-label", T[l].next); if (typeof renderShot === "function" && !$("gallery").hidden) renderShot(); document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; }); wpEl.setAttribute("aria-label", T[l].navLabel);
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   document.title = "Teddy Rhim — " + T[l].role;
   try { localStorage.setItem("lang", l); } catch (e) {}
@@ -337,6 +395,57 @@ setLang(lang);
   $("mark").addEventListener("click", e => { e.preventDefault(); n++; clearTimeout(tm); tm = setTimeout(() => { n = 0; }, 900);
     if (n >= 3) { const u = new URL(location.href); if (u.searchParams.has("toon")) u.searchParams.delete("toon"); else u.searchParams.set("toon", ""); location.href = u.toString().replace("toon=", "toon"); } });
 }
+
+/* ——— Galerie des captures ——— */
+const gal = $("gallery"), galImg = $("galImg"), galThumbs = $("galThumbs"), tip = $("tip");
+let gi = 0, gk = 0, lastFocus = null, galTimer = 0;
+function renderShot() {
+  const pr = PROJECTS[gi], n = pr.imgs.length, src = pr.imgs[gk];
+  $("galLvl").textContent = T[lang][pr.lvl]; $("galTitle").textContent = pr.title;
+  $("galCap").innerHTML = `<b>${gk + 1} / ${n}</b>${T[lang]["alt" + (gi + 1)]} ${T[lang][pr.note]}`;
+  $("galPrev").disabled = gk === 0; $("galNext").disabled = gk === n - 1;
+  galThumbs.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-current", k === gk ? "true" : "false"));
+  if (galImg.getAttribute("src") !== src) {
+    galImg.style.opacity = 0;
+    const im = new Image(); im.onload = () => { galImg.src = src; galImg.alt = T[lang]["alt" + (gi + 1)]; galImg.style.opacity = 1; }; im.src = src;
+  }
+}
+function openGallery(i, k = 0) {
+  gi = i; gk = k; lastFocus = document.activeElement; clearTimeout(galTimer);
+  galThumbs.innerHTML = PROJECTS[i].imgs.map((u, n) => `<button type="button" aria-label="${n + 1}"><img src="${u}" alt=""></button>`).join("");
+  galThumbs.querySelectorAll("button").forEach((b, n) => b.addEventListener("click", () => { gk = n; renderShot(); }));
+  galImg.removeAttribute("src"); renderShot();
+  gal.hidden = false; document.body.classList.add("gal-open"); tip.classList.remove("on");
+  requestAnimationFrame(() => { gal.classList.add("on"); $("galX").focus(); });
+}
+function closeGallery() {
+  gal.classList.remove("on"); document.body.classList.remove("gal-open");
+  galTimer = setTimeout(() => { gal.hidden = true; }, 350);
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+const step = d => { const n = PROJECTS[gi].imgs.length; gk = Math.min(n - 1, Math.max(0, gk + d)); renderShot(); };
+$("galX").addEventListener("click", closeGallery);
+$("galPrev").addEventListener("click", () => step(-1)); $("galNext").addEventListener("click", () => step(1));
+gal.addEventListener("click", e => { if (e.target === gal || e.target.id === "galStage") closeGallery(); });
+gal.addEventListener("wheel", e => e.preventDefault(), { passive: false });
+{ let x0 = null;
+  $("galStage").addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  $("galStage").addEventListener("touchend", e => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); x0 = null; }, { passive: true }); }
+addEventListener("keydown", e => {
+  if (gal.hidden || !gal.classList.contains("on")) return;
+  if (e.key === "Escape") { e.preventDefault(); closeGallery(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+  else if ([" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown"].includes(e.key)) e.preventDefault();
+  else if (e.key === "Tab") {
+    const f = [...gal.querySelectorAll("button:not([disabled])")];
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+document.querySelectorAll("[data-shots]").forEach(b => b.addEventListener("click", () => openGallery(PROJECTS.findIndex(p => p.id === b.dataset.shots))));
 
 /* ——— Boucle ——— */
 const hero = $("hero"), contact = $("contact"), contactBtns = [...contact.querySelectorAll(".btn")];
@@ -353,8 +462,11 @@ try {
     projects: PROJECTS,
     getProgress: progress,
     style: q.has("toon") ? "toon" : "modern",
+    onPaintingClick: i => openGallery(i),
+    onPaintingHover: i => { if (i >= 0) { tip.textContent = T[lang].tip; tip.classList.add("on"); } else tip.classList.remove("on"); },
     onFrame(p) {
       if (first) { first = false; loading.classList.add("off"); }
+      tip.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 20}px)`;
       hero.style.opacity = String(clamp01(1 - p * 11));
       gFill.style.height = (p * 100) + "%";
       gDepth.textContent = "−" + Math.round(p * 66) + " m";

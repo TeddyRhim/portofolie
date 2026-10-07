@@ -272,7 +272,7 @@ function cobwebTexture() {                                      // toile accroch
 }
 
 /* ——— Scène ——— */
-export function startScene({ canvas, projects, getProgress, onFrame, style }) {
+export function startScene({ canvas, projects, getProgress, onFrame, style, onPaintingClick, onPaintingHover }) {
   TOON = style === "toon";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   let dpr = Math.min(devicePixelRatio || 1, 2);
@@ -440,7 +440,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     const tgt = new THREE.Object3D(); tgt.position.set(0, -0.2, 0.1); g.add(tgt); spot.target = tgt; g.add(spot);
 
     world.add(g);
-    return { texs, base, over, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
+    return { texs, base, over, grp: g, hv: 0, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
   });
 
   /* ——— Décor léger : tapis de velours et bannières ——— */
@@ -914,6 +914,24 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   let mx = 0, my = 0, smx = 0, smy = 0;
   addEventListener("pointermove", e => { mx = (e.clientX / innerWidth) * 2 - 1; my = (e.clientY / innerHeight) * 2 - 1; }, { passive: true });
 
+  /* Tableaux cliquables : survol (curseur, léger éclat) et clic pour ouvrir la galerie */
+  let hovIdx = -1;
+  function pickPainting() {
+    if (document.body.classList.contains("gal-open")) return -1;
+    camera.updateMatrixWorld(); ndc.set(mx, -my); ray.setFromCamera(ndc, camera);
+    for (let i = 0; i < paintings.length; i++) {
+      const w = projects[i].win;
+      if (cur < w[0] + 0.02 || cur > w[1] - 0.02) continue;
+      if (ray.intersectObject(paintings[i].grp, true).length) return i;
+    }
+    return -1;
+  }
+  addEventListener("click", e => {
+    if (!onPaintingClick || e.target.closest(".gallery, .panel, .top, .contact, a, button")) return;
+    mx = (e.clientX / innerWidth) * 2 - 1; my = (e.clientY / innerHeight) * 2 - 1;
+    const k = pickPainting(); if (k >= 0) onPaintingClick(k);
+  });
+
   /* Boucle */
   let cur = getProgress();
   const clock = new THREE.Clock();
@@ -952,6 +970,13 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
       const fl = 0.85 + 0.15 * Math.sin(t * 10 * f.sp + f.ph) + 0.07 * Math.sin(t * 23 + f.ph);
       f.flame.scale.set(0.2 * (2 - fl), 0.42 * fl, 1);
       f.halo.material.opacity = 0.34 + 0.18 * fl;
+    });
+    const pk = pickPainting();
+    if (pk !== hovIdx) { hovIdx = pk; document.body.style.cursor = pk >= 0 ? "pointer" : ""; onPaintingHover && onPaintingHover(pk); }
+    paintings.forEach((pt, k) => {
+      pt.hv += ((k === hovIdx ? 1 : 0) - pt.hv) * 0.15;
+      if (TOON) { pt.base.color.setScalar(0.8 + 0.2 * pt.hv); pt.over.color.setScalar(0.8 + 0.2 * pt.hv); }
+      else { pt.base.emissiveIntensity = pt.over.emissiveIntensity = 0.34 + 0.3 * pt.hv; }
     });
     updateDoor(t); updateBrazier(t, dt);
 
