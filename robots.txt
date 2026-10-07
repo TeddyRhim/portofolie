@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://teddyrhim.github.io/portofolie/sitemap.xml

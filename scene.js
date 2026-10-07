@@ -208,6 +208,52 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     return { texs, base, over, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
   });
 
+  /* ——— Décor léger : tapis de velours et bannières ——— */
+  const carpetTex = canvasTexture(256, 512, (g, w, h) => {
+    g.fillStyle = "#3a0b15"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#4f1322";
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 3; i++) {
+      const cx = 62 + i * 66, cy = 32 + j * 64;
+      g.beginPath(); g.moveTo(cx, cy - 26); g.lineTo(cx + 26, cy); g.lineTo(cx, cy + 26); g.lineTo(cx - 26, cy); g.fill();
+    }
+    g.strokeStyle = "rgba(201,164,92,.8)"; g.lineWidth = 3;
+    for (const x of [12, 22, w - 22, w - 12]) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+    for (let i = 0; i < 9000; i++) { g.fillStyle = `rgba(150,138,122,${Math.random() * .09})`; g.fillRect(Math.random() * w, Math.random() * h, rnd(1, 3), rnd(1, 3)); }
+  });
+  const carpetLen = 101;
+  carpetTex.repeat.set(1, carpetLen / 5.2);
+  const carpet = new THREE.Mesh(new THREE.PlaneGeometry(2.6, carpetLen), new THREE.MeshStandardMaterial({ map: carpetTex, roughness: 1, metalness: 0 }));
+  carpet.rotation.x = -Math.PI / 2; carpet.position.set(0, 0.02, 13 - carpetLen / 2); world.add(carpet);
+
+  const bannerTex = canvasTexture(256, 640, (g, w, h) => {
+    const cloth = () => { g.beginPath(); g.moveTo(8, 0); g.lineTo(248, 0); g.lineTo(248, 612); g.lineTo(128, 556); g.lineTo(8, 612); g.closePath(); };
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#5a1220"); gr.addColorStop(1, "#2c0710");
+    cloth(); g.fillStyle = gr; g.fill();
+    g.save(); cloth(); g.clip();
+    for (let i = 0; i < 8000; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .12})`; g.fillRect(Math.random() * w, Math.random() * h, 2, rnd(2, 8)); }
+    g.restore();
+    g.strokeStyle = "#b8924a"; g.lineWidth = 5; g.beginPath(); g.moveTo(22, 14); g.lineTo(234, 14); g.lineTo(234, 592); g.lineTo(128, 540); g.lineTo(22, 592); g.closePath(); g.stroke();
+    g.strokeStyle = "rgba(201,164,92,.55)"; g.lineWidth = 2; g.beginPath(); g.arc(128, 250, 74, 0, 7); g.stroke();
+    g.save(); g.translate(128 - 16 * 4.4, 252 - 15.5 * 4.4); g.scale(4.4, 4.4);
+    g.fillStyle = "#c9a45c"; g.fill(new Path2D("M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z"));
+    g.restore();
+    g.fillStyle = "#b8924a"; for (const y of [430, 470]) { g.beginPath(); g.moveTo(128, y - 12); g.lineTo(140, y); g.lineTo(128, y + 12); g.lineTo(116, y); g.fill(); }
+    for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(150,138,122,${Math.random() * .07})`; g.fillRect(Math.random() * w, Math.random() * h, rnd(1, 3), rnd(1, 3)); }
+  });
+  const bannerGeo = new THREE.PlaneGeometry(1.88, 4.7);
+  const bannerMat = new THREE.MeshStandardMaterial({ map: bannerTex, emissiveMap: bannerTex, emissive: 0xffffff, emissiveIntensity: 0.16, alphaTest: 0.5, roughness: 0.95, side: THREE.DoubleSide });
+  const rodGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.3, 10); rodGeo.rotateZ(Math.PI / 2);
+  const knobGeo = new THREE.SphereGeometry(0.1, 10, 8);
+  const hang = (side, z, k = 1) => {
+    const g = new THREE.Group(); g.position.set(side * 4.93, 4.6 + (k - 1) * 1.1, z); g.rotation.y = -side * Math.PI / 2; g.scale.setScalar(k);
+    const cloth = new THREE.Mesh(bannerGeo, bannerMat); g.add(cloth);
+    const rod = new THREE.Mesh(rodGeo, gold); rod.position.set(0, 2.38, 0.06); g.add(rod);
+    for (const sx of [-1, 1]) { const kn = new THREE.Mesh(knobGeo, gold); kn.position.set(sx * 1.15, 2.38, 0.06); g.add(kn); }
+    world.add(g);
+  };
+  for (const z of [8, 0, -8, -16]) for (const side of [-1, 1]) hang(side, z, z === -8 && side === -1 ? 1.2 : 1);
+  hang(-1, -24); hang(1, -48); hang(-1, -72);
+
   /* ——— Porte d'entrée : vieux bois poussiéreux, ferrures, toiles d'araignée ——— */
   const DZ = 3, DW = 2.22, DH = 7.2, DS = 4.2;
   const wallShape = new THREE.Shape();
@@ -482,8 +528,11 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     K(0.00, [0, 1.8, 12], [0, 3.3, 3]);
     K(0.03, [0, 1.8, 11.2], [0, 3.3, 3]);
     K(0.075, [0, 1.8, 8.2], [0, 3.0, 0]);
-    K(0.12, [0, 1.75, 0], [0, 1.7, -12]);
-    K(0.16, [0, 1.75, -8], [0, 1.7, -22]);
+    K(0.12, [0, 1.75, 0.5], [0, 1.9, -12]);
+    // halte « à propos » : la bannière du mur de gauche, texte à droite
+    K(0.14, [1.7, 1.8, -3.2], [-4.9, 3.5, -10.5]);
+    K(0.155, [1.8, 1.8, -3.8], [-4.9, 3.5, -10.5]);
+    K(0.19, [0, 1.75, -12], [0, 1.7, -26]);
     const stops = [[0.22, 0.34], [0.46, 0.58], [0.70, 0.82]];
     const centers = [[0.40, -34], [0.64, -58], [0.88, -82]];
     projects.forEach((pr, i) => {

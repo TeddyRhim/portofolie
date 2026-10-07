@@ -5,9 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Teddy Rhim — Développeur full-stack</title>
 <meta name="description" content="Portfolio de Teddy Rhim, développeur full-stack : FastAPI, Next.js, Python, RAG local. Une descente en 3D à la lueur des bougies.">
+<link rel="canonical" href="https://teddyrhim.github.io/portofolie/">
+<meta name="theme-color" content="#0b0709">
+<meta name="author" content="Teddy Rhim">
 <meta property="og:title" content="Teddy Rhim — Développeur full-stack">
 <meta property="og:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://teddyrhim.github.io/portofolie/">
+<meta property="og:site_name" content="Teddy Rhim">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://teddyrhim.github.io/portofolie/media/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Une grande porte gothique en bois, éclairée aux bougies, et le nom Teddy Rhim.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Teddy Rhim — Développeur full-stack">
+<meta name="twitter:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
+<meta name="twitter:image" content="https://teddyrhim.github.io/portofolie/media/og.jpg">
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "Person", "name": "Teddy Rhim", "jobTitle": "Développeur full-stack",
+  "url": "https://teddyrhim.github.io/portofolie/", "sameAs": ["https://github.com/TeddyRhim"],
+  "knowsAbout": ["Python", "FastAPI", "Next.js", "TypeScript", "PostgreSQL", "RAG", "Ollama"] }
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0709'/%3E%3Cpath d='M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z' fill='%23ff9a3d' stroke='%23c9a45c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +48,7 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
 .vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%); }
-.track { height: 900vh; position: relative; z-index: 2; }
+.track { height: 1000vh; position: relative; z-index: 2; }
 
 .top { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 18px var(--gutter); background: linear-gradient(to bottom, rgba(11,7,9,.8), transparent); }
 .mark { font-family: var(--serif); font-size: 22px; letter-spacing: .12em; color: var(--gold); text-decoration: none; }
@@ -44,6 +64,14 @@ a { color: inherit; }
 .hero h1 em { color: var(--blood-soft); font-style: italic; }
 .hero p { margin-top: 18px; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 3vw, 32px); color: var(--gold); text-shadow: 0 0 20px rgba(0,0,0,.9); }
 .hero small { display: block; margin-top: 44px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ivory-dim); }
+
+.skip { position: fixed; left: 12px; top: -60px; z-index: 60; background: var(--gold); color: var(--bg); padding: 8px 14px; text-decoration: none; font-size: 13px; letter-spacing: .08em; transition: top .15s; }
+.skip:focus { top: 12px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wp { display: flex; gap: 2px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.wp button { background: none; border: 0; border-bottom: 1px solid transparent; color: var(--ivory-dim); padding: 6px 12px; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; transition: color .2s, border-color .2s; }
+.wp button:hover { color: var(--ivory); }
+.wp button[aria-current="true"] { color: var(--gold); border-bottom-color: var(--gold); }
 
 /* Panneaux de texte à côté des tableaux */
 .panel { position: fixed; top: 50%; transform: translateY(-50%); z-index: 7; width: min(470px, 40vw); padding: 26px 28px 24px;
@@ -95,16 +123,19 @@ a { color: inherit; }
   .gauge { top: auto; bottom: auto; top: 76px; right: 16px; transform: none; }
   .panel { top: auto; bottom: 0; left: 0 !important; right: 0 !important; width: auto; transform: none; padding: 18px 20px 20px; max-height: 52vh; border-left: 0; border-right: 0; border-bottom: 0; }
   .panel ul, .panel .sub { display: none; }
-  .alt { display: none; }
+  .alt, .wp { display: none; }
 }
+@media (max-width: 1100px) { .wp button { padding: 6px 7px; letter-spacing: .08em; } }
 </style>
 </head>
 <body>
+<a class="skip" href="light.html" id="skipLink">Passer à la version légère (texte seul)</a>
 <canvas id="gl" aria-hidden="true"></canvas>
 <div class="vignette"></div>
 
 <header class="top">
-  <a class="mark" href="#" aria-label="Teddy Rhim">T·R</a>
+  <a class="mark" href="#" aria-label="Teddy Rhim" id="mark">T·R</a>
+  <nav class="wp" id="wp" aria-label="Sections"></nav>
   <div class="tools">
     <div class="lang" role="group" aria-label="Langue / Language">
       <button type="button" data-lang="fr" aria-pressed="true">FR</button>
@@ -122,7 +153,7 @@ a { color: inherit; }
   </div>
 </div>
 
-<div id="panels"></div>
+<main id="main"><div id="panels"></div>
 <section class="contact" id="contact" aria-label="Contact">
   <h2 data-t="cTitle"></h2>
   <p data-t="cLead"></p>
@@ -130,7 +161,8 @@ a { color: inherit; }
     <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener">GitHub</a>
     <a class="btn ghost" href="mailto:teddyrhimpro@gmail.com" data-t="mail"></a>
   </div>
-</section>
+</section></main>
+<div class="sr" id="live" role="status" aria-live="polite"></div>
 <div class="cap" id="cap"><b></b><span></span></div>
 
 <aside class="gauge" aria-hidden="true">
@@ -154,14 +186,22 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // scène officielle : scene.js (rendu lumineux). scene-toon.js reste en réserve, accessible seulement avec ?toon
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import(q.has("toon") ? "./scene-toon.js?v=2" : "./scene.js?v=3")); }
+try { ({ startScene } = await import(q.has("toon") ? "./scene-toon.js?v=2" : "./scene.js?v=4")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
 const T = {
   fr: {
     role: "Développeur full-stack", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
-    sub: "Ce que j'ai construit", code: "Voir le code",
+    sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)",
+    nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
+    lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub",
+    aPitch: "Développeur full-stack : je conçois des applications de bout en bout, de l'API à l'interface, avec une préférence pour l'IA qui tourne en local.",
+    a1: "Backend : Python, FastAPI, SQL (PostgreSQL, SQLite), authentification et migrations.",
+    a2: "Frontend : Next.js, TypeScript et Tailwind CSS.",
+    a3: "IA locale : RAG avec Ollama et ChromaDB, réponses mesurées et sourcées.",
+    a4: "Qualité : tests avec pytest, lint avec ruff, un soin particulier pour les données.",
+    aNote: "Trois projets vous attendent plus bas.",
     l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
     p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
     p1a: "API REST FastAPI avec authentification JWT, rôles utilisateurs et routes protégées.",
@@ -180,7 +220,15 @@ const T = {
   },
   en: {
     role: "Full-stack developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
-    sub: "What I built", code: "View the code",
+    sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
+    nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
+    lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub",
+    aPitch: "Full-stack developer: I build applications end to end, from the API to the interface, with a taste for AI that runs locally.",
+    a1: "Backend: Python, FastAPI, SQL (PostgreSQL, SQLite), authentication and migrations.",
+    a2: "Frontend: Next.js, TypeScript and Tailwind CSS.",
+    a3: "Local AI: RAG with Ollama and ChromaDB, measured and sourced answers.",
+    a4: "Quality: tests with pytest, linting with ruff, extra care for data.",
+    aNote: "Three projects await further down.",
     l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
     p1: "A web application to track campaigns, manage contacts and import data.",
     p1a: "FastAPI REST API with JWT authentication, user roles and protected routes.",
@@ -235,10 +283,30 @@ const panels = PROJECTS.map(pr => {
   return el;
 });
 
+const aboutEl = document.createElement("section");
+aboutEl.className = "panel right"; aboutEl.setAttribute("aria-labelledby", "aTitleH");
+aboutEl.innerHTML = `<div class="lvl" data-t="lAbout"></div><h2 id="aTitleH" data-t="aTitle"></h2><p class="pitch" data-t="aPitch"></p>
+  <p class="sub" data-t="aSub"></p><ul><li data-t="a1"></li><li data-t="a2"></li><li data-t="a3"></li><li data-t="a4"></li></ul>
+  <div class="chips">${["Python", "FastAPI", "Next.js", "TypeScript", "PostgreSQL", "Ollama"].map(c => `<span>${c}</span>`).join("")}</div>
+  <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener" data-t="aGit"></a>
+  <p class="note" data-t="aNote"></p>`;
+panelsEl.appendChild(aboutEl);
+
+/* Navigation : correspondance entre le défilement et la position dans la scène (une halte « à propos » est étirée) */
+const SC = [0, 0.10, 0.12, 0.17, 0.20, 1], SP = [0, 0.12, 0.14, 0.155, 0.19, 1];
+const interp = (x, xs, ys) => { let i = 0; while (i < xs.length - 2 && x > xs[i + 1]) i++; const t = clamp01((x - xs[i]) / (xs[i + 1] - xs[i])); return ys[i] + (ys[i + 1] - ys[i]) * t; };
+const WP = [["nAbout", 0.147], ["n1", 0.28], ["n2", 0.52], ["n3", 0.76], ["nContact", 0.97]];
+const wpEl = $("wp");
+const wpBtns = WP.map(([k, sp]) => {
+  const b = document.createElement("button"); b.type = "button"; b.dataset.t = k;
+  b.addEventListener("click", () => { const m = document.documentElement.scrollHeight - innerHeight; scrollTo({ top: interp(sp, SP, SC) * m, behavior: "smooth" }); });
+  wpEl.appendChild(b); return b;
+});
+
 function setLang(l) {
   lang = l; document.documentElement.lang = l;
   document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
-  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading;
+  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; wpEl.setAttribute("aria-label", T[l].navLabel);
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   document.title = "Teddy Rhim — " + T[l].role;
   try { localStorage.setItem("lang", l); } catch (e) {}
@@ -246,15 +314,21 @@ function setLang(l) {
 document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
 setLang(lang);
 
+/* Easter egg : trois clics rapides sur T·R changent de style (version « dessinée ») */
+{ let n = 0, tm = 0;
+  $("mark").addEventListener("click", e => { e.preventDefault(); n++; clearTimeout(tm); tm = setTimeout(() => { n = 0; }, 900);
+    if (n >= 3) { const u = new URL(location.href); if (u.searchParams.has("toon")) u.searchParams.delete("toon"); else u.searchParams.set("toon", ""); location.href = u.toString().replace("toon=", "toon"); } });
+}
+
 /* ——— Boucle ——— */
 const hero = $("hero"), contact = $("contact"), contactBtns = [...contact.querySelectorAll(".btn")];
 const pointer = { x: innerWidth / 2, y: innerHeight / 2 };
 addEventListener("pointermove", e => { pointer.x = e.clientX; pointer.y = e.clientY; }, { passive: true });
 const gNum = $("gNum"), gDepth = $("gDepth"), gFill = $("gFill"), loading = $("loading");
-const progress = () => { const m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? clamp01(scrollY / m) : 0; };
+const progress = () => { const m = document.documentElement.scrollHeight - innerHeight; return m > 0 ? interp(clamp01(scrollY / m), SC, SP) : 0; };
 const win = (p, a, b, f = 0.03) => clamp01((p - a) / f) * clamp01((b - p) / f);
 
-let first = true;
+let first = true, lastAct = -2;
 try {
   startScene({
     canvas: $("gl"),
@@ -271,6 +345,14 @@ try {
         el.style.visibility = o > 0.01 ? "visible" : "hidden";
         el.classList.toggle("live", o > 0.7);
       });
+      const ao = win(p, 0.12, 0.175, 0.02);
+      aboutEl.style.opacity = ao.toFixed(3); aboutEl.style.visibility = ao > 0.01 ? "visible" : "hidden"; aboutEl.classList.toggle("live", ao > 0.7);
+      const act = p < 0.12 ? -1 : p < 0.21 ? 0 : p < 0.41 ? 1 : p < 0.63 ? 2 : p < 0.88 ? 3 : 4;
+      if (act !== lastAct) {
+        lastAct = act; wpBtns.forEach((b, i) => b.setAttribute("aria-current", i === act ? "true" : "false"));
+        const names = [T[lang].aTitle, PROJECTS[0].title, PROJECTS[1].title, PROJECTS[2].title, T[lang].cTitle];
+        if (act >= 0) $("live").textContent = names[act];
+      }
       const num = p < 0.2 ? "0" : p < 0.4 ? "I" : p < 0.62 ? "II" : p < 0.86 ? "III" : "IV";
       gNum.textContent = num;
       const co = win(p, 0.9, 1.2, 0.04);
