@@ -75,8 +75,9 @@ export function createAmbience() {
     return b;
   })();
   const crackHP = ctx.createBiquadFilter(); crackHP.type = "highpass"; crackHP.frequency.value = 900;
+  const crackLP = ctx.createBiquadFilter(); crackLP.type = "lowpass"; crackLP.frequency.value = 1800;
   const crackGain = ctx.createGain(); crackGain.gain.value = 0;
-  loop(crackBuf).connect(crackHP); crackHP.connect(crackGain); crackGain.connect(master); crackGain.connect(send);
+  loop(crackBuf).connect(crackHP); crackHP.connect(crackLP); crackLP.connect(crackGain); crackGain.connect(master); crackGain.connect(send);
   const fireBP = ctx.createBiquadFilter(); fireBP.type = "bandpass"; fireBP.frequency.value = 260; fireBP.Q.value = 0.8;   // souffle de la flamme
   const fireGain = ctx.createGain(); fireGain.gain.value = 0;
   const fl = ctx.createOscillator(); fl.frequency.value = 0.37; const flg = ctx.createGain(); flg.gain.value = 0.02; fl.connect(flg); flg.connect(fireGain.gain); fl.start();
@@ -120,17 +121,18 @@ export function createAmbience() {
       if (on) { try { await ctx.resume(); } catch (e) {} }
       const t = ctx.currentTime;
       master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value, t);
-      master.gain.linearRampToValueAtTime(on ? 0.28 : 0, t + (on ? 3.0 : 0.5));
+      master.gain.linearRampToValueAtTime(on ? 0.19 : 0, t + (on ? 3.0 : 0.5));
       if (!on) setTimeout(() => { if (!on) ctx.suspend(); }, 700);
     },
     setProgress(v) { p = v; },
     tick(dt) {
       if (!on || ctx.state !== "running") return;
-      const fire = smooth(0.74, 0.96, p);
+      const fire = Math.pow(smooth(0.2, 0.985, p), 1.5);      // inaudible jusqu'au premier projet, puis de plus en plus présent
       sm.fire += (fire - sm.fire) * Math.min(1, dt * 1.6);
       const t = ctx.currentTime, k = 1 - Math.exp(-dt * 6);
-      crackGain.gain.value += (sm.fire * 2.6 - crackGain.gain.value) * k;
-      fireGain.gain.value += (sm.fire * 0.2 - fireGain.gain.value) * k;
+      crackGain.gain.value += (sm.fire * 1.8 - crackGain.gain.value) * k;
+      crackLP.frequency.value += ((1800 + 7200 * sm.fire) - crackLP.frequency.value) * k;
+      fireGain.gain.value += (sm.fire * 0.14 - fireGain.gain.value) * k;
       droneGain.gain.value += ((0.9 - 0.3 * sm.fire) - droneGain.gain.value) * k;      // le fond s'efface un peu
       droneLP.frequency.value += ((170 + 120 * sm.fire) - droneLP.frequency.value) * k;
       if (!creaked && p > 0.032) { creaked = true; creak(); }

@@ -456,7 +456,7 @@ function updSnd() { const b = $("snd"); b.textContent = amb && amb.on ? T[lang].
 {
   const b = $("snd"); b.hidden = false; updSnd();
   b.addEventListener("click", async () => {
-    if (!amb) { const m = await import("./audio.js?v=3"); amb = m.createAmbience(); if (!amb) { b.hidden = true; return; } window.__snd = amb; }
+    if (!amb) { const m = await import("./audio.js?v=5"); amb = m.createAmbience(); if (!amb) { b.hidden = true; return; } window.__snd = amb; }
     await amb.enable(!amb.on); updSnd();
   });
 }
