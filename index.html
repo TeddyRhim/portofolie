@@ -187,7 +187,7 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import("./scene.js?v=13")); }
+try { ({ startScene } = await import("./scene.js?v=14")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */

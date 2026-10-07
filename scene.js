@@ -776,12 +776,12 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
       const cell = 32, pal = [hue, hue + 26, hue + 54, hue - 28];
       for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
         const hh = pal[Math.floor(Math.random() * pal.length)];
-        g.fillStyle = `hsl(${hh} 70% ${rnd(30, 48)}%)`; g.fillRect(x + 3, y + 3, cell - 6, cell - 6);
-        g.fillStyle = `hsla(${hh} 85% 78% / .35)`; g.fillRect(x + 3, y + 3, cell - 6, 6);
+        g.fillStyle = `hsl(${hh} 30% ${rnd(22, 36)}%)`; g.fillRect(x + 3, y + 3, cell - 6, cell - 6);
+        g.fillStyle = `hsla(${hh} 35% 70% / .22)`; g.fillRect(x + 3, y + 3, cell - 6, 6);
       }
       g.strokeStyle = "#05040e"; g.lineWidth = 5; g.beginPath(); g.arc(w / 2, 62, 36, 0, 6.283); g.stroke();
-      g.fillStyle = `hsl(${hue + 40} 85% 56%)`; g.beginPath(); g.arc(w / 2, 62, 24, 0, 6.283); g.fill();
-      g.fillStyle = "#ffe9a8"; g.beginPath(); g.arc(w / 2, 62, 9, 0, 6.283); g.fill();
+      g.fillStyle = `hsl(${hue + 40} 38% 42%)`; g.beginPath(); g.arc(w / 2, 62, 24, 0, 6.283); g.fill();
+      g.fillStyle = "#cdbf94"; g.beginPath(); g.arc(w / 2, 62, 9, 0, 6.283); g.fill();
     });
     const winShape = new THREE.Shape();
     winShape.moveTo(-1, 0); winShape.lineTo(-1, 3.1); winShape.quadraticCurveTo(-1, 4.7, 0, 5.7); winShape.quadraticCurveTo(1, 4.7, 1, 3.1); winShape.lineTo(1, 0); winShape.closePath();
@@ -791,7 +791,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     let wi = 0;
     for (const z of [-32, -40, -56, -64, -80]) for (const side of [-1, 1]) {
       const frame = new THREE.Mesh(winGeo, gold); frame.scale.set(1.5, 1.04, 1); frame.position.set(side * 4.95, 0.7, z); frame.rotation.y = -side * Math.PI / 2; frame.userData.noInk = true;
-      const glassMesh = new THREE.Mesh(winGeo, new THREE.MeshBasicMaterial({ map: winTex[wi++ % winTex.length], color: 0x8a8aa4 }));
+      const glassMesh = new THREE.Mesh(winGeo, new THREE.MeshBasicMaterial({ map: winTex[wi++ % winTex.length], color: 0x72728a }));
       glassMesh.scale.set(1.3, 0.98, 1); glassMesh.position.set(side * 4.93, 0.82, z); glassMesh.rotation.y = -side * Math.PI / 2; glassMesh.userData.noInk = true;
       world.add(frame, glassMesh);
     }
