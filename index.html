@@ -184,9 +184,9 @@ const canWebGL = (() => { try { const c = document.createElement("canvas"); retu
 const wantsLight = !canWebGL || matchMedia("(prefers-reduced-motion: reduce)").matches || (!new URLSearchParams(location.search).has("3d") && innerWidth < 700);
 if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
-// scène officielle : scene.js (rendu lumineux). scene-toon.js reste en réserve, accessible seulement avec ?toon
+// une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import(q.has("toon") ? "./scene-toon.js?v=2" : "./scene.js?v=4")); }
+try { ({ startScene } = await import("./scene.js?v=5")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -334,6 +334,7 @@ try {
     canvas: $("gl"),
     projects: PROJECTS,
     getProgress: progress,
+    style: q.has("toon") ? "toon" : "modern",
     onFrame(p) {
       if (first) { first = false; loading.classList.add("off"); }
       hero.style.opacity = String(clamp01(1 - p * 11));

@@ -3,6 +3,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 /* ——— Utilitaires ——— */
@@ -23,7 +24,72 @@ function canvasTexture(w, h, draw, rx = 1, ry = 1, srgb = true) {
   return t;
 }
 
+/* ——— Style « dessiné » (easter egg ?toon) : textures peintes, plus sombres et plus froides ——— */
+let TOON = false;
+
+function toonBrick(rx, ry) {
+  return canvasTexture(512, 512, (g, w, h) => {
+    g.fillStyle = "#05040e"; g.fillRect(0, 0, w, h);                       // joints d'encre
+    const rows = 8, bh = h / rows, cols = 4, bw = w / cols;
+    for (let r = 0; r < rows; r++) {
+      const off = (r % 2) * bw / 2;
+      for (let c = -1; c <= cols; c++) {
+        const x = c * bw + off + 4, y = r * bh + 4, ww = bw - 8, hh = bh - 8;
+        const hue = rnd(222, 262), sat = rnd(14, 26), lit = rnd(10, 18);
+        g.fillStyle = `hsl(${hue} ${sat}% ${lit}%)`; g.fillRect(x, y, ww, hh);
+        g.fillStyle = `hsla(${hue + 10} ${sat + 8}% ${lit + 12}% / .5)`; g.fillRect(x, y, ww, Math.max(3, hh * 0.2));
+        g.fillStyle = `hsla(${hue - 14} ${sat}% ${lit - 8}% / .7)`; g.fillRect(x, y + hh * 0.8, ww, hh * 0.2);
+        for (let k = 0; k < 5; k++) {                                          // coups de pinceau
+          g.strokeStyle = `hsla(${hue + rnd(-10, 10)} ${sat}% ${lit + rnd(-6, 9)}% / .32)`; g.lineWidth = rnd(1.4, 3);
+          const sx = x + rnd(3, ww - 3), sy = y + rnd(3, hh - 3);
+          g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + rnd(-16, 16), sy + rnd(-4, 4)); g.stroke();
+        }
+      }
+    }
+  }, rx, ry);
+}
+
+function toonFloor(rx, ry) {
+  return canvasTexture(256, 256, (g, w, h) => {
+    const n = 2, s = w / n;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      const dark = (i + j) % 2;
+      g.fillStyle = dark ? "#0c0c22" : "#181838"; g.fillRect(i * s, j * s, s, s);
+      g.fillStyle = dark ? "#14142e" : "#242450"; g.fillRect(i * s + 5, j * s + 5, s - 10, 12);
+      for (let k = 0; k < 6; k++) { g.strokeStyle = "rgba(255,255,255,.06)"; g.lineWidth = 3; g.beginPath(); const sx = i * s + rnd(10, s - 10), sy = j * s + rnd(24, s - 10); g.moveTo(sx, sy); g.lineTo(sx + rnd(-26, 26), sy + rnd(-6, 6)); g.stroke(); }
+    }
+    g.fillStyle = "#04030c"; for (let i = 0; i < n; i++) { g.fillRect(i * s - 3, 0, 6, h); g.fillRect(0, i * s - 3, w, 6); }
+    g.fillStyle = "#b8862e"; for (let i = 0; i < n; i++) { g.fillRect(i * s - 1, 0, 2, h); g.fillRect(0, i * s - 1, w, 2); }
+  }, rx, ry);
+}
+
+/* halos en paliers plats (pas de dégradé) */
+function toonDot(color, core) {
+  return canvasTexture(64, 64, (g, w, h) => {
+    for (const [r, a] of [[1, .22], [.62, .38], [.3, .65]]) {
+      g.fillStyle = `rgba(${color},${Math.min(1, core * a)})`; g.beginPath(); g.arc(w / 2, h / 2, r * w / 2 - 1, 0, 6.283); g.fill();
+    }
+  });
+}
+
+/* flamme dessinée : contour sombre, rouge, orange, jaune, cœur crème */
+function toonFlame() {
+  return canvasTexture(64, 128, (g, w, h) => {
+    const shape = (sx, sy, dy) => {
+      g.beginPath(); g.moveTo(w / 2, h * .04 + dy);
+      g.bezierCurveTo(w * (.5 + .46 * sx), h * .42, w * (.5 + .44 * sx), h * (.96 * sy), w / 2, h * (.96 * sy));
+      g.bezierCurveTo(w * (.5 - .44 * sx), h * (.96 * sy), w * (.5 - .46 * sx), h * .42, w / 2, h * .04 + dy); g.fill();
+    };
+    g.fillStyle = "#4a0c26"; shape(1, 1, 0);
+    g.fillStyle = "#d8232a"; shape(.84, .94, h * .07);
+    g.fillStyle = "#ff7a14"; shape(.64, .9, h * .17);
+    g.fillStyle = "#ffc933"; shape(.42, .86, h * .3);
+    g.fillStyle = "#fff4cf"; shape(.22, .8, h * .46);
+  });
+}
+
 function brickTexture(rx, ry) {
+  if (TOON) return toonBrick(rx, ry);
   return canvasTexture(1024, 1024, (g, w, h) => {
     g.fillStyle = "#0e0709"; g.fillRect(0, 0, w, h);
     const rows = 8, bh = h / rows, cols = 4, bw = w / cols;
@@ -39,6 +105,7 @@ function brickTexture(rx, ry) {
 }
 
 function floorTexture(rx, ry) {
+  if (TOON) return toonFloor(rx, ry);
   return canvasTexture(512, 512, (g, w, h) => {
     const n = 2, s = w / n;
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
@@ -51,6 +118,7 @@ function floorTexture(rx, ry) {
 }
 
 function softDot(color = "255,255,255", core = .9) {
+  if (TOON) return toonDot(color, core);
   return canvasTexture(128, 128, (g, w, h) => {
     const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
     gr.addColorStop(0, `rgba(${color},${core})`); gr.addColorStop(.35, `rgba(${color},${core * .45})`); gr.addColorStop(1, `rgba(${color},0)`);
@@ -59,6 +127,7 @@ function softDot(color = "255,255,255", core = .9) {
 }
 
 function flameTexture() {
+  if (TOON) return toonFlame();
   return canvasTexture(128, 256, (g, w, h) => {
     const gr = g.createRadialGradient(w / 2, h * .68, 2, w / 2, h * .62, h * .46);
     gr.addColorStop(0, "rgba(255,248,214,1)"); gr.addColorStop(.25, "rgba(255,196,90,.95)");
@@ -69,18 +138,19 @@ function flameTexture() {
 }
 
 /* ——— Scène ——— */
-export function startScene({ canvas, projects, getProgress, onFrame }) {
+export function startScene({ canvas, projects, getProgress, onFrame, style }) {
+  TOON = style === "toon";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
   let dpr = Math.min(devicePixelRatio || 1, 2);
   renderer.setPixelRatio(dpr);
   renderer.setSize(innerWidth, innerHeight, false);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = TOON ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x070406);
-  scene.fog = new THREE.FogExp2(0x0b0507, 0.052);
+  scene.background = new THREE.Color(TOON ? 0x04050e : 0x070406);
+  scene.fog = new THREE.FogExp2(TOON ? 0x050716 : 0x0b0507, TOON ? 0.058 : 0.052);
 
   const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.1, 140);
   const world = new THREE.Group();          // le couloir descend en pente douce
@@ -92,7 +162,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  world.add(new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
+  world.add(TOON ? new THREE.HemisphereLight(0x3a4690, 0x080614, 0.42) : new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
 
   const L = 110, z0 = 14, z1 = z0 - L;
   const midZ = (z0 + z1) / 2;
@@ -190,7 +260,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     // toile (deux plans pour fondre d'une capture à l'autre)
     const texs = pr.imgs.map(loadTex);
     const mk = (map, opacity, z) => {
-      const m = new THREE.MeshStandardMaterial({ map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.34, roughness: 0.75, transparent: opacity < 1, opacity });
+      const m = TOON ? new THREE.MeshBasicMaterial({ map, color: 0xd4d2ea, transparent: opacity < 1, opacity }) : new THREE.MeshStandardMaterial({ map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.34, roughness: 0.75, transparent: opacity < 1, opacity });
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), m); mesh.position.z = z; g.add(mesh); return m;
     };
     const base = mk(texs[0], 1, 0.07), over = mk(texs[Math.min(1, texs.length - 1)], 0, 0.075);
@@ -370,7 +440,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   /* Flammes : shader de bruit (trois couches additives, toujours face à la caméra) */
   const fireVert = `varying vec2 vUv; uniform float uLean; uniform float uRise;
     void main(){ vUv = uv; vec3 p = position; p.y *= uRise; p.x += uLean * uv.y * uv.y * 0.7; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0); }`;
-  const fireFrag = `precision highp float; varying vec2 vUv; uniform float uTime; uniform float uSeed; uniform float uPower; uniform float uWidth;
+  const fireFrag = `precision highp float; varying vec2 vUv; uniform float uTime; uniform float uSeed; uniform float uPower; uniform float uWidth; uniform float uToon;
     float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
       return mix(mix(hash(i), hash(i + vec2(1., 0.)), u.x), mix(hash(i + vec2(0., 1.)), hash(i + vec2(1., 1.)), u.x), u.y); }
@@ -386,6 +456,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
       float flame = core * core * (1.15 + n2 * .95) * smoothstep(0., .07, uv.y);
       flame *= smoothstep(1., .32, uv.y + (n2 - .5) * .28);
       float heat = clamp(flame * uPower, 0., 1.5);
+      if (uToon > 0.5) { if (heat < .22) discard; vec3 t = vec3(.36, .06, .10); if (heat > .34) t = vec3(.85, .14, .14); if (heat > .52) t = vec3(1., .48, .08); if (heat > .76) t = vec3(1., .79, .20); if (heat > 1.0) t = vec3(1., .96, .8); gl_FragColor = vec4(t, 1.); return; }
       vec3 c = mix(vec3(.55, .05, .02), vec3(1., .38, .06), smoothstep(0., .55, heat));
       c = mix(c, vec3(1., .8, .35), smoothstep(.45, .95, heat));
       c = mix(c, vec3(1., .97, .85), smoothstep(.95, 1.4, heat));
@@ -395,8 +466,8 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   const flameLayers = [[3.2, 2.7, 0.8, 1.35, 1.15, 3.1], [2.3, 2.3, 1.1, 1.2, 4.7, 2.2], [1.3, 1.5, 1.45, 0.95, 9.3, 1.2]].map(([w, h, power, width, seed, zoff]) => {
     const geo = new THREE.PlaneGeometry(w, h); geo.translate(0, h / 2, 0);
     const mat = new THREE.ShaderMaterial({
-      vertexShader: fireVert, fragmentShader: fireFrag, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false,
-      uniforms: { uTime: { value: 0 }, uSeed: { value: seed }, uPower: { value: power }, uWidth: { value: width }, uLean: { value: 0 }, uRise: { value: 1 } },
+      vertexShader: fireVert, fragmentShader: fireFrag, transparent: true, depthWrite: false, blending: TOON ? THREE.NormalBlending : THREE.AdditiveBlending, fog: false,
+      uniforms: { uToon: { value: TOON ? 1 : 0 }, uTime: { value: 0 }, uSeed: { value: seed }, uPower: { value: power }, uWidth: { value: width }, uLean: { value: 0 }, uRise: { value: 1 } },
     });
     fireMats.push(mat);
     const m = new THREE.Mesh(geo, mat); m.position.set(0, RIM - 0.04, 0); bz.add(m);
@@ -509,14 +580,92 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ map: softDot("230,200,140", .9), size: 0.11, sizeAttenuation: true, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xd9b66a }));
   world.add(dust);
 
+  /* ——— Style dessiné : matériaux à aplats, vitraux, contours à l'encre ——— */
+  let toonPass = null;
+  if (TOON) {
+    const gradMap = new THREE.DataTexture(new Uint8Array([16, 18, 34, 255, 56, 56, 98, 255, 132, 124, 164, 255, 232, 222, 236, 255]), 4, 1, THREE.RGBAFormat);
+    gradMap.minFilter = gradMap.magFilter = THREE.NearestFilter; gradMap.needsUpdate = true;
+
+    // vitraux : verre coloré qui se détache sur la pierre
+    const glassTexture = hue => canvasTexture(128, 256, (g, w, h) => {
+      g.fillStyle = "#05040e"; g.fillRect(0, 0, w, h);
+      const cell = 32, pal = [hue, hue + 26, hue + 54, hue - 28];
+      for (let y = 0; y < h; y += cell) for (let x = 0; x < w; x += cell) {
+        const hh = pal[Math.floor(Math.random() * pal.length)];
+        g.fillStyle = `hsl(${hh} 70% ${rnd(30, 48)}%)`; g.fillRect(x + 3, y + 3, cell - 6, cell - 6);
+        g.fillStyle = `hsla(${hh} 85% 78% / .35)`; g.fillRect(x + 3, y + 3, cell - 6, 6);
+      }
+      g.strokeStyle = "#05040e"; g.lineWidth = 5; g.beginPath(); g.arc(w / 2, 62, 36, 0, 6.283); g.stroke();
+      g.fillStyle = `hsl(${hue + 40} 85% 56%)`; g.beginPath(); g.arc(w / 2, 62, 24, 0, 6.283); g.fill();
+      g.fillStyle = "#ffe9a8"; g.beginPath(); g.arc(w / 2, 62, 9, 0, 6.283); g.fill();
+    });
+    const winShape = new THREE.Shape();
+    winShape.moveTo(-1, 0); winShape.lineTo(-1, 3.1); winShape.quadraticCurveTo(-1, 4.7, 0, 5.7); winShape.quadraticCurveTo(1, 4.7, 1, 3.1); winShape.lineTo(1, 0); winShape.closePath();
+    const winGeo = new THREE.ShapeGeometry(winShape, 8);
+    { const p = winGeo.attributes.position, uv = winGeo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + 1) / 2, p.getY(i) / 5.7); }
+    const winTex = [232, 262, 340, 38].map(glassTexture);
+    let wi = 0;
+    for (const z of [-32, -40, -56, -64, -80]) for (const side of [-1, 1]) {
+      const frame = new THREE.Mesh(winGeo, gold); frame.scale.set(1.5, 1.04, 1); frame.position.set(side * 4.95, 0.7, z); frame.rotation.y = -side * Math.PI / 2; frame.userData.noInk = true;
+      const glassMesh = new THREE.Mesh(winGeo, new THREE.MeshBasicMaterial({ map: winTex[wi++ % winTex.length], color: 0x8a8aa4 }));
+      glassMesh.scale.set(1.3, 0.98, 1); glassMesh.position.set(side * 4.93, 0.82, z); glassMesh.rotation.y = -side * Math.PI / 2; glassMesh.userData.noInk = true;
+      world.add(frame, glassMesh);
+    }
+
+    // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
+    const over = new Map([[gold, 0x9c6c28], [stone, 0x34346a]]);
+    const cache = new Map();
+    const conv = m => {
+      if (!m || !m.isMeshStandardMaterial) return m;
+      if (cache.has(m)) return cache.get(m);
+      const n = new THREE.MeshToonMaterial({
+        gradientMap: gradMap, color: over.has(m) ? over.get(m) : m.color.clone(), map: m.map || null,
+        emissive: m.emissive.clone(), emissiveMap: m.emissiveMap || null, emissiveIntensity: m.emissiveIntensity,
+        side: m.side, transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest,
+      });
+      cache.set(m, n); return n;
+    };
+    world.traverse(o => { if (o.isMesh) o.material = conv(o.material); });
+
+    // contours à l'encre : on redessine chaque forme, légèrement gonflée, face cachée vers nous
+    const inkMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide, uniforms: { uThick: { value: 0.034 }, uCol: { value: new THREE.Color(0x03020a) } },
+      vertexShader: "uniform float uThick; void main(){ vec3 p = position + normalize(normal) * uThick; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.); }",
+      fragmentShader: "uniform vec3 uCol; void main(){ gl_FragColor = vec4(uCol, 1.); }",
+    });
+    const inked = [];
+    world.traverse(o => {
+      if (o.isMesh && o.material && o.material.isMeshToonMaterial && !o.material.transparent && !o.userData.noInk && !/^(Plane|Circle|Shape)Geometry$/.test(o.geometry.type)) inked.push(o);
+    });
+    inked.forEach(o => { const h = new THREE.Mesh(o.geometry, inkMat); h.userData.noInk = true; o.add(h); });
+
+    // grain de papier, ombres un peu bleutées, couleurs plus vives
+    toonPass = new ShaderPass({
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }",
+      fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+        float h21(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+        void main(){
+          vec3 c = texture2D(tDiffuse, vUv).rgb;
+          float n = h21(floor(vUv * vec2(900., 560.)));
+          c *= 0.95 + n * 0.1;
+          float l = dot(c, vec3(.299, .587, .114));
+          c = mix(vec3(l), c, 1.18);
+          c += vec3(0., .008, .03) * (1. - l);
+          gl_FragColor = vec4(c, 1.);
+        }`,
+    });
+  }
+
   /* Post-traitement : lueur autour des flammes */
   const msaa = new THREE.WebGLRenderTarget(innerWidth * dpr, innerHeight * dpr, { type: THREE.HalfFloatType, samples: 4 });
   const composer = new EffectComposer(renderer, msaa);
   composer.setPixelRatio(dpr);
   composer.setSize(innerWidth, innerHeight);
   composer.addPass(new RenderPass(scene, camera));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.6, 0.7, 0.9));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), TOON ? 0.3 : 0.6, TOON ? 0.6 : 0.7, TOON ? 0.86 : 0.9));
   composer.addPass(new OutputPass());
+  if (toonPass) composer.addPass(toonPass);
 
   /* ——— Trajet de la caméra : arrêts devant chaque tableau ——— */
   let keys = [];
@@ -601,12 +750,12 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     // tableaux : fondu entre les captures
     paintings.forEach(p => {
       if (p.texs.length < 2) return;
-      if (p.fade < 0 && t > p.nextAt) { p.fade = 0; p.over.map = p.over.emissiveMap = p.texs[(p.i + 1) % p.texs.length]; p.over.needsUpdate = true; }
+      if (p.fade < 0 && t > p.nextAt) { p.fade = 0; p.over.map = p.texs[(p.i + 1) % p.texs.length]; if (!TOON) p.over.emissiveMap = p.over.map; p.over.needsUpdate = true; }
       if (p.fade >= 0) {
         p.fade += 0.018; p.over.opacity = Math.min(1, p.fade);
         if (p.fade >= 1) {
           p.i = (p.i + 1) % p.texs.length;
-          p.base.map = p.base.emissiveMap = p.texs[p.i]; p.base.needsUpdate = true;
+          p.base.map = p.texs[p.i]; if (!TOON) p.base.emissiveMap = p.base.map; p.base.needsUpdate = true;
           p.over.opacity = 0; p.fade = -1; p.nextAt = t + 3.6;
         }
       }
