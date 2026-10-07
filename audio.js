@@ -130,9 +130,9 @@ export function createAmbience() {
       const fire = Math.pow(smooth(0.2, 0.985, p), 1.5);      // inaudible jusqu'au premier projet, puis de plus en plus présent
       sm.fire += (fire - sm.fire) * Math.min(1, dt * 1.6);
       const t = ctx.currentTime, k = 1 - Math.exp(-dt * 6);
-      crackGain.gain.value += (sm.fire * 0.85 - crackGain.gain.value) * k;
+      crackGain.gain.value += (sm.fire * 0.4 - crackGain.gain.value) * k;
       crackLP.frequency.value += ((1800 + 7200 * sm.fire) - crackLP.frequency.value) * k;
-      fireGain.gain.value += (sm.fire * 0.06 - fireGain.gain.value) * k;
+      fireGain.gain.value += (sm.fire * 0.03 - fireGain.gain.value) * k;
       droneGain.gain.value += ((0.9 - 0.3 * sm.fire) - droneGain.gain.value) * k;      // le fond s'efface un peu
       droneLP.frequency.value += ((170 + 120 * sm.fire) - droneLP.frequency.value) * k;
       if (!creaked && p > 0.032) { creaked = true; creak(); }
