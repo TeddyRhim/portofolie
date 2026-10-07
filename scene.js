@@ -18,23 +18,23 @@ function canvasTexture(w, h, draw, rx = 1, ry = 1, srgb = true) {
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(rx, ry);
-  t.anisotropy = 8;
+  t.anisotropy = 16;
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
 
 function brickTexture(rx, ry) {
-  return canvasTexture(512, 512, (g, w, h) => {
+  return canvasTexture(1024, 1024, (g, w, h) => {
     g.fillStyle = "#0e0709"; g.fillRect(0, 0, w, h);
     const rows = 8, bh = h / rows, cols = 4, bw = w / cols;
     for (let r = 0; r < rows; r++) {
       const off = (r % 2) * bw / 2;
       for (let c = -1; c <= cols; c++) {
         g.fillStyle = `hsl(${rnd(335, 358)} ${rnd(10, 24)}% ${rnd(11, 21)}%)`;
-        g.fillRect(c * bw + off + 3, r * bh + 3, bw - 6, bh - 6);
+        g.fillRect(c * bw + off + 5, r * bh + 5, bw - 10, bh - 10);
       }
     }
-    for (let i = 0; i < 12000; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .28})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+    for (let i = 0; i < 40000; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .28})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
   }, rx, ry);
 }
 
@@ -71,7 +71,7 @@ function flameTexture() {
 /* ——— Scène ——— */
 export function startScene({ canvas, projects, getProgress, onFrame }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  let dpr = Math.min(devicePixelRatio || 1, 2);
   renderer.setPixelRatio(dpr);
   renderer.setSize(innerWidth, innerHeight, false);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -94,11 +94,11 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
 
   world.add(new THREE.HemisphereLight(0x3a1d2a, 0x050203, 0.55));
 
-  const L = 104, z0 = 8, z1 = z0 - L;
+  const L = 110, z0 = 14, z1 = z0 - L;
   const midZ = (z0 + z1) / 2;
 
   /* Sol, murs, plafond */
-  const stoneMat = (rx, ry) => new THREE.MeshStandardMaterial({ map: brickTexture(rx, ry), bumpMap: brickTexture(rx, ry), bumpScale: 1.2, roughness: 0.92, metalness: 0.02 });
+  const stoneMat = (rx, ry) => { const m = brickTexture(rx, ry); return new THREE.MeshStandardMaterial({ map: m, bumpMap: m, bumpScale: 1.2, roughness: 0.92, metalness: 0.02 }); };
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, L), new THREE.MeshStandardMaterial({ map: floorTexture(2, L / 5), roughness: 0.32, metalness: 0.25 }));
   floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, midZ); world.add(floor);
 
@@ -123,7 +123,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
 
   const candles = [];
   const spacing = 8;
-  for (let z = 4; z > z1 + 2; z -= spacing) {
+  for (let z = 12; z > z1 + 2; z -= spacing) {
     for (const side of [-1, 1]) {
       const x = side * 4.3;
       const col = new THREE.Mesh(colGeo, stone); col.position.set(x, 3.1, z);
@@ -159,7 +159,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   /* ——— Tableaux : un cadre doré par projet ——— */
   const PW = 4.8, PH = 3.0, FB = 0.3;
   const loader = new THREE.TextureLoader();
-  const loadTex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
+  const loadTex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; return t; };
   const darkLiner = new THREE.MeshStandardMaterial({ color: 0x120a07, roughness: 0.9 });
   const paintings = projects.map(pr => {
     const g = new THREE.Group();
@@ -207,6 +207,86 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     world.add(g);
     return { texs, base, over, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
   });
+
+  /* ——— Porte d'entrée : vieux bois poussiéreux, ferrures, toiles d'araignée ——— */
+  const DZ = 3, DW = 2.22, DH = 7.2, DS = 4.2;
+  const wallShape = new THREE.Shape();
+  wallShape.moveTo(-5, 0); wallShape.lineTo(5, 0); wallShape.lineTo(5, 11.5); wallShape.lineTo(-5, 11.5); wallShape.closePath();
+  const hole = new THREE.Path();
+  hole.moveTo(-DW, 0); hole.lineTo(DW, 0); hole.lineTo(DW, DS);
+  hole.bezierCurveTo(DW, 5.8, 1.0, 6.6, 0, DH); hole.bezierCurveTo(-1.0, 6.6, -DW, 5.8, -DW, DS); hole.lineTo(-DW, 0);
+  wallShape.holes.push(hole);
+  const doorWall = new THREE.Mesh(new THREE.ShapeGeometry(wallShape, 24), stoneMat(1 / 6, 1 / 6));
+  doorWall.position.set(0, 0, DZ); world.add(doorWall);
+  const backWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 12), new THREE.MeshStandardMaterial({ color: 0x0a0507, roughness: 1 }));
+  backWall.position.set(0, 6, z0); backWall.rotation.y = Math.PI; world.add(backWall);
+
+  const arcPath = new THREE.CurvePath();
+  arcPath.add(new THREE.LineCurve3(new THREE.Vector3(-DW - 0.12, 0, 0), new THREE.Vector3(-DW - 0.12, DS, 0)));
+  arcPath.add(new THREE.CubicBezierCurve3(new THREE.Vector3(-DW - 0.12, DS, 0), new THREE.Vector3(-DW - 0.12, 5.9, 0), new THREE.Vector3(-1.0, 6.75, 0), new THREE.Vector3(0, DH + 0.14, 0)));
+  arcPath.add(new THREE.CubicBezierCurve3(new THREE.Vector3(0, DH + 0.14, 0), new THREE.Vector3(1.0, 6.75, 0), new THREE.Vector3(DW + 0.12, 5.9, 0), new THREE.Vector3(DW + 0.12, DS, 0)));
+  arcPath.add(new THREE.LineCurve3(new THREE.Vector3(DW + 0.12, DS, 0), new THREE.Vector3(DW + 0.12, 0, 0)));
+  const frameStone = new THREE.Mesh(new THREE.TubeGeometry(arcPath, 80, 0.2, 10, false), new THREE.MeshStandardMaterial({ color: 0x3a2a2e, roughness: 0.85 }));
+  frameStone.position.set(0, 0, DZ + 0.06); world.add(frameStone);
+  const frameGold = new THREE.Mesh(new THREE.TubeGeometry(arcPath, 80, 0.05, 8, false), gold);
+  frameGold.position.set(0, 0, DZ + 0.2); frameGold.scale.set(0.94, 0.985, 1); world.add(frameGold);
+
+  const woodTex = canvasTexture(512, 1024, (g, w, h) => {
+    g.fillStyle = "#24140d"; g.fillRect(0, 0, w, h);
+    const pl = 4, pw = w / pl;
+    for (let i = 0; i < pl; i++) {
+      g.fillStyle = `hsl(${rnd(18, 26)} ${rnd(30, 42)}% ${rnd(10, 16)}%)`; g.fillRect(i * pw + 2, 0, pw - 4, h);
+      for (let k = 0; k < 90; k++) { g.strokeStyle = `rgba(0,0,0,${rnd(.1, .35)})`; g.lineWidth = rnd(.6, 1.8); const x = i * pw + rnd(4, pw - 4); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + rnd(-6, 6), h * .3, x + rnd(-6, 6), h * .7, x + rnd(-4, 4), h); g.stroke(); }
+    }
+    g.fillStyle = "rgba(0,0,0,.55)"; for (let i = 1; i < pl; i++) g.fillRect(i * pw - 2, 0, 4, h);
+    // bandes de fer + rivets dorés
+    for (const y of [.2, .52, .84]) {
+      g.fillStyle = "#130d0e"; g.beginPath(); g.moveTo(0, y * h - 20); g.lineTo(w * .8, y * h - 12); g.lineTo(w * .9, y * h); g.lineTo(w * .8, y * h + 12); g.lineTo(0, y * h + 20); g.fill();
+      g.strokeStyle = "rgba(201,164,92,.5)"; g.lineWidth = 2; g.beginPath(); g.moveTo(0, y * h - 18); g.lineTo(w * .78, y * h - 11); g.stroke();
+      for (let x = 24; x < w * .78; x += 46) { g.fillStyle = "#9a7a38"; g.beginPath(); g.arc(x, y * h, 4.2, 0, 7); g.fill(); g.fillStyle = "rgba(255,230,160,.6)"; g.beginPath(); g.arc(x - 1.2, y * h - 1.2, 1.5, 0, 7); g.fill(); }
+    }
+    // poussière : plus dense en bas, voile gris, traînées
+    for (let i = 0; i < 26000; i++) { const y = Math.random() * h, a = Math.random() * .18 * (.4 + y / h); g.fillStyle = `rgba(176,166,152,${a})`; g.fillRect(Math.random() * w, y, rnd(1, 3), rnd(1, 4)); }
+    const dv = g.createLinearGradient(0, 0, 0, h); dv.addColorStop(0, "rgba(120,110,100,.10)"); dv.addColorStop(1, "rgba(150,140,128,.30)"); g.fillStyle = dv; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 24; i++) { const x = Math.random() * w; const gr = g.createLinearGradient(x, 0, x + 8, 0); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(.5, "rgba(190,180,165,.10)"); gr.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gr; g.fillRect(x, rnd(0, h * .4), 8, rnd(h * .2, h * .6)); }
+    // toile d'araignée dans l'angle haut
+    g.strokeStyle = "rgba(225,220,210,.55)"; g.lineWidth = 1;
+    for (let a = 0; a < 7; a++) { const an = a / 6 * Math.PI / 2; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(an) * 190, Math.sin(an) * 190); g.stroke(); }
+    for (let r = 28; r < 190; r += 26) { g.beginPath(); for (let a = 0; a <= 6; a++) { const an = a / 6 * Math.PI / 2, rr = r - (a % 2) * 6; g.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); } g.stroke(); }
+  }, 1, 1);
+  const leafShape = new THREE.Shape();
+  leafShape.moveTo(0, 0); leafShape.lineTo(DW, 0); leafShape.lineTo(DW, DH);
+  leafShape.bezierCurveTo(1.0, 6.6, 0, 5.8, 0, DS); leafShape.lineTo(0, 0);
+  const leafGeo = new THREE.ShapeGeometry(leafShape, 24);
+  { const p = leafGeo.attributes.position, uv = leafGeo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / DW, p.getY(i) / DH); }
+  const doorMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodTex, bumpScale: 1.4, roughness: 0.9, metalness: 0.02, side: THREE.DoubleSide, emissive: 0x2a1308, emissiveMap: woodTex, emissiveIntensity: 0.6 });
+  const mkLeaf = side => {
+    const hinge = new THREE.Group(); hinge.position.set(side * DW, 0, DZ + 0.02); if (side > 0) hinge.scale.x = -1;
+    hinge.add(new THREE.Mesh(leafGeo, doorMat));
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.04, 8, 24), gold); ring.position.set(DW - 0.34, 3.0, 0.1); hinge.add(ring);
+    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 8), gold); boss.position.set(DW - 0.34, 3.26, 0.06); boss.scale.z = 0.6; hinge.add(boss);
+    world.add(hinge); return hinge;
+  };
+  const doorL = mkLeaf(-1), doorR = mkLeaf(1);
+  const doorLight = new THREE.PointLight(0xffb066, 0, 22, 1.8); doorLight.position.set(0, 3.2, -0.5); world.add(doorLight);
+  const doorGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softDot("255,170,90", .9), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 }));
+  doorGlow.position.set(0, 3.4, DZ - 0.3); doorGlow.scale.set(9, 9, 1); world.add(doorGlow);
+  const DN = 160, dd = new Float32Array(DN * 3), dseed = [];
+  for (let i = 0; i < DN; i++) dseed.push({ x: rnd(-2.6, 2.6), y: rnd(0.2, 6), z: rnd(DZ - 1, DZ + 3.5), ph: rnd(0, 6.28) });
+  const doorDustGeo = new THREE.BufferGeometry(); doorDustGeo.setAttribute("position", new THREE.BufferAttribute(dd, 3));
+  const doorDust = new THREE.Points(doorDustGeo, new THREE.PointsMaterial({ map: softDot("215,200,175", .9), color: 0xd8c8ac, size: 0.12, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  world.add(doorDust);
+  function updateDoor(t) {
+    const open = smooth(clamp01((cur - 0.03) / 0.055));
+    const tremble = cur > 0.02 && open < 0.05 ? Math.sin(t * 40) * 0.004 * clamp01((cur - 0.02) / 0.01) : 0;
+    doorL.rotation.y = open * 1.9 + tremble; doorR.rotation.y = -open * 1.9 - tremble;
+    const after = 1 - clamp01((cur - 0.085) / 0.04);
+    doorLight.intensity = open * 34 * after; doorGlow.material.opacity = open * 0.26 * after;
+    const burst = Math.sin(Math.PI * clamp01((cur - 0.03) / 0.13));
+    doorDust.material.opacity = 0.45 * burst;
+    for (let i = 0; i < DN; i++) { const d = dseed[i]; dd[i * 3] = d.x + Math.sin(t * .5 + d.ph) * .4 * (1 + burst); dd[i * 3 + 1] = d.y + Math.sin(t * .4 + d.ph * 2) * .3 + burst * 0.6; dd[i * 3 + 2] = d.z - open * 1.5 * Math.abs(Math.sin(d.ph)); }
+    doorDustGeo.attributes.position.needsUpdate = true;
+  }
 
   /* Fond du couloir */
   const endWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 14), new THREE.MeshStandardMaterial({ color: 0x090406, roughness: 1 }));
@@ -374,41 +454,42 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   addEventListener("click", () => { if (hoverHit) { lastPuff = -99; puff(); } });
 
   /* ——— Chauves-souris (3D) : une volée à chaque nouvelle salle ——— */
-  const batMat = new THREE.MeshBasicMaterial({ color: 0x0d0507, side: THREE.DoubleSide, fog: true });
+  const batMat = new THREE.MeshBasicMaterial({ color: 0x3b141c, side: THREE.DoubleSide, fog: false });
   const wingShape = new THREE.Shape();
-  wingShape.moveTo(0, 0); wingShape.quadraticCurveTo(0.5, 0.5, 1.4, 0.34);
-  wingShape.quadraticCurveTo(1.22, -0.04, 1.0, -0.2); wingShape.quadraticCurveTo(0.8, -0.04, 0.62, -0.32);
-  wingShape.quadraticCurveTo(0.4, -0.06, 0.2, -0.38); wingShape.lineTo(0, -0.26); wingShape.closePath();
-  const wingGeo = new THREE.ShapeGeometry(wingShape, 10);
-  const bodyGeo = new THREE.SphereGeometry(0.11, 10, 8); bodyGeo.scale(1, 1.6, 1);
-  const earGeo = new THREE.ConeGeometry(0.04, 0.14, 4);
+  wingShape.moveTo(0, 0); wingShape.quadraticCurveTo(0.45, 0.62, 1.55, 0.5);
+  wingShape.quadraticCurveTo(1.38, 0.1, 1.2, -0.1); wingShape.quadraticCurveTo(1.0, 0.05, 0.86, -0.22);
+  wingShape.quadraticCurveTo(0.66, -0.02, 0.5, -0.34); wingShape.quadraticCurveTo(0.3, -0.04, 0.14, -0.42); wingShape.lineTo(0, -0.28); wingShape.closePath();
+  const wingGeo = new THREE.ShapeGeometry(wingShape, 12);
+  const bodyGeo = new THREE.SphereGeometry(0.13, 12, 10); bodyGeo.scale(1, 1.7, 1);
+  const earGeo = new THREE.ConeGeometry(0.05, 0.18, 4);
   let bats = [];
   const BAT_AT = [0.2, 0.44, 0.68];
-  function sendBats() {
-    const dirSign = bats.length % 2 ? -1 : 1;
-    for (let i = 0; i < 5; i++) {
+  function sendBats(wave) {
+    // salles I et II : elles foncent vers nous ; salle III : elles partent de derrière nous vers le feu
+    const away = wave === 2;
+    for (let i = 0; i < 7; i++) {
       const g = new THREE.Group();
       const wr = new THREE.Mesh(wingGeo, batMat), wl = new THREE.Mesh(wingGeo, batMat); wl.scale.x = -1;
       const body = new THREE.Mesh(bodyGeo, batMat);
-      const e1 = new THREE.Mesh(earGeo, batMat), e2 = new THREE.Mesh(earGeo, batMat); e1.position.set(-0.06, 0.2, 0); e2.position.set(0.06, 0.2, 0);
+      const e1 = new THREE.Mesh(earGeo, batMat), e2 = new THREE.Mesh(earGeo, batMat); e1.position.set(-0.07, 0.24, 0); e2.position.set(0.07, 0.24, 0);
       g.add(wr, wl, body, e1, e2);
-      const s = rnd(0.7, 1.1); g.scale.set(s, s, s);
-      const x = rnd(-2.2, 2.2) + dirSign * 0;
-      g.position.set(x, rnd(4.6, 7.4), camera.position.z - 30 - i * rnd(2, 4));
+      const s = rnd(1.0, 1.5); g.scale.set(s, s, s);
+      const x = rnd(-2.6, 2.6);
+      g.position.set(x, rnd(2.6, 5.6), away ? camera.position.z - 4 - i * rnd(2, 3) : camera.position.z - 18 - i * rnd(2.5, 4.5));
       world.add(g);
-      bats.push({ g, wr, wl, v: rnd(10, 15), ph: rnd(0, 6.28), fl: rnd(11, 15), x0: x, amp: rnd(.4, 1.4) });
+      bats.push({ g, wr, wl, away, v: away ? -rnd(3.5, 5.5) : rnd(7, 11), ph: rnd(0, 6.28), fl: rnd(10, 14), x0: x, amp: rnd(.5, 1.3) });
     }
   }
   function updateBats(t, dt) {
     for (const b of bats) {
       b.g.position.z += b.v * dt;
       b.g.position.x = b.x0 + Math.sin(t * 1.7 + b.ph) * b.amp;
-      b.g.position.y += Math.sin(t * 2.3 + b.ph) * 0.012;
-      const a = Math.sin(t * b.fl + b.ph) * 0.75;
+      b.g.position.y += Math.sin(t * 2.3 + b.ph) * 0.014;
+      const a = Math.sin(t * b.fl + b.ph) * 0.8;
       b.wr.rotation.z = a; b.wl.rotation.z = -a;
-      b.g.rotation.y = Math.sin(t * 1.7 + b.ph) * 0.35;
+      b.g.rotation.y = Math.sin(t * 1.7 + b.ph) * 0.3 + (b.away ? Math.PI : 0);
     }
-    bats = bats.filter(b => { const keep = b.g.position.z < camera.position.z + 6; if (!keep) world.remove(b.g); return keep; });
+    bats = bats.filter(b => { const z = b.g.position.z, keep = b.away ? z > z1 + 6 : z < camera.position.z + 6; if (!keep) world.remove(b.g); return keep; });
   }
 
   /* Poussières en suspension */
@@ -420,7 +501,8 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   world.add(dust);
 
   /* Post-traitement : lueur autour des flammes */
-  const composer = new EffectComposer(renderer);
+  const msaa = new THREE.WebGLRenderTarget(innerWidth * dpr, innerHeight * dpr, { type: THREE.HalfFloatType, samples: 4 });
+  const composer = new EffectComposer(renderer, msaa);
   composer.setPixelRatio(dpr);
   composer.setSize(innerWidth, innerHeight);
   composer.addPass(new RenderPass(scene, camera));
@@ -434,8 +516,10 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     const V = (...a) => new THREE.Vector3(...a);
     const k = [];
     const K = (p, pos, look) => k.push({ p, pos: V(...pos), look: V(...look) });
-    K(0.00, [0, 1.75, 7], [0, 1.7, -5]);
-    K(0.08, [0, 1.75, 5], [0, 1.7, -7]);
+    K(0.00, [0, 1.8, 12], [0, 3.3, 3]);
+    K(0.03, [0, 1.8, 11.2], [0, 3.3, 3]);
+    K(0.075, [0, 1.8, 8.2], [0, 3.0, 0]);
+    K(0.12, [0, 1.75, 0], [0, 1.7, -12]);
     K(0.16, [0, 1.75, -8], [0, 1.7, -22]);
     const stops = [[0.22, 0.34], [0.46, 0.58], [0.70, 0.82]];
     const centers = [[0.40, -34], [0.64, -58], [0.88, -82]];
@@ -466,13 +550,13 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   const clock = new THREE.Clock();
   const pos = new THREE.Vector3(), look = new THREE.Vector3();
   const off = new THREE.Vector3();
-  let prevT = 0;
+  let prevT = 0, ft = 0, fn = 0;
   const prog = () => getProgress();
   function tick() {
     const t = clock.getElapsedTime(); const dt = Math.min(0.05, Math.max(0, t - prevT)); prevT = t;
     const before = cur;
     cur += (prog() - cur) * 0.06;
-    for (const th of BAT_AT) if (before < th && cur >= th) sendBats();
+    BAT_AT.forEach((th, k) => { if (before < th && cur >= th) sendBats(k); });
     smx += (mx - smx) * 0.05; smy += (my - smy) * 0.05;
 
     // position sur le trajet
@@ -500,7 +584,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
       f.flame.scale.set(0.2 * (2 - fl), 0.42 * fl, 1);
       f.halo.material.opacity = 0.34 + 0.18 * fl;
     });
-    updateBrazier(t, dt); updateBats(t, dt);
+    updateDoor(t); updateBrazier(t, dt); updateBats(t, dt);
 
     // tableaux : fondu entre les captures
     paintings.forEach(p => {
@@ -526,6 +610,9 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     }
     pa.needsUpdate = true;
 
+    // qualité adaptative : si la machine peine, on baisse un peu la définition
+    ft += dt; fn++;
+    if (fn === 90) { if (ft / fn > 0.026 && dpr > 1.1) { dpr = Math.max(1, dpr - 0.5); renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); composer.setSize(innerWidth, innerHeight); } ft = 0; fn = 0; }
     composer.render();
     onFrame && onFrame(cur, t);
   }
