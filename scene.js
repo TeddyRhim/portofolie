@@ -183,15 +183,8 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   /* ——— Tableaux : un cadre doré par projet ——— */
   const PW = 4.8, PH = 3.0, FB = 0.3;
   const loader = new THREE.TextureLoader();
-  const loadTex = url => {
-    const c = document.createElement("canvas"); c.width = 512; c.height = 320;
-    const g = c.getContext("2d"); g.fillStyle = "#120a07"; g.fillRect(0, 0, 512, 320);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
-    const img = new Image();
-    img.onload = () => { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high"; g.drawImage(img, 0, 0, 512, 320); t.needsUpdate = true; };
-    img.src = url; return t;
-  };
+  // les captures de projets gardent leur définition d'origine, avec un filtrage doux (c'est le contenu, il doit rester lisible)
+  const loadTex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
   const darkLiner = new THREE.MeshStandardMaterial({ color: 0x120a07, roughness: 0.9 });
   const paintings = projects.map(pr => {
     const g = new THREE.Group();
