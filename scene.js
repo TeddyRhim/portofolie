@@ -327,6 +327,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   /* Colonnes et nervures d'ogive */
   const stoneS = TOON ? null : stoneSet(); if (stoneS) stoneS.forEach(t => t.repeat.set(1, 2));
   const stone = new THREE.MeshStandardMaterial(TOON ? { color: 0x2a1c20, roughness: 0.8, metalness: 0.05 } : { color: 0xffffff, map: stoneS[0], bumpMap: stoneS[1], bumpScale: 2, roughness: 0.85, metalness: 0.04 });
+  const oldGold = new THREE.MeshStandardMaterial({ color: 0x6a5226, roughness: 0.62, metalness: 0.6, envMap: envTex, envMapIntensity: 0.3 });
   const gold = new THREE.MeshStandardMaterial({ color: 0x9a7a38, roughness: 0.36, metalness: 0.85, envMap: envTex, envMapIntensity: 0.55 });
   const colGeo = new THREE.CylinderGeometry(0.42, 0.5, 6.2, 18);
   const baseGeo = new THREE.BoxGeometry(1.3, 0.5, 1.3);
@@ -454,18 +455,31 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
 
   const bannerTex = canvasTexture(256, 640, (g, w, h) => {
     const cloth = () => { g.beginPath(); g.moveTo(8, 0); g.lineTo(248, 0); g.lineTo(248, 612); g.lineTo(128, 556); g.lineTo(8, 612); g.closePath(); };
-    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#5a1220"); gr.addColorStop(1, "#2c0710");
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#4a1018"); gr.addColorStop(1, "#24060c");
     cloth(); g.fillStyle = gr; g.fill();
     g.save(); cloth(); g.clip();
-    for (let i = 0; i < 8000; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .12})`; g.fillRect(Math.random() * w, Math.random() * h, 2, rnd(2, 8)); }
+    for (let i = 0; i < 9000; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .14})`; g.fillRect(Math.random() * w, Math.random() * h, 2, rnd(2, 9)); }
+    for (let x = 0; x < w; x += 3) { g.fillStyle = `rgba(255,235,220,${Math.random() * .035})`; g.fillRect(x, 0, 1, h); }          // trame du tissu
+    for (let i = 0; i < 14; i++) { const px = rnd(0, w), py = rnd(0, h), r = rnd(30, 90); const rg = g.createRadialGradient(px, py, 0, px, py, r); const fade = Math.random() < .5; rg.addColorStop(0, fade ? "rgba(150,120,100,.16)" : "rgba(0,0,0,.28)"); rg.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = rg; g.fillRect(px - r, py - r, r * 2, r * 2); }   // zones délavées et taches
+    for (let i = 0; i < 7; i++) { const sx = rnd(10, 246), sl = rnd(120, 320), sg = g.createLinearGradient(0, 0, 0, sl); sg.addColorStop(0, "rgba(30,18,10,.35)"); sg.addColorStop(1, "rgba(30,18,10,0)"); g.save(); g.translate(sx, rnd(0, h * .4)); g.fillStyle = sg; g.fillRect(0, 0, rnd(6, 20), sl); g.restore(); }   // coulures
+    const bg = g.createLinearGradient(0, h * .7, 0, h); bg.addColorStop(0, "rgba(20,10,6,0)"); bg.addColorStop(1, "rgba(20,10,6,.5)"); g.fillStyle = bg; g.fillRect(0, h * .7, w, h * .3);   // bas crasseux
     g.restore();
-    g.strokeStyle = "#b8924a"; g.lineWidth = 5; g.beginPath(); g.moveTo(22, 14); g.lineTo(234, 14); g.lineTo(234, 592); g.lineTo(128, 540); g.lineTo(22, 592); g.closePath(); g.stroke();
-    g.strokeStyle = "rgba(201,164,92,.55)"; g.lineWidth = 2; g.beginPath(); g.arc(128, 250, 74, 0, 7); g.stroke();
+    // broderie dorée, ternie et par endroits effacée
+    g.strokeStyle = "#8a6c36"; g.lineWidth = 5; g.beginPath(); g.moveTo(22, 14); g.lineTo(234, 14); g.lineTo(234, 592); g.lineTo(128, 540); g.lineTo(22, 592); g.closePath(); g.stroke();
+    g.strokeStyle = "rgba(160,128,70,.5)"; g.lineWidth = 2; g.beginPath(); g.arc(128, 250, 74, 0, 7); g.stroke();
     g.save(); g.translate(128 - 16 * 4.4, 252 - 15.5 * 4.4); g.scale(4.4, 4.4);
-    g.fillStyle = "#c9a45c"; g.fill(new Path2D("M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z"));
+    g.fillStyle = "#9a7a3c"; g.fill(new Path2D("M16 4c5 6 8 10 7 15-1 5-4 8-7 8s-6-3-7-8c0-4 3-7 4-10 2 2 2 4 3 5 1-4 0-7 0-10z"));
     g.restore();
-    g.fillStyle = "#b8924a"; for (const y of [430, 470]) { g.beginPath(); g.moveTo(128, y - 12); g.lineTo(140, y); g.lineTo(128, y + 12); g.lineTo(116, y); g.fill(); }
-    for (let i = 0; i < 6000; i++) { g.fillStyle = `rgba(150,138,122,${Math.random() * .07})`; g.fillRect(Math.random() * w, Math.random() * h, rnd(1, 3), rnd(1, 3)); }
+    g.fillStyle = "#8a6c36"; for (const y of [430, 470]) { g.beginPath(); g.moveTo(128, y - 12); g.lineTo(140, y); g.lineTo(128, y + 12); g.lineTo(116, y); g.fill(); }
+    for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(40,16,16,${rnd(.2, .5)})`; g.beginPath(); g.arc(rnd(20, 236), rnd(10, 590), rnd(2, 9), 0, 7); g.fill(); }   // or arraché (fond sombre)
+    for (let i = 0; i < 5000; i++) { g.fillStyle = `rgba(160,148,132,${Math.random() * .08})`; g.fillRect(Math.random() * w, Math.random() * h, rnd(1, 3), rnd(1, 3)); }
+    // usure : bord inférieur déchiré, trous de mites, déchirures (transparence)
+    g.globalCompositeOperation = "destination-out"; g.fillStyle = "#000";
+    for (let x = 6; x < 252; x += rnd(5, 13)) { const edgeY = x < 128 ? 612 - (x - 8) * (56 / 120) : 556 + (x - 128) * (56 / 120); g.beginPath(); g.moveTo(x, edgeY - rnd(0, 26)); g.lineTo(x + rnd(3, 9), edgeY + 20); g.lineTo(x - rnd(2, 8), edgeY + 20); g.closePath(); g.fill(); }
+    for (let i = 0; i < 22; i++) { g.beginPath(); g.arc(rnd(18, 238), rnd(30, 560), rnd(1.5, 5.5), 0, 7); g.fill(); }
+    for (let i = 0; i < 3; i++) { const tx = rnd(30, 226), ty = rnd(200, 520); g.beginPath(); g.moveTo(tx, ty); g.lineTo(tx + rnd(8, 18), ty + rnd(40, 90)); g.lineTo(tx - rnd(4, 12), ty + rnd(45, 95)); g.closePath(); g.fill(); }
+    g.beginPath(); g.moveTo(8, 0); g.lineTo(8, 40); g.lineTo(16, 18); g.closePath(); g.fill();
+    g.globalCompositeOperation = "source-over";
   });
   const bannerGeo = new THREE.PlaneGeometry(1.88, 4.7);
   const bannerMat = new THREE.MeshStandardMaterial({ map: bannerTex, emissiveMap: bannerTex, emissive: 0xffffff, emissiveIntensity: 0.16, alphaTest: 0.5, roughness: 0.95, side: THREE.DoubleSide });
@@ -474,8 +488,8 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   const hang = (side, z, k = 1) => {
     const g = new THREE.Group(); g.position.set(side * 4.93, 4.6 + (k - 1) * 1.1, z); g.rotation.y = -side * Math.PI / 2; g.scale.setScalar(k);
     const cloth = new THREE.Mesh(bannerGeo, bannerMat); g.add(cloth);
-    const rod = new THREE.Mesh(rodGeo, gold); rod.position.set(0, 2.38, 0.06); g.add(rod);
-    for (const sx of [-1, 1]) { const kn = new THREE.Mesh(knobGeo, gold); kn.position.set(sx * 1.15, 2.38, 0.06); g.add(kn); }
+    const rod = new THREE.Mesh(rodGeo, oldGold); rod.position.set(0, 2.38, 0.06); g.add(rod);
+    for (const sx of [-1, 1]) { const kn = new THREE.Mesh(knobGeo, oldGold); kn.position.set(sx * 1.15, 2.38, 0.06); g.add(kn); }
     world.add(g);
   };
   for (const z of [8, 0, -8, -16]) for (const side of [-1, 1]) hang(side, z, z === -8 && side === -1 ? 1.2 : 1);
@@ -505,22 +519,28 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   frameGold.position.set(0, 0, DZ + 0.2); frameGold.scale.set(0.94, 0.985, 1); world.add(frameGold);
 
   const woodTex = canvasTexture(512, 1024, (g, w, h) => {
-    g.fillStyle = "#24140d"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#1c100a"; g.fillRect(0, 0, w, h);
     const pl = 4, pw = w / pl;
     for (let i = 0; i < pl; i++) {
-      g.fillStyle = `hsl(${rnd(18, 26)} ${rnd(30, 42)}% ${rnd(10, 16)}%)`; g.fillRect(i * pw + 2, 0, pw - 4, h);
-      for (let k = 0; k < 90; k++) { g.strokeStyle = `rgba(0,0,0,${rnd(.1, .35)})`; g.lineWidth = rnd(.6, 1.8); const x = i * pw + rnd(4, pw - 4); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + rnd(-6, 6), h * .3, x + rnd(-6, 6), h * .7, x + rnd(-4, 4), h); g.stroke(); }
+      g.fillStyle = `hsl(${rnd(18, 26)} ${rnd(22, 36)}% ${rnd(8, 14)}%)`; g.fillRect(i * pw + 2, 0, pw - 4, h);
+      for (let k = 0; k < 110; k++) { g.strokeStyle = `rgba(0,0,0,${rnd(.1, .4)})`; g.lineWidth = rnd(.6, 2); const x = i * pw + rnd(4, pw - 4); g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + rnd(-6, 6), h * .3, x + rnd(-6, 6), h * .7, x + rnd(-4, 4), h); g.stroke(); }
+      for (let k = 0; k < 5; k++) { const kx = i * pw + rnd(20, pw - 20), ky = rnd(40, h - 40); g.strokeStyle = "rgba(0,0,0,.5)"; for (let r = 4; r < 16; r += 4) { g.lineWidth = 1.5; g.beginPath(); g.ellipse(kx, ky, r * .8, r * 1.6, 0, 0, 7); g.stroke(); } }   // nœuds
+      for (let k = 0; k < 2; k++) { const cx = i * pw + rnd(10, pw - 10); g.strokeStyle = "rgba(0,0,0,.85)"; g.lineWidth = rnd(1.5, 3); g.beginPath(); g.moveTo(cx, rnd(0, h * .5)); for (let y = 0, yy = rnd(0, h * .5); y < 6; y++) { yy += rnd(30, 70); g.lineTo(cx + rnd(-5, 5), yy); } g.stroke(); }   // fentes du bois
     }
-    g.fillStyle = "rgba(0,0,0,.55)"; for (let i = 1; i < pl; i++) g.fillRect(i * pw - 2, 0, 4, h);
-    // bandes de fer + rivets dorés
+    g.fillStyle = "rgba(0,0,0,.6)"; for (let i = 1; i < pl; i++) g.fillRect(i * pw - 2, 0, 4, h);
+    // bandes de fer rouillées, rivets ternis
     for (const y of [.2, .52, .84]) {
-      g.fillStyle = "#130d0e"; g.beginPath(); g.moveTo(0, y * h - 20); g.lineTo(w * .8, y * h - 12); g.lineTo(w * .9, y * h); g.lineTo(w * .8, y * h + 12); g.lineTo(0, y * h + 20); g.fill();
-      g.strokeStyle = "rgba(201,164,92,.5)"; g.lineWidth = 2; g.beginPath(); g.moveTo(0, y * h - 18); g.lineTo(w * .78, y * h - 11); g.stroke();
-      for (let x = 24; x < w * .78; x += 46) { g.fillStyle = "#9a7a38"; g.beginPath(); g.arc(x, y * h, 4.2, 0, 7); g.fill(); g.fillStyle = "rgba(255,230,160,.6)"; g.beginPath(); g.arc(x - 1.2, y * h - 1.2, 1.5, 0, 7); g.fill(); }
+      g.fillStyle = "#120c0b"; g.beginPath(); g.moveTo(0, y * h - 20); g.lineTo(w * .8, y * h - 12); g.lineTo(w * .9, y * h); g.lineTo(w * .8, y * h + 12); g.lineTo(0, y * h + 20); g.fill();
+      for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(${rnd(110, 150) | 0},${rnd(50, 70) | 0},20,${rnd(.08, .28)})`; g.fillRect(rnd(0, w * .85), y * h + rnd(-18, 18), rnd(4, 26), rnd(2, 8)); }   // rouille
+      for (let k = 0; k < 7; k++) { const rx = rnd(10, w * .8), rg = g.createLinearGradient(0, y * h, 0, y * h + rnd(60, 170)); rg.addColorStop(0, "rgba(120,52,20,.32)"); rg.addColorStop(1, "rgba(120,52,20,0)"); g.fillStyle = rg; g.fillRect(rx, y * h, rnd(3, 9), 170); }   // coulures de rouille
+      g.strokeStyle = "rgba(150,118,64,.28)"; g.lineWidth = 2; g.beginPath(); g.moveTo(0, y * h - 18); g.lineTo(w * .78, y * h - 11); g.stroke();
+      for (let x = 24; x < w * .78; x += 46) { if (Math.random() < .12) continue; g.fillStyle = "#6e5628"; g.beginPath(); g.arc(x, y * h, 4.2, 0, 7); g.fill(); g.fillStyle = "rgba(210,180,110,.28)"; g.beginPath(); g.arc(x - 1.2, y * h - 1.2, 1.4, 0, 7); g.fill(); }
     }
-    // poussière : plus dense en bas, voile gris, traînées
-    for (let i = 0; i < 26000; i++) { const y = Math.random() * h, a = Math.random() * .18 * (.4 + y / h); g.fillStyle = `rgba(176,166,152,${a})`; g.fillRect(Math.random() * w, y, rnd(1, 3), rnd(1, 4)); }
-    const dv = g.createLinearGradient(0, 0, 0, h); dv.addColorStop(0, "rgba(120,110,100,.10)"); dv.addColorStop(1, "rgba(150,140,128,.30)"); g.fillStyle = dv; g.fillRect(0, 0, w, h);
+    // usure : bords clairs aux jointures, bas rongé d'humidité, grosses taches
+    for (let i = 0; i < 16; i++) { const px = rnd(0, w), py = rnd(0, h), r = rnd(50, 140), rg = g.createRadialGradient(px, py, 0, px, py, r); rg.addColorStop(0, Math.random() < .6 ? "rgba(0,0,0,.35)" : "rgba(140,110,80,.12)"); rg.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = rg; g.fillRect(px - r, py - r, r * 2, r * 2); }
+    const rot = g.createLinearGradient(0, h * .75, 0, h); rot.addColorStop(0, "rgba(10,18,8,0)"); rot.addColorStop(1, "rgba(10,18,8,.55)"); g.fillStyle = rot; g.fillRect(0, h * .75, w, h * .25);
+    for (let i = 0; i < 30000; i++) { const y = Math.random() * h, a = Math.random() * .2 * (.4 + y / h); g.fillStyle = `rgba(176,166,152,${a})`; g.fillRect(Math.random() * w, y, rnd(1, 3), rnd(1, 4)); }
+    const dv = g.createLinearGradient(0, 0, 0, h); dv.addColorStop(0, "rgba(120,110,100,.12)"); dv.addColorStop(1, "rgba(150,140,128,.34)"); g.fillStyle = dv; g.fillRect(0, 0, w, h);
     for (let i = 0; i < 24; i++) { const x = Math.random() * w; const gr = g.createLinearGradient(x, 0, x + 8, 0); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(.5, "rgba(190,180,165,.10)"); gr.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = gr; g.fillRect(x, rnd(0, h * .4), 8, rnd(h * .2, h * .6)); }
     // toile d'araignée dans l'angle haut
     g.strokeStyle = "rgba(225,220,210,.55)"; g.lineWidth = 1;
@@ -536,8 +556,8 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   const mkLeaf = side => {
     const hinge = new THREE.Group(); hinge.position.set(side * DW, 0, DZ + 0.02); if (side > 0) hinge.scale.x = -1;
     hinge.add(new THREE.Mesh(leafGeo, doorMat));
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.04, 8, 24), gold); ring.position.set(DW - 0.34, 3.0, 0.1); hinge.add(ring);
-    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 8), gold); boss.position.set(DW - 0.34, 3.26, 0.06); boss.scale.z = 0.6; hinge.add(boss);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.04, 8, 24), oldGold); ring.position.set(DW - 0.34, 3.0, 0.1); hinge.add(ring);
+    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 8), oldGold); boss.position.set(DW - 0.34, 3.26, 0.06); boss.scale.z = 0.6; hinge.add(boss);
     world.add(hinge); return hinge;
   };
   const doorL = mkLeaf(-1), doorR = mkLeaf(1);
@@ -770,7 +790,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     }
 
     // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
-    const over = new Map([[gold, 0x9c6c28], [stone, 0x34346a]]);
+    const over = new Map([[oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
     const cache = new Map();
     const conv = m => {
       if (!m || !m.isMeshStandardMaterial) return m;
