@@ -26,7 +26,7 @@ html { scroll-behavior: auto; }
 body { background: var(--bg); color: var(--ivory); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; line-height: 1.55; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
+#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; image-rendering: pixelated; }
 .vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%); }
 .track { height: 900vh; position: relative; z-index: 2; }
 
@@ -152,7 +152,8 @@ const canWebGL = (() => { try { const c = document.createElement("canvas"); retu
 const wantsLight = !canWebGL || matchMedia("(prefers-reduced-motion: reduce)").matches || (!new URLSearchParams(location.search).has("3d") && innerWidth < 700);
 if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
-try { ({ startScene } = await import("./scene.js")); }
+// ?modern : ancienne version du rendu (lumières réalistes), pour comparer avec le style PS1
+try { ({ startScene } = await import(new URLSearchParams(location.search).has("modern") ? "./scene-modern.js" : "./scene.js")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
