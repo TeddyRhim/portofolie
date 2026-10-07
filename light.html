@@ -339,7 +339,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
             <li data-i18n="a4"></li>
           </ul>
           <div class="chips"><span>PHP</span><span>Symfony</span><span>Python</span><span>FastAPI</span><span>Next.js</span><span>PostgreSQL</span><span>Docker</span><span>Vue.js</span></div>
-          <div class="links"><a class="btn" href="cv/teddy-rhim-cv.pdf" download data-i18n="cv">Télécharger mon CV</a><a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a></div>
+          <div class="links"><a class="btn" href="cv/teddy-rhim-cv.pdf" data-cv download data-i18n="cv">Télécharger mon CV</a><a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a></div>
         </div>
       </div>
     </div>
@@ -425,7 +425,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       <h2 class="rv d1" data-i18n="cTitle">Approchez-vous du feu</h2>
       <p class="lead rv d2" data-i18n="cLead">Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.</p>
       <div class="links rv d3">
-        <a class="btn" href="cv/teddy-rhim-cv.pdf" download data-i18n="cv">Télécharger mon CV</a>
+        <a class="btn" href="cv/teddy-rhim-cv.pdf" data-cv download data-i18n="cv">Télécharger mon CV</a>
         <a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a>
         <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener">GitHub</a>
         <a class="btn ghost" href="mailto:teddyrhimpro@gmail.com" data-i18n="mail">Écrire un e-mail</a>
@@ -483,7 +483,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       role: "Back-end developer",
       lead: "I build complete applications, from the interface to the database, and I'm interested in language models that run locally.",
       cue: "Descend", sub: "What I built", code: "View the code", demo: "Demo coming soon",
-      lAbout: "Prologue", aTitle: "About", aSub: "What I work with", cv: "Download my CV (French)", capA: "About",
+      lAbout: "Prologue", aTitle: "About", aSub: "What I work with", cv: "Download my CV", capA: "About",
       aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
       a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
       a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
@@ -520,7 +520,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
     lang = l;
     document.documentElement.lang = l;
     document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T[l][el.dataset.i18n]; });
-    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l)); document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; });
     document.title = l === "fr" ? "Teddy Rhim — Développeur back-end" : "Teddy Rhim — Back-end developer";
     gCap.textContent = T[l][currentSection.dataset.cap];
     try { localStorage.setItem("lang", l); } catch (e) {}

@@ -171,7 +171,7 @@ body.toon .btn { border-width: 2px; }
   <h2 data-t="cTitle"></h2>
   <p data-t="cLead"></p>
   <div class="links">
-    <a class="btn" href="cv/teddy-rhim-cv.pdf" download data-t="cv"></a>
+    <a class="btn" href="cv/teddy-rhim-cv.pdf" data-cv download data-t="cv"></a>
     <a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a>
     <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener">GitHub</a>
     <a class="btn ghost" href="mailto:teddyrhimpro@gmail.com" data-t="mail"></a>
@@ -202,7 +202,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=17")); }
+try { ({ startScene } = await import("./scene.js?v=18")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -238,7 +238,7 @@ const T = {
     role: "Back-end developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
-    lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV (French)",
+    lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
     aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
     a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
     a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
@@ -304,7 +304,7 @@ aboutEl.className = "panel right"; aboutEl.setAttribute("aria-labelledby", "aTit
 aboutEl.innerHTML = `<div class="lvl" data-t="lAbout"></div><h2 id="aTitleH" data-t="aTitle"></h2><p class="pitch" data-t="aPitch"></p>
   <p class="sub" data-t="aSub"></p><ul><li data-t="a1"></li><li data-t="a2"></li><li data-t="a3"></li><li data-t="a4"></li></ul>
   <div class="chips">${["PHP", "Symfony", "Python", "FastAPI", "Next.js", "PostgreSQL", "Docker", "Vue.js"].map(c => `<span>${c}</span>`).join("")}</div>
-  <div class="row"><a class="btn" href="cv/teddy-rhim-cv.pdf" download data-t="cv"></a>
+  <div class="row"><a class="btn" href="cv/teddy-rhim-cv.pdf" data-cv download data-t="cv"></a>
   <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener" data-t="aGit"></a>
   <a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a></div>
   <p class="note" data-t="aNote"></p>`;
@@ -324,7 +324,7 @@ const wpBtns = WP.map(([k, sp]) => {
 function setLang(l) {
   lang = l; document.documentElement.lang = l;
   document.querySelectorAll("[data-t]").forEach(e => { e.textContent = T[l][e.dataset.t]; });
-  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; wpEl.setAttribute("aria-label", T[l].navLabel);
+  $("role").textContent = T[l].role; $("cue").textContent = T[l].cue; $("lightLink").textContent = T[l].light; $("loading").textContent = T[l].loading; $("skipLink").textContent = T[l].skip; document.querySelectorAll("[data-cv]").forEach(e => { e.href = l === "en" ? "cv/teddy-rhim-cv-en.pdf" : "cv/teddy-rhim-cv.pdf"; }); wpEl.setAttribute("aria-label", T[l].navLabel);
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
   document.title = "Teddy Rhim — " + T[l].role;
   try { localStorage.setItem("lang", l); } catch (e) {}
