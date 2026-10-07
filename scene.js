@@ -92,7 +92,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  world.add(new THREE.HemisphereLight(0x3a1d2a, 0x050203, 0.55));
+  world.add(new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
 
   const L = 110, z0 = 14, z1 = z0 - L;
   const midZ = (z0 + z1) / 2;
@@ -259,7 +259,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   leafShape.bezierCurveTo(1.0, 6.6, 0, 5.8, 0, DS); leafShape.lineTo(0, 0);
   const leafGeo = new THREE.ShapeGeometry(leafShape, 24);
   { const p = leafGeo.attributes.position, uv = leafGeo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / DW, p.getY(i) / DH); }
-  const doorMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodTex, bumpScale: 1.4, roughness: 0.9, metalness: 0.02, side: THREE.DoubleSide, emissive: 0x2a1308, emissiveMap: woodTex, emissiveIntensity: 0.6 });
+  const doorMat = new THREE.MeshStandardMaterial({ map: woodTex, bumpMap: woodTex, bumpScale: 1.4, roughness: 0.9, metalness: 0.02, side: THREE.DoubleSide, emissive: 0x2a1308, emissiveMap: woodTex, emissiveIntensity: 0.9 });
   const mkLeaf = side => {
     const hinge = new THREE.Group(); hinge.position.set(side * DW, 0, DZ + 0.02); if (side > 0) hinge.scale.x = -1;
     hinge.add(new THREE.Mesh(leafGeo, doorMat));
@@ -268,6 +268,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     world.add(hinge); return hinge;
   };
   const doorL = mkLeaf(-1), doorR = mkLeaf(1);
+  const anteLight = new THREE.PointLight(0xffb878, 0, 26, 1.6); anteLight.position.set(0, 5.5, 9); world.add(anteLight);
   const doorLight = new THREE.PointLight(0xffb066, 0, 22, 1.8); doorLight.position.set(0, 3.2, -0.5); world.add(doorLight);
   const doorGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softDot("255,170,90", .9), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0 }));
   doorGlow.position.set(0, 3.4, DZ - 0.3); doorGlow.scale.set(9, 9, 1); world.add(doorGlow);
@@ -281,6 +282,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     const tremble = cur > 0.02 && open < 0.05 ? Math.sin(t * 40) * 0.004 * clamp01((cur - 0.02) / 0.01) : 0;
     doorL.rotation.y = open * 1.9 + tremble; doorR.rotation.y = -open * 1.9 - tremble;
     const after = 1 - clamp01((cur - 0.085) / 0.04);
+    anteLight.intensity = 70 * (1 - clamp01((cur - 0.06) / 0.08));
     doorLight.intensity = open * 34 * after; doorGlow.material.opacity = open * 0.26 * after;
     const burst = Math.sin(Math.PI * clamp01((cur - 0.03) / 0.13));
     doorDust.material.opacity = 0.45 * burst;
@@ -453,45 +455,6 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
   }
   addEventListener("click", () => { if (hoverHit) { lastPuff = -99; puff(); } });
 
-  /* ——— Chauves-souris (3D) : une volée à chaque nouvelle salle ——— */
-  const batMat = new THREE.MeshBasicMaterial({ color: 0x3b141c, side: THREE.DoubleSide, fog: false });
-  const wingShape = new THREE.Shape();
-  wingShape.moveTo(0, 0); wingShape.quadraticCurveTo(0.45, 0.62, 1.55, 0.5);
-  wingShape.quadraticCurveTo(1.38, 0.1, 1.2, -0.1); wingShape.quadraticCurveTo(1.0, 0.05, 0.86, -0.22);
-  wingShape.quadraticCurveTo(0.66, -0.02, 0.5, -0.34); wingShape.quadraticCurveTo(0.3, -0.04, 0.14, -0.42); wingShape.lineTo(0, -0.28); wingShape.closePath();
-  const wingGeo = new THREE.ShapeGeometry(wingShape, 12);
-  const bodyGeo = new THREE.SphereGeometry(0.13, 12, 10); bodyGeo.scale(1, 1.7, 1);
-  const earGeo = new THREE.ConeGeometry(0.05, 0.18, 4);
-  let bats = [];
-  const BAT_AT = [0.2, 0.44, 0.68];
-  function sendBats(wave) {
-    // salles I et II : elles foncent vers nous ; salle III : elles partent de derrière nous vers le feu
-    const away = wave === 2;
-    for (let i = 0; i < 7; i++) {
-      const g = new THREE.Group();
-      const wr = new THREE.Mesh(wingGeo, batMat), wl = new THREE.Mesh(wingGeo, batMat); wl.scale.x = -1;
-      const body = new THREE.Mesh(bodyGeo, batMat);
-      const e1 = new THREE.Mesh(earGeo, batMat), e2 = new THREE.Mesh(earGeo, batMat); e1.position.set(-0.07, 0.24, 0); e2.position.set(0.07, 0.24, 0);
-      g.add(wr, wl, body, e1, e2);
-      const s = rnd(1.0, 1.5); g.scale.set(s, s, s);
-      const x = rnd(-2.6, 2.6);
-      g.position.set(x, rnd(2.6, 5.6), away ? camera.position.z - 4 - i * rnd(2, 3) : camera.position.z - 18 - i * rnd(2.5, 4.5));
-      world.add(g);
-      bats.push({ g, wr, wl, away, v: away ? -rnd(3.5, 5.5) : rnd(7, 11), ph: rnd(0, 6.28), fl: rnd(10, 14), x0: x, amp: rnd(.5, 1.3) });
-    }
-  }
-  function updateBats(t, dt) {
-    for (const b of bats) {
-      b.g.position.z += b.v * dt;
-      b.g.position.x = b.x0 + Math.sin(t * 1.7 + b.ph) * b.amp;
-      b.g.position.y += Math.sin(t * 2.3 + b.ph) * 0.014;
-      const a = Math.sin(t * b.fl + b.ph) * 0.8;
-      b.wr.rotation.z = a; b.wl.rotation.z = -a;
-      b.g.rotation.y = Math.sin(t * 1.7 + b.ph) * 0.3 + (b.away ? Math.PI : 0);
-    }
-    bats = bats.filter(b => { const z = b.g.position.z, keep = b.away ? z > z1 + 6 : z < camera.position.z + 6; if (!keep) world.remove(b.g); return keep; });
-  }
-
   /* Poussières en suspension */
   const N = 900;
   const dustPos = new Float32Array(N * 3), dustSpd = new Float32Array(N);
@@ -556,7 +519,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
     const t = clock.getElapsedTime(); const dt = Math.min(0.05, Math.max(0, t - prevT)); prevT = t;
     const before = cur;
     cur += (prog() - cur) * 0.06;
-    BAT_AT.forEach((th, k) => { if (before < th && cur >= th) sendBats(k); });
+    
     smx += (mx - smx) * 0.05; smy += (my - smy) * 0.05;
 
     // position sur le trajet
@@ -584,7 +547,7 @@ export function startScene({ canvas, projects, getProgress, onFrame }) {
       f.flame.scale.set(0.2 * (2 - fl), 0.42 * fl, 1);
       f.halo.material.opacity = 0.34 + 0.18 * fl;
     });
-    updateDoor(t); updateBrazier(t, dt); updateBats(t, dt);
+    updateDoor(t); updateBrazier(t, dt);
 
     // tableaux : fondu entre les captures
     paintings.forEach(p => {
