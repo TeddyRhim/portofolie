@@ -152,9 +152,9 @@ const canWebGL = (() => { try { const c = document.createElement("canvas"); retu
 const wantsLight = !canWebGL || matchMedia("(prefers-reduced-motion: reduce)").matches || (!new URLSearchParams(location.search).has("3d") && innerWidth < 700);
 if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
-// ?modern : rendu lumineux sans effet rétro, pour comparer
+// scène officielle : scene.js (rendu lumineux). scene-toon.js reste en réserve, accessible seulement avec ?toon
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import(q.has("toon") ? "./scene-toon.js" : q.has("modern") ? "./scene-modern.js" : "./scene.js")); }
+try { ({ startScene } = await import(q.has("toon") ? "./scene-toon.js" : "./scene.js")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
