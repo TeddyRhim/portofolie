@@ -800,9 +800,9 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     const moon = new THREE.Mesh(new THREE.CircleGeometry(2.7, 56), new THREE.MeshBasicMaterial({ color: 0xb81d2c, fog: false }));
     const moonBite = new THREE.Mesh(new THREE.CircleGeometry(2.45, 56), new THREE.MeshBasicMaterial({ color: 0x04050e, fog: false }));
     const moonRing = new THREE.Mesh(new THREE.RingGeometry(2.7, 2.9, 56), new THREE.MeshBasicMaterial({ color: 0x03020a, fog: false }));
-    moon.position.set(0, 8.6, z1 + 0.2); moonBite.position.set(1.0, 9.2, z1 + 0.25); moonRing.position.set(0, 8.6, z1 + 0.22);
+    moon.position.set(0, 0, 0); moonBite.position.set(1.0, 0.6, 0.05); moonRing.position.set(0, 0, 0.02);
     moon.userData.noInk = moonBite.userData.noInk = moonRing.userData.noInk = true;
-    world.add(moon, moonRing, moonBite);
+    const moonG = new THREE.Group(); moonG.add(moon, moonRing, moonBite); moonG.scale.setScalar(0.65); moonG.position.set(-3.2, 6.9, z1 + 0.2); world.add(moonG);
 
     // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
     const over = new Map([[patinaGold, 0x6a4a1c], [oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);

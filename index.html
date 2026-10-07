@@ -199,7 +199,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=15")); }
+try { ({ startScene } = await import("./scene.js?v=16")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
