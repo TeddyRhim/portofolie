@@ -137,6 +137,140 @@ function flameTexture() {
   });
 }
 
+/* ——— Textures « vieille pierre » (rendu normal) : briques ébréchées, sol fissuré, pierre patinée ——— */
+const mkCanvas = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
+const toTex = (c, srgb = true) => {
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 16;
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+};
+function blotch(g, w, h, x, y, r, rgb, a) {                 // tache douce, répétée pour que la texture se raccorde
+  for (const dx of [-w, 0, w]) for (const dy of [-h, 0, h]) {
+    const cx = x + dx, cy = y + dy;
+    if (cx + r < 0 || cx - r > w || cy + r < 0 || cy - r > h) continue;
+    const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0, `rgba(${rgb},${a})`); gr.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = gr; g.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
+}
+function crack(g, x, y, len, w, col) {                       // fissure irrégulière
+  g.strokeStyle = col; g.lineWidth = w; g.lineJoin = "round"; g.beginPath(); g.moveTo(x, y);
+  let a = rnd(0, 6.28);
+  for (let i = 0; i < 6; i++) { a += rnd(-.8, .8); x += Math.cos(a) * len / 6; y += Math.sin(a) * len / 6; g.lineTo(x, y); }
+  g.stroke();
+}
+
+function brickPair() {
+  const W = 1024, rows = 8, cols = 4, bh = W / rows, bw = W / cols;
+  const cc = mkCanvas(W, W), bc = mkCanvas(W, W), g = cc.getContext("2d"), b = bc.getContext("2d");
+  g.fillStyle = "#17110f"; g.fillRect(0, 0, W, W); b.fillStyle = "#1c1c1c"; b.fillRect(0, 0, W, W);
+  for (let i = 0; i < 30000; i++) { g.fillStyle = Math.random() < .5 ? `rgba(0,0,0,${Math.random() * .14})` : `rgba(110,98,86,${Math.random() * .1})`; g.fillRect(Math.random() * W, Math.random() * W, 2, 2); }
+  for (let r = 0; r < rows; r++) {
+    const off = (r % 2) * bw / 2;
+    for (let c = -1; c <= cols; c++) {
+      const x = c * bw + off + 7, y = r * bh + 7, ww = bw - 14, hh = bh - 14, j = rnd(3, 13);
+      const pts = [[x + rnd(0, j), y + rnd(0, j)], [x + ww - rnd(0, j), y + rnd(0, j)], [x + ww - rnd(0, j), y + hh - rnd(0, j)], [x + rnd(0, j), y + hh - rnd(0, j)]];
+      const path = ctx => { ctx.beginPath(); pts.forEach(([px, py], k) => k ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.closePath(); };
+      const hue = rnd(335, 372) % 360, sat = rnd(6, 20), lit = rnd(12, 24);
+      path(g); g.fillStyle = `hsl(${hue} ${sat}% ${lit}%)`; g.fill();
+      g.save(); path(g); g.clip();
+      const sh = g.createLinearGradient(0, y, 0, y + hh); sh.addColorStop(0, "rgba(255,225,200,.07)"); sh.addColorStop(.55, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.28)");
+      g.fillStyle = sh; g.fillRect(x, y, ww, hh);
+      blotch(g, W, W, x + rnd(0, ww), y + rnd(0, hh), rnd(30, 70), Math.random() < .5 ? "0,0,0" : "120,70,50", rnd(.08, .2));
+      for (let k = 0; k < 170; k++) { g.fillStyle = Math.random() < .55 ? `rgba(0,0,0,${Math.random() * .35})` : `rgba(210,190,170,${Math.random() * .14})`; g.fillRect(x + Math.random() * ww, y + Math.random() * hh, rnd(1, 3.5), rnd(1, 3.5)); }
+      g.restore();
+      path(b); b.fillStyle = `rgb(${rnd(150, 200) | 0},${rnd(150, 200) | 0},${rnd(150, 200) | 0})`; b.fill();
+      b.save(); path(b); b.clip();
+      for (let k = 0; k < 220; k++) { b.fillStyle = `rgba(${Math.random() < .5 ? "0,0,0" : "255,255,255"},${Math.random() * .22})`; b.fillRect(x + Math.random() * ww, y + Math.random() * hh, rnd(1, 4), rnd(1, 4)); }
+      if (Math.random() < .2) { const sx = x + rnd(10, ww - 10), sy = y + rnd(10, hh - 10), l = rnd(40, 110); b.save(); crack(b, sx, sy, l, 3, "rgba(0,0,0,.95)"); b.restore(); crack(g, sx, sy, l, 1.6, "rgba(0,0,0,.7)"); }
+      b.restore();
+    }
+  }
+  for (let i = 0; i < 16; i++) {                                // traînées d'humidité
+    const sx = Math.random() * W, sw = rnd(18, 56), sy = rnd(0, W), sl = rnd(200, 560);
+    for (const dx of [-W, 0, W]) for (const dy of [-W, 0]) {
+      const gr = g.createLinearGradient(0, sy + dy, 0, sy + dy + sl); gr.addColorStop(0, "rgba(0,0,0,.3)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = gr; g.fillRect(sx + dx, sy + dy, sw, sl);
+    }
+  }
+  for (let i = 0; i < 18; i++) blotch(g, W, W, Math.random() * W, rnd(.45, 1) * W, rnd(40, 110), "30,50,24", rnd(.1, .24));   // mousse
+  for (let i = 0; i < 14; i++) blotch(g, W, W, Math.random() * W, Math.random() * W, rnd(30, 90), "196,190,170", rnd(.04, .09)); // salpêtre
+  return [toTex(cc), toTex(bc, false)];
+}
+
+function floorSet() {
+  const W = 1024, n = 2, s = W / n;
+  const cc = mkCanvas(W, W), bc = mkCanvas(W, W), rc = mkCanvas(W, W), g = cc.getContext("2d"), b = bc.getContext("2d"), q = rc.getContext("2d");
+  b.fillStyle = "#a0a0a0"; b.fillRect(0, 0, W, W); q.fillStyle = "#5a5a5a"; q.fillRect(0, 0, W, W);
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    const x = i * s, y = j * s, dark = (i + j) % 2;
+    g.fillStyle = dark ? "#1f0d13" : "#100a0d"; g.fillRect(x, y, s, s);
+    g.save(); g.beginPath(); g.rect(x, y, s, s); g.clip();
+    for (let k = 0; k < 7; k++) { blotch(g, W, W, x + rnd(0, s), y + rnd(0, s), rnd(50, 160), Math.random() < .5 ? "0,0,0" : "120,80,70", rnd(.06, .16)); }
+    for (let k = 0; k < 7; k++) {                                // veines de la pierre
+      g.strokeStyle = `rgba(210,190,180,${rnd(.03, .09)})`; g.lineWidth = rnd(1, 2.4); g.beginPath();
+      const sx = x + rnd(0, s), sy = y + rnd(0, s); g.moveTo(sx, sy); g.bezierCurveTo(sx + rnd(-120, 120), sy + rnd(-120, 120), sx + rnd(-160, 160), sy + rnd(-160, 160), sx + rnd(-200, 200), sy + rnd(-200, 200)); g.stroke();
+    }
+    for (let k = 0; k < 60; k++) { g.strokeStyle = `rgba(230,210,190,${Math.random() * .08})`; g.lineWidth = rnd(.8, 2); const sx = x + rnd(0, s), sy = y + rnd(0, s); g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + rnd(-40, 40), sy + rnd(-12, 12)); g.stroke(); }
+    for (let k = 0; k < 6000; k++) { g.fillStyle = `rgba(255,255,255,${Math.random() * .035})`; g.fillRect(x + Math.random() * s, y + Math.random() * s, 2, 2); }
+    for (let k = 0; k < 2; k++) { if (Math.random() < .7) { const cx = x + rnd(40, s - 40), cy = y + rnd(40, s - 40), l = rnd(120, 300); crack(g, cx, cy, l, 2.2, "rgba(0,0,0,.8)"); crack(b, cx, cy, l, 5, "rgba(0,0,0,.95)"); } }
+    g.restore();
+    for (let k = 0; k < 40; k++) { b.fillStyle = `rgba(${Math.random() < .5 ? "0,0,0" : "255,255,255"},${Math.random() * .18})`; b.fillRect(x + Math.random() * s, y + Math.random() * s, rnd(2, 9), rnd(2, 9)); }
+    for (let k = 0; k < 5; k++) blotch(q, W, W, x + rnd(0, s), y + rnd(0, s), rnd(40, 130), "255,255,255", rnd(.15, .45));   // usure : zones mates
+  }
+  for (let i = 0; i <= n; i++) {                                // joints sombres + filet doré usé
+    for (const [ax, ay, bx2, by2] of [[i * s, 0, i * s, W], [0, i * s, W, i * s]]) {
+      g.strokeStyle = "#050304"; g.lineWidth = 10; g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx2, by2); g.stroke();
+      b.strokeStyle = "#202020"; b.lineWidth = 12; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx2, by2); b.stroke();
+      q.strokeStyle = "#eeeeee"; q.lineWidth = 12; q.beginPath(); q.moveTo(ax, ay); q.lineTo(bx2, by2); q.stroke();
+      let t = 0; const len = Math.hypot(bx2 - ax, by2 - ay), ux = (bx2 - ax) / len, uy = (by2 - ay) / len;
+      while (t < len) { const seg = rnd(40, 200); if (Math.random() < .72) { g.strokeStyle = `rgba(201,164,92,${rnd(.18, .42)})`; g.lineWidth = 3; g.beginPath(); g.moveTo(ax + ux * t, ay + uy * t); g.lineTo(ax + ux * (t + seg), ay + uy * (t + seg)); g.stroke(); } t += seg + rnd(0, 30); }
+    }
+  }
+  return { map: toTex(cc), bump: toTex(bc, false), rough: toTex(rc, false) };
+}
+
+function stoneSet() {                                           // colonnes : pierre patinée, veinée, plus sale en bas
+  const W = 512, cc = mkCanvas(W, W), bc = mkCanvas(W, W), g = cc.getContext("2d"), b = bc.getContext("2d");
+  g.fillStyle = "#4a3c3d"; g.fillRect(0, 0, W, W); b.fillStyle = "#909090"; b.fillRect(0, 0, W, W);
+  for (let i = 0; i < 40; i++) blotch(g, W, W, Math.random() * W, Math.random() * W, rnd(30, 120), Math.random() < .5 ? "0,0,0" : "150,120,110", rnd(.08, .2));
+  for (let i = 0; i < 10; i++) {
+    g.strokeStyle = `rgba(20,12,12,${rnd(.15, .4)})`; g.lineWidth = rnd(1, 2.4); g.beginPath();
+    const sx = Math.random() * W, sy = Math.random() * W; g.moveTo(sx, sy); g.bezierCurveTo(sx + rnd(-90, 90), sy + rnd(-120, 120), sx + rnd(-90, 90), sy + rnd(-160, 160), sx + rnd(-60, 60), sy + rnd(-200, 200)); g.stroke();
+  }
+  for (let i = 0; i < 9; i++) blotch(g, W, W, Math.random() * W, rnd(.5, 1) * W, rnd(40, 100), "28,46,22", rnd(.1, .22));
+  for (let i = 0; i < 14000; i++) { const dark = Math.random() < .55; g.fillStyle = dark ? `rgba(0,0,0,${Math.random() * .2})` : `rgba(220,200,190,${Math.random() * .1})`; g.fillRect(Math.random() * W, Math.random() * W, rnd(1, 3), rnd(1, 3)); }
+  for (let i = 0; i < 9000; i++) { b.fillStyle = `rgba(${Math.random() < .5 ? "0,0,0" : "255,255,255"},${Math.random() * .2})`; b.fillRect(Math.random() * W, Math.random() * W, rnd(1, 4), rnd(1, 4)); }
+  for (let i = 0; i < 6; i++) crack(b, Math.random() * W, Math.random() * W, rnd(60, 160), 3, "rgba(0,0,0,.9)");
+  return [toTex(cc), toTex(bc, false)];
+}
+
+function ceilingTexture() {                                     // voûte noircie par la suie
+  const W = 512, c = mkCanvas(W, W), g = c.getContext("2d");
+  g.fillStyle = "#130c0d"; g.fillRect(0, 0, W, W);
+  const bw = W / 4, bh = W / 8;
+  for (let r = 0; r < 8; r++) for (let k = -1; k < 5; k++) {
+    const x = k * bw + (r % 2) * bw / 2; g.fillStyle = `hsl(${rnd(340, 370) % 360} ${rnd(8, 18)}% ${rnd(5, 10)}%)`; g.fillRect(x + 4, r * bh + 4, bw - 8, bh - 8);
+  }
+  for (let i = 0; i < 30; i++) blotch(g, W, W, Math.random() * W, Math.random() * W, rnd(40, 130), "0,0,0", rnd(.2, .45));
+  for (let i = 0; i < 8000; i++) { g.fillStyle = `rgba(120,100,90,${Math.random() * .05})`; g.fillRect(Math.random() * W, Math.random() * W, 2, 2); }
+  return toTex(c);
+}
+
+function cobwebTexture() {                                      // toile accrochée dans un angle (coin haut-gauche)
+  return canvasTexture(256, 256, (g, w, h) => {
+    g.strokeStyle = "rgba(225,220,208,.75)"; g.lineWidth = 1.2;
+    const N = 7;
+    for (let a = 0; a <= N; a++) { const an = a / N * Math.PI / 2; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(an) * 250, Math.sin(an) * 250); g.stroke(); }
+    for (let r = 30; r < 250; r += 28) {
+      g.beginPath();
+      for (let a = 0; a <= N; a++) { const an = a / N * Math.PI / 2, rr = r - Math.sin(a / N * Math.PI) * (6 + r * .05); g.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); }
+      g.stroke();
+    }
+  });
+}
+
 /* ——— Scène ——— */
 export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   TOON = style === "toon";
@@ -168,19 +302,31 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   const midZ = (z0 + z1) / 2;
 
   /* Sol, murs, plafond */
-  const stoneMat = (rx, ry) => { const m = brickTexture(rx, ry); return new THREE.MeshStandardMaterial({ map: m, bumpMap: m, bumpScale: 1.2, roughness: 0.92, metalness: 0.02 }); };
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, L), new THREE.MeshStandardMaterial({ map: floorTexture(2, L / 5), roughness: 0.32, metalness: 0.25 }));
+  const brickBase = TOON ? [toonBrick(1, 1), null] : brickPair();
+  const stoneMat = (rx, ry, ox = 0, oy = 0) => {
+    const map = brickBase[0].clone(), bump = brickBase[1] ? brickBase[1].clone() : null;
+    for (const t of [map, bump]) if (t) { t.repeat.set(rx, ry); t.offset.set(ox, oy); t.needsUpdate = true; }
+    return new THREE.MeshStandardMaterial({ map, bumpMap: bump, bumpScale: 2.2, roughness: 0.92, metalness: 0.02 });
+  };
+  let floorMat;
+  if (TOON) floorMat = new THREE.MeshStandardMaterial({ map: floorTexture(2, L / 5), roughness: 0.32, metalness: 0.25 });
+  else { const fs = floorSet(); for (const t of [fs.map, fs.bump, fs.rough]) t.repeat.set(2, L / 5); floorMat = new THREE.MeshStandardMaterial({ map: fs.map, bumpMap: fs.bump, bumpScale: 2, roughnessMap: fs.rough, roughness: 1, metalness: 0.28 }); }
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, L), floorMat);
   floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, midZ); world.add(floor);
 
-  for (const side of [-1, 1]) {
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(L, 12), stoneMat(L / 6, 2));
-    wall.rotation.y = -side * Math.PI / 2; wall.position.set(side * 5, 6, midZ); world.add(wall);
+  // murs découpés entre les colonnes : chaque pan reçoit un décalage de texture différent (moins de répétition)
+  const edges = [z0]; for (let z = 12; z > z1 + 2; z -= 8) edges.push(z); edges.push(z1);
+  for (const side of [-1, 1]) for (let k = 0; k < edges.length - 1; k++) {
+    const len = edges[k] - edges[k + 1];
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(len, 12), stoneMat(len / 6, 2, Math.random(), Math.random()));
+    wall.rotation.y = -side * Math.PI / 2; wall.position.set(side * 5, 6, (edges[k] + edges[k + 1]) / 2); world.add(wall);
   }
-  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(10, L), new THREE.MeshStandardMaterial({ color: 0x0a0507, roughness: 1 }));
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(10, L), new THREE.MeshStandardMaterial(TOON ? { color: 0x0a0507, roughness: 1 } : { map: (() => { const t = ceilingTexture(); t.repeat.set(3, L / 6); return t; })(), roughness: 1 }));
   ceiling.rotation.x = Math.PI / 2; ceiling.position.set(0, 11.5, midZ); world.add(ceiling);
 
   /* Colonnes et nervures d'ogive */
-  const stone = new THREE.MeshStandardMaterial({ color: 0x2a1c20, roughness: 0.8, metalness: 0.05 });
+  const stoneS = TOON ? null : stoneSet(); if (stoneS) stoneS.forEach(t => t.repeat.set(1, 2));
+  const stone = new THREE.MeshStandardMaterial(TOON ? { color: 0x2a1c20, roughness: 0.8, metalness: 0.05 } : { color: 0xffffff, map: stoneS[0], bumpMap: stoneS[1], bumpScale: 2, roughness: 0.85, metalness: 0.04 });
   const gold = new THREE.MeshStandardMaterial({ color: 0x9a7a38, roughness: 0.36, metalness: 0.85, envMap: envTex, envMapIntensity: 0.55 });
   const colGeo = new THREE.CylinderGeometry(0.42, 0.5, 6.2, 18);
   const baseGeo = new THREE.BoxGeometry(1.3, 0.5, 1.3);
@@ -220,6 +366,17 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     halo.position.copy(flame.position); halo.scale.set(2.3, 2.3, 1);
     world.add(bracket, wax, flame, halo);
     flames.push({ flame, halo, ph: Math.random() * 100, sp: rnd(.8, 1.4) });
+  }
+
+  /* Toiles d'araignée dans les angles du plafond */
+  if (!TOON) {
+    const web = cobwebTexture(), webR = web.clone(); webR.repeat.x = -1; webR.offset.x = 1; webR.needsUpdate = true;
+    for (let z = 12; z > z1 + 2; z -= 8) for (const side of [-1, 1]) {
+      if (Math.random() < 0.4) continue;
+      const sz = rnd(2, 3.2);
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: side < 0 ? web : webR, transparent: true, opacity: rnd(0.3, 0.55), depthWrite: false }));
+      sp.scale.set(sz, sz, 1); sp.position.set(side * (4.9 - sz / 2), 11.4 - sz / 2, z + rnd(-2.5, 2.5)); world.add(sp);
+    }
   }
 
   /* Pool de lumières : seules les plus proches de la caméra éclairent */
