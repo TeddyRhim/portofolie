@@ -1,6 +1,6 @@
 # Portfolio de Teddy Rhim
 
-Portfolio de développeur full-stack : une descente en 3D dans un couloir gothique à la lueur des bougies, avec trois projets accrochés comme des tableaux et un brasero à la fin.
+Portfolio de développeur back-end : une descente en 3D dans un couloir gothique à la lueur des bougies, avec trois projets accrochés comme des tableaux et un brasero à la fin.
 
 - **`index.html`** : version 3D (Three.js, WebGL), pilotée par le défilement.
 - **`light.html`** : version légère en 2D, utilisée automatiquement sur petit écran, sans WebGL ou avec « réduire les animations ». Accessible aussi via le lien « Version légère ».

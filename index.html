@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teddy Rhim — Développeur full-stack</title>
-<meta name="description" content="Portfolio de Teddy Rhim, développeur full-stack : PHP/Symfony, Python/FastAPI, Next.js, RAG local. Une descente en 3D à la lueur des bougies.">
+<title>Teddy Rhim — Développeur back-end</title>
+<meta name="description" content="Portfolio de Teddy Rhim, développeur back-end : PHP/Symfony, Python/FastAPI, Next.js, RAG local. Une descente en 3D à la lueur des bougies.">
 <link rel="canonical" href="https://teddyrhim.github.io/portofolie/">
 <meta name="theme-color" content="#0b0709">
 <meta name="author" content="Teddy Rhim">
-<meta property="og:title" content="Teddy Rhim — Développeur full-stack">
+<meta property="og:title" content="Teddy Rhim — Développeur back-end">
 <meta property="og:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://teddyrhim.github.io/portofolie/">
@@ -20,11 +20,11 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Une grande porte gothique en bois, éclairée aux bougies, et le nom Teddy Rhim.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Teddy Rhim — Développeur full-stack">
+<meta name="twitter:title" content="Teddy Rhim — Développeur back-end">
 <meta name="twitter:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
 <meta name="twitter:image" content="https://teddyrhim.github.io/portofolie/media/og.jpg">
 <script type="application/ld+json">
-{ "@context": "https://schema.org", "@type": "Person", "name": "Teddy Rhim", "jobTitle": "Développeur full-stack",
+{ "@context": "https://schema.org", "@type": "Person", "name": "Teddy Rhim", "jobTitle": "Développeur back-end",
   "url": "https://teddyrhim.github.io/portofolie/", "sameAs": ["https://github.com/TeddyRhim"],
   "knowsAbout": ["PHP", "Symfony", "Python", "FastAPI", "Next.js", "PostgreSQL", "Docker", "RAG", "Ollama"] }
 </script>
@@ -77,6 +77,7 @@ a { color: inherit; }
 .panel { position: fixed; top: 50%; transform: translateY(-50%); z-index: 7; width: min(470px, 40vw); padding: 26px 28px 24px;
   background: rgba(11,7,9,.76); border: 1px solid rgba(201,164,92,.26); backdrop-filter: blur(5px);
   opacity: 0; visibility: hidden; pointer-events: none; }
+.panel { max-height: calc(100vh - 100px); overflow-y: auto; scrollbar-width: thin; }
 .panel.left { left: var(--gutter); } .panel.right { right: calc(var(--gutter) + 56px); }
 .panel::before, .panel::after { content: ""; position: absolute; width: 22px; height: 22px; border: 1px solid var(--gold); }
 .panel::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; } .panel::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
@@ -148,7 +149,7 @@ a { color: inherit; }
 <div class="hero" id="hero">
   <div>
     <h1>Teddy <em>Rhim</em></h1>
-    <p id="role">Développeur full-stack</p>
+    <p id="role">Développeur back-end</p>
     <small id="cue">Faites défiler pour descendre</small>
   </div>
 </div>
@@ -186,21 +187,21 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import("./scene.js?v=6")); }
+try { ({ startScene } = await import("./scene.js?v=7")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
 const T = {
   fr: {
-    role: "Développeur full-stack", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
+    role: "Développeur back-end", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub",
-    aPitch: "Développeur avec 5 ans d'expérience : PHP et Symfony pendant près de cinq ans sur un CRM immobilier international, puis des missions freelance, de plus en plus de Python et d'IA locale.",
-    a1: "PHP / Symfony : API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
-    a2: "Python / FastAPI : traitement de données, automatisation, LLM exécutés en local.",
-    a3: "Front et données : Next.js, TypeScript, Vue.js, jQuery ; PostgreSQL et MySQL.",
-    a4: "Sécurité, tests et revues de code ; Docker, CI/CD, Agile/Scrum.",
+    aPitch: "Développeur back-end avec 5 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
+    a1: "PHP / Symfony · près de 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
+    a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
+    a3: "Exploitation data et développement · 3 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.",
+    a4: "Aussi : Python, PostgreSQL et MySQL, Docker, CI/CD, tests et revues de code, Agile/Scrum.",
     aNote: "Trois projets vous attendent plus bas.",
     l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
     p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
@@ -219,15 +220,15 @@ const T = {
     cTitle: "Approchez-vous du feu", cLead: "Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.", mail: "Écrire un e-mail",
   },
   en: {
-    role: "Full-stack developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
+    role: "Back-end developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub",
-    aPitch: "Developer with 5 years of experience: PHP and Symfony for nearly five years on an international real-estate CRM, then freelance missions, with more and more Python and local AI.",
-    a1: "PHP / Symfony: REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
-    a2: "Python / FastAPI: data processing, automation, locally run LLMs.",
-    a3: "Front end and data: Next.js, TypeScript, Vue.js, jQuery; PostgreSQL and MySQL.",
-    a4: "Security, tests and code reviews; Docker, CI/CD, Agile/Scrum.",
+    aPitch: "Back-end developer with 5 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
+    a1: "PHP / Symfony · nearly 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
+    a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
+    a3: "Data operations and development · 3 months: Next.js / FastAPI applications, automation, chatbot on a local LLM.",
+    a4: "Also: Python, PostgreSQL and MySQL, Docker, CI/CD, tests and code reviews, Agile/Scrum.",
     aNote: "Three projects await further down.",
     l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
     p1: "A web application to track campaigns, manage contacts and import data.",
