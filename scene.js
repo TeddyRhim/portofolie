@@ -767,7 +767,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
   /* ——— Style dessiné : matériaux à aplats, vitraux, contours à l'encre ——— */
   let toonPass = null;
   if (TOON) {
-    const gradMap = new THREE.DataTexture(new Uint8Array([16, 18, 34, 255, 56, 56, 98, 255, 132, 124, 164, 255, 232, 222, 236, 255]), 4, 1, THREE.RGBAFormat);
+    const gradMap = new THREE.DataTexture(new Uint8Array([5, 6, 14, 255, 42, 42, 84, 255, 122, 114, 150, 255, 232, 222, 236, 255]), 4, 1, THREE.RGBAFormat);
     gradMap.minFilter = gradMap.magFilter = THREE.NearestFilter; gradMap.needsUpdate = true;
 
     // vitraux : verre coloré qui se détache sur la pierre
@@ -796,8 +796,16 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
       world.add(frame, glassMesh);
     }
 
+    // lune de sang en croissant, au-dessus du brasero
+    const moon = new THREE.Mesh(new THREE.CircleGeometry(2.7, 56), new THREE.MeshBasicMaterial({ color: 0xb81d2c, fog: false }));
+    const moonBite = new THREE.Mesh(new THREE.CircleGeometry(2.45, 56), new THREE.MeshBasicMaterial({ color: 0x04050e, fog: false }));
+    const moonRing = new THREE.Mesh(new THREE.RingGeometry(2.7, 2.9, 56), new THREE.MeshBasicMaterial({ color: 0x03020a, fog: false }));
+    moon.position.set(0, 8.6, z1 + 0.2); moonBite.position.set(1.0, 9.2, z1 + 0.25); moonRing.position.set(0, 8.6, z1 + 0.22);
+    moon.userData.noInk = moonBite.userData.noInk = moonRing.userData.noInk = true;
+    world.add(moon, moonRing, moonBite);
+
     // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
-    const over = new Map([[patinaGold, 0x8a5e24], [oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
+    const over = new Map([[patinaGold, 0x6a4a1c], [oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
     const cache = new Map();
     const conv = m => {
       if (!m || !m.isMeshStandardMaterial) return m;
@@ -813,7 +821,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
 
     // contours à l'encre : on redessine chaque forme, légèrement gonflée, face cachée vers nous
     const inkMat = new THREE.ShaderMaterial({
-      side: THREE.BackSide, uniforms: { uThick: { value: 0.034 }, uCol: { value: new THREE.Color(0x03020a) } },
+      side: THREE.BackSide, uniforms: { uThick: { value: 0.05 }, uCol: { value: new THREE.Color(0x03020a) } },
       vertexShader: "uniform float uThick; void main(){ vec3 p = position + normalize(normal) * uThick; gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.); }",
       fragmentShader: "uniform vec3 uCol; void main(){ gl_FragColor = vec4(uCol, 1.); }",
     });
@@ -823,19 +831,35 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     });
     inked.forEach(o => { const h = new THREE.Mesh(o.geometry, inkMat); h.userData.noInk = true; o.add(h); });
 
-    // grain de papier, ombres un peu bleutées, couleurs plus vives
+    // rendu manga : contours d'encre, hachures dans l'ombre, points de trame dans les demi-teintes, palette éteinte (rouge et or chauds gardés)
     toonPass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null } },
+      uniforms: { tDiffuse: { value: null }, uRes: { value: new THREE.Vector2(innerWidth, innerHeight) } },
       vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }",
-      fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+      fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 uRes; varying vec2 vUv;
         float h21(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+        float lum(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
         void main(){
+          vec2 px = 1. / uRes;
           vec3 c = texture2D(tDiffuse, vUv).rgb;
-          float n = h21(floor(vUv * vec2(900., 560.)));
-          c *= 0.95 + n * 0.1;
-          float l = dot(c, vec3(.299, .587, .114));
-          c = mix(vec3(l), c, 1.18);
-          c += vec3(0., .008, .03) * (1. - l);
+          float l0 = lum(c);
+          float lx = lum(texture2D(tDiffuse, vUv + vec2(px.x * 1.5, 0.)).rgb) - lum(texture2D(tDiffuse, vUv - vec2(px.x * 1.5, 0.)).rgb);
+          float ly = lum(texture2D(tDiffuse, vUv + vec2(0., px.y * 1.5)).rgb) - lum(texture2D(tDiffuse, vUv - vec2(0., px.y * 1.5)).rgb);
+          float edge = smoothstep(.2, .45, length(vec2(lx, ly)));
+          float red = clamp((c.r - max(c.g, c.b)) * 3., 0., 1.);
+          float warm = clamp((c.r - c.b) * 1.4, 0., 1.);
+          c = mix(vec3(l0), c, .32 + .95 * max(red, warm * .7));
+          c = mix(c * vec3(.78, .84, 1.14), c, smoothstep(0., .55, l0));
+          vec2 fp = gl_FragCoord.xy * (455. / uRes.y);
+          float h1 = step(.5, fract((fp.x + fp.y) * .34)), h2 = step(.5, fract((fp.x - fp.y) * .34));
+          float dark = 1. - smoothstep(.07, .2, l0), darker = 1. - smoothstep(0., .09, l0);
+          c *= 1. - .5 * dark * h1 - .5 * darker * h2;
+          vec2 cell = fract(fp * .2) - .5;
+          float dotm = step(length(cell), .2 + (.4 - l0) * .45);
+          float mid = smoothstep(.2, .3, l0) * (1. - smoothstep(.34, .5, l0));
+          c *= 1. - .28 * mid * dotm;
+          c = mix(c, vec3(.01, .006, .02), edge * .92);
+          c *= .95 + h21(floor(fp * 1.3)) * .1;
+          c = pow(max(c, 0.), vec3(1.06));
           gl_FragColor = vec4(c, 1.);
         }`,
     });
@@ -958,6 +982,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style }) {
     // qualité adaptative : si la machine peine, on baisse un peu la définition
     ft += dt; fn++;
     if (fn === 90) { if (ft / fn > 0.026 && dpr > 1.1) { dpr = Math.max(1, dpr - 0.5); renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); composer.setSize(innerWidth, innerHeight); } ft = 0; fn = 0; }
+    if (toonPass) toonPass.uniforms.uRes.value.set(innerWidth * dpr, innerHeight * dpr);
     composer.render();
     onFrame && onFrame(cur, t);
   }

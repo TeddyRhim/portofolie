@@ -119,6 +119,17 @@ a { color: inherit; }
 .loading { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--bg); color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 26px; transition: opacity 1s; }
 .loading.off { opacity: 0; pointer-events: none; }
 
+
+/* Style dessiné (easter egg ?toon) : planches de manga, encre noire, rouge sang */
+body.toon .panel { background: rgba(6,4,10,.93); backdrop-filter: none; border: 2px solid var(--ivory); box-shadow: 7px 7px 0 #7a0f1f; }
+body.toon .panel::before, body.toon .panel::after { border-color: #b3263a; }
+body.toon .panel h2, body.toon .contact h2 { font-weight: 600; letter-spacing: .01em; }
+body.toon .hero h1 { font-weight: 600; -webkit-text-stroke: 3px #05030a; paint-order: stroke fill; text-shadow: 6px 6px 0 #7a0f1f; }
+body.toon .vignette { background: radial-gradient(ellipse at center, transparent 48%, rgba(0,0,0,.72) 100%); }
+body.toon .vignette::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,.6) 1.2px, transparent 1.7px) 0 0 / 7px 7px; -webkit-mask-image: radial-gradient(ellipse at center, transparent 58%, #000 100%); mask-image: radial-gradient(ellipse at center, transparent 58%, #000 100%); }
+body.toon::before, body.toon::after { content: ""; position: fixed; left: 0; right: 0; height: 3.2vh; background: #020106; z-index: 8; pointer-events: none; }
+body.toon::before { top: 0; border-bottom: 2px solid #8c1c2b; } body.toon::after { bottom: 0; border-top: 2px solid #8c1c2b; }
+body.toon .btn { border-width: 2px; }
 @media (max-width: 860px) {
   .gauge .rail, .gauge .depth { display: none; }
   .gauge { top: auto; bottom: auto; top: 76px; right: 16px; transform: none; }
@@ -187,7 +198,8 @@ if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
-try { ({ startScene } = await import("./scene.js?v=14")); }
+if (q.has("toon")) document.body.classList.add("toon");
+try { ({ startScene } = await import("./scene.js?v=15")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
