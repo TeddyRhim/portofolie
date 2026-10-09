@@ -87,6 +87,7 @@ button.alt[aria-pressed="true"] { color: var(--gold); border-color: var(--gold);
 .panel .lvl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
 .panel h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 3.4vw, 46px); line-height: 1.05; margin: 8px 0 8px; }
 .panel .pitch { font-family: var(--serif); font-style: italic; font-size: clamp(17px, 1.7vw, 21px); color: var(--ivory-dim); line-height: 1.3; }
+.panel .stats { margin-top: 14px; font-size: 13px; letter-spacing: .02em; color: var(--ivory); border-left: 2px solid var(--blood-soft); padding-left: 10px; }
 .panel .sub { margin-top: 16px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); }
 .panel ul { list-style: none; display: grid; gap: 9px; margin-top: 10px; font-size: 14px; }
 .panel li { padding-left: 18px; position: relative; }
@@ -248,13 +249,14 @@ body.toon .gal-head h2 { font-weight: 600; }
    (sauf si l'on force la 3D avec ?3d), ou échec du chargement de la scène. */
 const LIGHT = "light.html";
 const canWebGL = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
-const wantsLight = !canWebGL || matchMedia("(prefers-reduced-motion: reduce)").matches || (!new URLSearchParams(location.search).has("3d") && innerWidth < 700);
+const force3d = new URLSearchParams(location.search).has("3d");
+const wantsLight = !canWebGL || (!force3d && (matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth < 700));
 if (wantsLight) { location.replace(LIGHT); await new Promise(() => {}); }
 let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=24")); }
+try { ({ startScene } = await import("./scene.js?v=25")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -268,6 +270,16 @@ const T = {
     alt1: "Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord.",
     alt2: "Captures de l'assistant candidatures : suivi des candidatures, offres classées par correspondance avec le profil.",
     alt3: "Captures du chatbot : réponse avec sources, réponse « je ne sais pas ».",
+    cap1_0: "Liste des campagnes avec leur statut : brouillon, active, en pause, terminée.",
+    cap1_1: "Détail d'une campagne : description, date de création et contacts associés.",
+    cap1_2: "Tableau de bord : nombre de campagnes, de contacts et d'imports.",
+    cap2_0: "Suivi par statut : une relance est signalée comme due une fois sa date dépassée.",
+    cap2_1: "Offres classées par correspondance avec mon profil, avec le détail du calcul.",
+    cap3_0: "Question sur une hypothèse : le bot répond avec prudence et cite sa fiche.",
+    cap3_1: "Source dépliée ; quand l'information n'existe pas dans les notes, il répond « je ne sais pas ».",
+    st1: "11 migrations Alembic · 5 groupes de routes · JWT et rôles",
+    st2: "7 sources d'offres · 273 tests automatisés",
+    st3: "hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %",
     aPitch: "Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
     a1: "PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
     a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
@@ -299,6 +311,16 @@ const T = {
     alt1: "Screenshots of CTA Campaign Manager: campaign list, campaign details, dashboard.",
     alt2: "Screenshots of the job-application assistant: application tracking, offers ranked by match with the profile.",
     alt3: "Screenshots of the chatbot: answer with sources, \"I don't know\" answer.",
+    cap1_0: "Campaign list with status: draft, active, paused, finished.",
+    cap1_1: "Campaign details: description, creation date and linked contacts.",
+    cap1_2: "Dashboard: number of campaigns, contacts and imports.",
+    cap2_0: "Tracking by status: a follow-up is flagged as due once its date has passed.",
+    cap2_1: "Offers ranked by match with my profile, with the scoring breakdown.",
+    cap3_0: "Question about a hypothesis: the bot answers cautiously and cites its note.",
+    cap3_1: "Source expanded; when the information is not in the notes, it answers \"I don't know\".",
+    st1: "11 Alembic migrations · 5 route groups · JWT and roles",
+    st2: "7 job sources · 273 automated tests",
+    st3: "hit@6 of 96% (hybrid) · 104 test questions, overall score 94%",
     aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
     a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
     a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
@@ -325,15 +347,15 @@ const T = {
 
 /* ——— Projets (positions dans le couloir, côté du mur, fenêtre de défilement) ——— */
 const PROJECTS = [
-  { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], note: "note1",
+  { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], stat: "st1", note: "note1",
     chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
     href: "https://github.com/TeddyRhim/cta-campaign-manager",
     imgs: ["media/cta-1.jpg?v=3", "media/cta-2.jpg?v=3", "media/cta-3.jpg?v=3"], side: 1, z: -24, win: [0.20, 0.36] },
-  { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], note: "note2",
+  { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], stat: "st2", note: "note2",
     chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
     href: "https://github.com/TeddyRhim/assistant-candidature",
     imgs: ["media/assistant-2.jpg?v=3", "media/assistant-1.jpg?v=3"], side: -1, z: -48, win: [0.44, 0.60] },
-  { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], note: "note3",
+  { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], stat: "st3", note: "note3",
     chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
     href: "https://github.com/TeddyRhim/ChatbotIA",
     imgs: ["media/chatbot-1.jpg?v=3", "media/chatbot-2.jpg?v=3"], side: 1, z: -72, win: [0.68, 0.84] },
@@ -353,6 +375,7 @@ const panels = PROJECTS.map(pr => {
   el.setAttribute("aria-label", pr.title);
   el.innerHTML = `<div class="lvl" data-t="${pr.lvl}"></div><h2>${pr.title}</h2><p class="pitch" data-t="${pr.pitch}"></p>
     <p class="sub" data-t="sub"></p><ul>${pr.pts.map(k => `<li data-t="${k}"></li>`).join("")}</ul>
+    <p class="stats" data-t="${pr.stat}"></p>
     <div class="chips">${pr.chips.map(c => `<span>${c}</span>`).join("")}</div>
     <div class="row"><button type="button" class="btn" data-shots="${pr.id}" data-t="shots"></button>
     <a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a></div>
@@ -406,7 +429,7 @@ let gi = 0, gk = 0, lastFocus = null, galTimer = 0;
 function renderShot() {
   const pr = PROJECTS[gi], n = pr.imgs.length, src = pr.imgs[gk];
   $("galLvl").textContent = T[lang][pr.lvl]; $("galTitle").textContent = pr.title;
-  $("galCap").innerHTML = `<b>${gk + 1} / ${n}</b>${T[lang]["alt" + (gi + 1)]} ${T[lang][pr.note]}`;
+  $("galCap").innerHTML = `<b>${gk + 1} / ${n}</b>${T[lang]["cap" + (gi + 1) + "_" + gk]} ${T[lang][pr.note]}`;
   $("galPrev").disabled = gk === 0; $("galNext").disabled = gk === n - 1;
   galThumbs.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-current", k === gk ? "true" : "false"));
   if (galImg.getAttribute("src") !== src) {

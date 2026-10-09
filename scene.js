@@ -296,7 +296,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 
-  world.add(TOON ? new THREE.HemisphereLight(0x3a4690, 0x080614, 0.42) : new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
+  world.add(TOON ? new THREE.HemisphereLight(0x3a4690, 0x080614, 0.58) : new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
 
   const L = 110, z0 = 14, z1 = z0 - L;
   const midZ = (z0 + z1) / 2;
@@ -767,7 +767,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
   /* ——— Style dessiné : matériaux à aplats, vitraux, contours à l'encre ——— */
   let toonPass = null;
   if (TOON) {
-    const gradMap = new THREE.DataTexture(new Uint8Array([5, 6, 14, 255, 42, 42, 84, 255, 122, 114, 150, 255, 232, 222, 236, 255]), 4, 1, THREE.RGBAFormat);
+    const gradMap = new THREE.DataTexture(new Uint8Array([11, 12, 28, 255, 48, 48, 94, 255, 122, 114, 150, 255, 232, 222, 236, 255]), 4, 1, THREE.RGBAFormat);
     gradMap.minFilter = gradMap.magFilter = THREE.NearestFilter; gradMap.needsUpdate = true;
 
     // vitraux : verre coloré qui se détache sur la pierre

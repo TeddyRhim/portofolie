@@ -161,6 +161,7 @@ h1.name .w.r { font-style: italic; color: var(--blood-soft); }
 .points { list-style: none; display: grid; gap: 14px; }
 .points li { padding-left: 22px; position: relative; color: var(--ivory); }
 .points li::before { content: ""; position: absolute; left: 0; top: .72em; width: 7px; height: 7px; border: 1px solid var(--blood-soft); transform: rotate(45deg); }
+.stats { margin: 18px 0 0; font-size: 14px; color: var(--ivory); border-left: 2px solid var(--blood-soft); padding-left: 12px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 26px; }
 .chips span { border: 1px solid var(--gold-dim); color: var(--ivory); padding: 4px 12px; font-size: 13px; letter-spacing: .04em; background: rgba(26,13,18,.7); }
 .links { display: flex; flex-wrap: wrap; gap: 14px; }
@@ -361,6 +362,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
             <li data-i18n="p1b">Backend en couches (routers, services, schémas, modèles) et migrations de base de données avec Alembic.</li>
             <li data-i18n="p1c">Interface Next.js et TypeScript : tableau de bord, détail des campagnes, recherche de contacts, historique et import de fichiers rattachés à une campagne.</li>
           </ul>
+          <p class="stats" data-i18n="st1">11 migrations Alembic · 5 groupes de routes · JWT et rôles</p>
           <div class="chips"><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span><span>Alembic</span><span>JWT</span><span>Next.js</span><span>TypeScript</span><span>Tailwind</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/cta-campaign-manager" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
@@ -385,6 +387,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
             <li data-i18n="p2b">Génération d'un CV ciblé et d'une lettre en PDF pour chaque offre, à partir d'un CV de référence, sans rien inventer.</li>
             <li data-i18n="p2c">Suivi des candidatures par statut avec relances. Tout reste sur la machine, rien n'est envoyé automatiquement.</li>
           </ul>
+          <p class="stats" data-i18n="st2">7 sources d'offres · 273 tests automatisés</p>
           <div class="chips"><span>Python</span><span>Streamlit</span><span>SQLite</span><span>REST APIs</span><span>uv</span><span>pytest</span><span>ruff</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/assistant-candidature" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
@@ -409,6 +412,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
             <li data-i18n="p3b">Des réponses mesurées : jeu d'évaluation avec hit@k, MRR, abstention et ancrage dans les sources. Le bot répond « je ne sais pas » quand rien de pertinent n'est trouvé.</li>
             <li data-i18n="p3c">Une base structurée en fiches avec liens entre elles, et une tentative de fine-tuning LoRA abandonnée en connaissance de cause (données trop limitées), conservée dans le dépôt.</li>
           </ul>
+          <p class="stats" data-i18n="st3">hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %</p>
           <div class="chips"><span>Python</span><span>Ollama</span><span>ChromaDB</span><span>RAG</span><span>Embeddings</span><span>Streamlit</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/ChatbotIA" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
@@ -474,6 +478,9 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       cTitle: "Approchez-vous du feu",
       cLead: "Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.",
       mail: "Écrire un e-mail",
+      st1: "11 migrations Alembic · 5 groupes de routes · JWT et rôles",
+      st2: "7 sources d'offres · 273 tests automatisés",
+      st3: "hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %",
       note1: "Captures : données fictives.",
       note2: "Captures : profil et offres d'exemple, aucune donnée personnelle.",
       note3: "Captures : univers fictif d'exemple.",
@@ -505,6 +512,9 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       cTitle: "Come closer to the fire",
       cLead: "A project, an opportunity, a technical question: write to me, I'd be glad to talk.",
       mail: "Send an email",
+      st1: "11 Alembic migrations · 5 route groups · JWT and roles",
+      st2: "7 job sources · 273 automated tests",
+      st3: "hit@6 of 96% (hybrid) · 104 test questions, overall score 94%",
       note1: "Screenshots: fictional data.",
       note2: "Screenshots: sample profile and offers, no personal data.",
       note3: "Screenshots: sample fictional universe.",
