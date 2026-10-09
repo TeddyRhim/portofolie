@@ -39,7 +39,7 @@
 } }
 </script>
 <style>
-:root { --bg:#0b0709; --gold:#c9a45c; --gold-dim:rgba(201,164,92,.35); --ivory:#e8dfd0; --ivory-dim:#b9ae9f; --blood-soft:#b3263a;
+:root { --bg:#0b0709; --gold:#c9a45c; --gold-dim:rgba(201,164,92,.35); --ivory:#e8dfd0; --ivory-dim:#b9ae9f; --blood-soft:#c42d43;
   --serif:"Cormorant Garamond",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --gutter:clamp(20px,5vw,72px); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: auto; }
@@ -393,7 +393,7 @@ aboutEl.innerHTML = `<div class="lvl" data-t="lAbout"></div><h2 id="aTitleH" dat
   <a class="btn" href="https://github.com/TeddyRhim" target="_blank" rel="noopener" data-t="aGit"></a>
   <a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a></div>
   <p class="note" data-t="aNote"></p>`;
-panelsEl.appendChild(aboutEl);
+panelsEl.prepend(aboutEl);   // ordre de lecture : À propos avant les projets
 
 /* Navigation : correspondance entre le défilement et la position dans la scène (une halte « à propos » est étirée) */
 const SC = [0, 0.10, 0.12, 0.17, 0.20, 1], SP = [0, 0.12, 0.14, 0.155, 0.19, 1];
