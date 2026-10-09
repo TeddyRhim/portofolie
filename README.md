@@ -25,3 +25,7 @@ Puis ouvrir <http://127.0.0.1:8766/>.
 - [cta-campaign-manager](https://github.com/TeddyRhim/cta-campaign-manager) : FastAPI, PostgreSQL, Next.js, TypeScript.
 - [assistant-candidature](https://github.com/TeddyRhim/assistant-candidature) : Python, Streamlit, SQLite.
 - [ChatbotIA](https://github.com/TeddyRhim/ChatbotIA) : RAG local avec Ollama et ChromaDB.
+
+## Licence
+
+Le code est distribué sous licence [MIT](LICENSE). Le CV (`cv/`) et les captures (`media/`) restent la propriété de leur auteur.
