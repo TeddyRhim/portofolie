@@ -242,6 +242,8 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
 /* ——— Captures ——— */
 .demo.filled { display: block; position: relative; overflow: hidden; background: #000; }
 .demo .shot { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.demo .clip { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; background: #000; }
+.demo .shot[hidden], .demo .clip[hidden] { display: none; }
 .thumbs { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; gap: 6px; justify-content: flex-end; }
 .thumbs button { width: 12px; height: 12px; padding: 0; border: 1px solid var(--gold); background: rgba(11,7,9,.7); transform: rotate(45deg); }
 .thumbs button[aria-current="true"] { background: var(--gold); }
@@ -366,7 +368,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
           <div class="chips"><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span><span>Alembic</span><span>JWT</span><span>Next.js</span><span>TypeScript</span><span>Tailwind</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/cta-campaign-manager" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/cta-1.jpg?v=3,media/cta-2.jpg?v=3,media/cta-3.jpg?v=3" data-alt="Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note1"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="media/cta-demo.mp4?v=1" data-vidalt="Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts" data-img="media/cta-1.jpg?v=4,media/cta-2.jpg?v=4,media/cta-3.jpg?v=4" data-alt="Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note1"></p></div>
       </div>
     </div>
   </section>
@@ -391,7 +393,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
           <div class="chips"><span>Python</span><span>Streamlit</span><span>SQLite</span><span>REST APIs</span><span>uv</span><span>pytest</span><span>ruff</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/assistant-candidature" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/assistant-2.jpg?v=3,media/assistant-1.jpg?v=3" data-alt="Captures de l'assistant candidatures : offres classées par correspondance avec le profil, suivi des candidatures"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note2"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="media/assistant-demo.mp4?v=1" data-vidalt="Démonstration vidéo de l'assistant candidatures : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi" data-img="media/assistant-2.jpg?v=3,media/assistant-1.jpg?v=3" data-alt="Captures de l'assistant candidatures : offres classées par correspondance avec le profil, suivi des candidatures"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note2"></p></div>
       </div>
     </div>
   </section>
@@ -649,17 +651,22 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
     const corners = [...d.querySelectorAll(".oc")];
     d.classList.add("filled");
     const note = d.parentElement.parentElement.querySelector(".note"); if (note) note.classList.add("on");
-    if (vid) {
-      d.innerHTML = /youtube\.com|youtu\.be|vimeo/.test(vid)
-        ? `<iframe src="${vid}" title="Demo" allowfullscreen loading="lazy"></iframe>`
-        : `<video src="${vid}" controls preload="metadata"${imgs[0] ? ` poster="${imgs[0]}"` : ""}></video>`;
+    if (vid && /youtube\.com|youtu\.be|vimeo/.test(vid)) {
+      d.innerHTML = `<iframe src="${vid}" title="Demo" allowfullscreen loading="lazy"></iframe>`;
     } else {
-      d.innerHTML = `<img class="shot" src="${imgs[0]}" alt="${alt}" loading="lazy">` +
-        (imgs.length > 1 ? `<div class="thumbs">${imgs.map((_, i) => `<button type="button" aria-label="${i + 1}" aria-current="${i === 0}"></button>`).join("")}</div>` : "");
-      const shot = d.querySelector(".shot");
-      shot.addEventListener("click", () => { lbImg.src = shot.src; lbImg.alt = alt; lb.hidden = false; });
+      /* Démonstration vidéo éventuelle, puis captures ; les miniatures permettent de passer de l'une à l'autre. */
+      const items = [...(vid ? [{ vid }] : []), ...imgs.map(src => ({ src }))];
+      const vidAlt = d.dataset.vidalt || alt;
+      d.innerHTML = (vid ? `<video class="clip" src="${vid}" controls muted loop playsinline preload="metadata"${imgs[0] ? ` poster="${imgs[0]}"` : ""} aria-label="${vidAlt}"></video>` : "") +
+        (imgs.length ? `<img class="shot" src="${imgs[0]}" alt="${alt}" loading="lazy"${vid ? " hidden" : ""}>` : "") +
+        (items.length > 1 ? `<div class="thumbs">${items.map((_, i) => `<button type="button" aria-label="${i + 1}" aria-current="${i === 0}"></button>`).join("")}</div>` : "");
+      const shot = d.querySelector(".shot"), clip = d.querySelector(".clip");
+      if (shot) shot.addEventListener("click", () => { lbImg.src = shot.src; lbImg.alt = alt; lb.hidden = false; });
       d.querySelectorAll(".thumbs button").forEach((b, i) => b.addEventListener("click", () => {
-        shot.src = imgs[i]; d.querySelectorAll(".thumbs button").forEach((o, k) => o.setAttribute("aria-current", k === i));
+        const s = items[i];
+        if (clip) { clip.hidden = !s.vid; if (!s.vid) clip.pause(); }
+        if (shot) { shot.hidden = !!s.vid; if (!s.vid) shot.src = s.src; }
+        d.querySelectorAll(".thumbs button").forEach((o, k) => o.setAttribute("aria-current", k === i));
       }));
     }
     corners.forEach(c => d.appendChild(c));
