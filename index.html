@@ -151,6 +151,8 @@ body.gal-open { overflow: hidden; }
   border: 8px solid transparent; border-image: linear-gradient(135deg, #6a4e20, #e2c274 28%, #8a6c36 52%, #d4b365 78%, #6a4e20) 1;
   box-shadow: 0 0 0 1px #120a07, 0 0 80px rgba(201,164,92,.16), 0 24px 90px #000; }
 .gal-frame img { display: block; width: 100%; height: auto; object-fit: contain; margin: 0 auto; transition: opacity .18s; }
+.gal-frame video { display: block; width: 100%; height: auto; margin: 0 auto; background: #000; }
+.gal-frame img[hidden], .gal-frame video[hidden] { display: none; }
 .gal-frame .c { position: absolute; width: 16px; height: 16px; background: #c9a45c; transform: rotate(45deg); box-shadow: 0 0 10px rgba(255,200,110,.5); }
 .gal-frame .c.tl { top: -17px; left: -17px; } .gal-frame .c.tr { top: -17px; right: -17px; } .gal-frame .c.bl { bottom: -17px; left: -17px; } .gal-frame .c.br { bottom: -17px; right: -17px; }
 .gal-nav { flex: none; background: none; border: 1px solid var(--gold-dim); color: var(--gold); width: 46px; height: 46px; font-size: 30px; line-height: 1; cursor: pointer; transition: background .2s, color .2s; }
@@ -160,7 +162,10 @@ body.gal-open { overflow: hidden; }
 .gal-cap b { font-style: normal; font-weight: 500; color: var(--gold); letter-spacing: .12em; margin-right: 8px; }
 .gal-thumbs { display: flex; gap: 10px; justify-content: center; }
 .gal-thumbs button { padding: 0; border: 1px solid var(--gold-dim); background: #0d0709; cursor: pointer; opacity: .55; transition: opacity .2s, border-color .2s, box-shadow .2s; }
+.gal-thumbs button { position: relative; }
 .gal-thumbs button img { display: block; width: 92px; height: 58px; object-fit: cover; }
+.gal-thumbs button.v img { filter: brightness(.55); }
+.gal-thumbs button.v::after { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-35%, -50%); border-style: solid; border-width: 9px 0 9px 15px; border-color: transparent transparent transparent #e8dfcd; filter: drop-shadow(0 0 4px #000); pointer-events: none; }
 .gal-thumbs button[aria-current="true"], .gal-thumbs button:hover { opacity: 1; border-color: var(--gold); box-shadow: 0 0 14px rgba(201,164,92,.35); }
 .tip { position: fixed; left: 0; top: 0; z-index: 12; pointer-events: none; opacity: 0; transition: opacity .2s; padding: 5px 11px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; background: rgba(11,7,9,.88); border: 1px solid var(--gold); color: var(--gold); white-space: nowrap; }
 .tip.on { opacity: 1; }
@@ -233,7 +238,7 @@ body.toon .gal-head h2 { font-weight: 600; }
   <div class="gal-head"><div class="gal-lvl" id="galLvl"></div><h2 id="galTitle"></h2></div>
   <div class="gal-stage" id="galStage">
     <button type="button" class="gal-nav" id="galPrev" aria-label="Précédent">‹</button>
-    <figure class="gal-frame"><img id="galImg" alt=""><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></figure>
+    <figure class="gal-frame"><img id="galImg" alt=""><video id="galVid" controls muted loop playsinline preload="metadata" hidden></video><i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i></figure>
     <button type="button" class="gal-nav" id="galNext" aria-label="Suivant">›</button>
   </div>
   <p class="gal-cap" id="galCap"></p>
@@ -266,6 +271,10 @@ const T = {
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)", sndOff: "Son : coupé", sndOn: "Son : activé",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub", cv: "Télécharger mon CV",
+    altv1: "Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
+    capv1: "Démonstration : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
+    altv2: "Démonstration vidéo de l'assistant candidatures : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi.",
+    capv2: "Démonstration : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi.",
     shots: "Voir les captures", tip: "Voir les captures", close: "Fermer", prev: "Image précédente", next: "Image suivante",
     alt1: "Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord.",
     alt2: "Captures de l'assistant candidatures : suivi des candidatures, offres classées par correspondance avec le profil.",
@@ -307,6 +316,10 @@ const T = {
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)", sndOff: "Sound: off", sndOn: "Sound: on",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
+    altv1: "Video demo of CTA Campaign Manager: dashboard, campaigns, CSV file import and contacts.",
+    capv1: "Demo: dashboard, campaigns, CSV file import and contacts.",
+    altv2: "Video demo of the job-application assistant: daily dashboard, offers ranked by match, tailored resume and send queue.",
+    capv2: "Demo: daily dashboard, offers ranked by match, tailored resume and send queue.",
     shots: "View screenshots", tip: "View screenshots", close: "Close", prev: "Previous image", next: "Next image",
     alt1: "Screenshots of CTA Campaign Manager: campaign list, campaign details, dashboard.",
     alt2: "Screenshots of the job-application assistant: application tracking, offers ranked by match with the profile.",
@@ -350,10 +363,12 @@ const PROJECTS = [
   { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], stat: "st1", note: "note1",
     chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
     href: "https://github.com/TeddyRhim/cta-campaign-manager",
-    imgs: ["media/cta-1.jpg?v=3", "media/cta-2.jpg?v=3", "media/cta-3.jpg?v=3"], side: 1, z: -24, win: [0.20, 0.36] },
+    vid: "media/cta-demo.mp4?v=1",
+    imgs: ["media/cta-1.jpg?v=4", "media/cta-2.jpg?v=4", "media/cta-3.jpg?v=4"], side: 1, z: -24, win: [0.20, 0.36] },
   { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], stat: "st2", note: "note2",
     chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
     href: "https://github.com/TeddyRhim/assistant-candidature",
+    vid: "media/assistant-demo.mp4?v=1",
     imgs: ["media/assistant-2.jpg?v=3", "media/assistant-1.jpg?v=3"], side: -1, z: -48, win: [0.44, 0.60] },
   { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], stat: "st3", note: "note3",
     chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
@@ -424,33 +439,48 @@ setLang(lang);
 }
 
 /* ——— Galerie des captures ——— */
-const gal = $("gallery"), galImg = $("galImg"), galThumbs = $("galThumbs"), tip = $("tip");
+const gal = $("gallery"), galImg = $("galImg"), galVid = $("galVid"), galThumbs = $("galThumbs"), tip = $("tip");
 let gi = 0, gk = 0, lastFocus = null, galTimer = 0;
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Diapositives d'un projet : la démonstration vidéo (si elle existe), puis les captures. */
+const slidesOf = pr => [...(pr.vid ? [{ vid: pr.vid }] : []), ...pr.imgs.map(src => ({ src }))];
 function renderShot() {
-  const pr = PROJECTS[gi], n = pr.imgs.length, src = pr.imgs[gk];
+  const pr = PROJECTS[gi], sl = slidesOf(pr), n = sl.length, s = sl[gk], off = pr.vid ? 1 : 0;
   $("galLvl").textContent = T[lang][pr.lvl]; $("galTitle").textContent = pr.title;
-  $("galCap").innerHTML = `<b>${gk + 1} / ${n}</b>${T[lang]["cap" + (gi + 1) + "_" + gk]} ${T[lang][pr.note]}`;
+  const cap = s.vid ? T[lang]["capv" + (gi + 1)] : T[lang]["cap" + (gi + 1) + "_" + (gk - off)];
+  $("galCap").innerHTML = `<b>${gk + 1} / ${n}</b>${cap} ${T[lang][pr.note]}`;
   $("galPrev").disabled = gk === 0; $("galNext").disabled = gk === n - 1;
   galThumbs.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-current", k === gk ? "true" : "false"));
-  if (galImg.getAttribute("src") !== src) {
-    galImg.style.opacity = 0;
-    const im = new Image(); im.onload = () => { galImg.src = src; galImg.alt = T[lang]["alt" + (gi + 1)]; galImg.style.opacity = 1; }; im.src = src;
+  if (s.vid) {
+    galImg.hidden = true; galVid.hidden = false;
+    if (galVid.getAttribute("src") !== s.vid) { galVid.poster = pr.imgs[0]; galVid.src = s.vid; }
+    galVid.setAttribute("aria-label", T[lang]["altv" + (gi + 1)]);
+    if (!reduced) galVid.play().catch(() => {});
+  } else {
+    galVid.pause(); galVid.hidden = true; galImg.hidden = false;
+    const src = s.src;
+    if (galImg.getAttribute("src") !== src) {
+      galImg.style.opacity = 0;
+      const im = new Image(); im.onload = () => { galImg.src = src; galImg.alt = T[lang]["alt" + (gi + 1)]; galImg.style.opacity = 1; }; im.src = src;
+    }
   }
 }
 function openGallery(i, k = 0) {
   gi = i; gk = k; lastFocus = document.activeElement; clearTimeout(galTimer);
-  galThumbs.innerHTML = PROJECTS[i].imgs.map((u, n) => `<button type="button" aria-label="${n + 1}"><img src="${u}" alt=""></button>`).join("");
+  const pr = PROJECTS[i];
+  galThumbs.innerHTML = slidesOf(pr).map((s, n) => `<button type="button" aria-label="${n + 1}"${s.vid ? ' class="v"' : ""}><img src="${s.vid ? pr.imgs[0] : s.src}" alt=""></button>`).join("");
   galThumbs.querySelectorAll("button").forEach((b, n) => b.addEventListener("click", () => { gk = n; renderShot(); }));
-  galImg.removeAttribute("src"); renderShot();
+  galImg.removeAttribute("src"); galVid.removeAttribute("src"); renderShot();
   gal.hidden = false; document.body.classList.add("gal-open"); tip.classList.remove("on");
   requestAnimationFrame(() => { gal.classList.add("on"); $("galX").focus(); });
 }
 function closeGallery() {
+  galVid.pause();
   gal.classList.remove("on"); document.body.classList.remove("gal-open");
   galTimer = setTimeout(() => { gal.hidden = true; }, 350);
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
-const step = d => { const n = PROJECTS[gi].imgs.length; gk = Math.min(n - 1, Math.max(0, gk + d)); renderShot(); };
+const step = d => { const n = slidesOf(PROJECTS[gi]).length; gk = Math.min(n - 1, Math.max(0, gk + d)); renderShot(); };
 $("galX").addEventListener("click", closeGallery);
 $("galPrev").addEventListener("click", () => step(-1)); $("galNext").addEventListener("click", () => step(1));
 gal.addEventListener("click", e => { if (e.target === gal || e.target.id === "galStage") closeGallery(); });
