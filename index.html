@@ -273,6 +273,8 @@ const T = {
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub", cv: "Télécharger mon CV",
     altv1: "Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
     capv1: "Démonstration : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
+    altv3: "Démonstration vidéo de ChatbotIA : deux questions posées à l'univers d'exemple, une réponse avec sa source, puis un « je ne sais pas » quand l'information manque.",
+    capv3: "Démonstration : une réponse sourcée, puis une abstention quand l'information manque.",
     altv2: "Démonstration vidéo de l'assistant candidatures : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi.",
     capv2: "Démonstration : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi.",
     shots: "Voir les captures", tip: "Voir les captures", close: "Fermer", prev: "Image précédente", next: "Image suivante",
@@ -318,6 +320,8 @@ const T = {
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
     altv1: "Video demo of CTA Campaign Manager: dashboard, campaigns, CSV file import and contacts.",
     capv1: "Demo: dashboard, campaigns, CSV file import and contacts.",
+    altv3: "Video demo of ChatbotIA: two questions asked of the sample universe, an answer with its source, then an \"I don't know\" when the information is missing.",
+    capv3: "Demo: a sourced answer, then an abstention when the information is missing.",
     altv2: "Video demo of the job-application assistant: daily dashboard, offers ranked by match, tailored resume and send queue.",
     capv2: "Demo: daily dashboard, offers ranked by match, tailored resume and send queue.",
     shots: "View screenshots", tip: "View screenshots", close: "Close", prev: "Previous image", next: "Next image",
@@ -359,20 +363,22 @@ const T = {
 };
 
 /* ——— Projets (positions dans le couloir, côté du mur, fenêtre de défilement) ——— */
+const TOON = q.has("toon");
 const PROJECTS = [
   { id: "n1", num: "I", title: "CTA Campaign Manager", lvl: "l1", pitch: "p1", pts: ["p1a", "p1b", "p1c"], stat: "st1", note: "note1",
     chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
     href: "https://github.com/TeddyRhim/cta-campaign-manager",
-    vid: "media/cta-demo.mp4?v=1",
+    vid: TOON ? "media/cta-demo.mp4?v=1" : null,
     imgs: ["media/cta-1.jpg?v=4", "media/cta-2.jpg?v=4", "media/cta-3.jpg?v=4"], side: 1, z: -24, win: [0.20, 0.36] },
   { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], stat: "st2", note: "note2",
     chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
     href: "https://github.com/TeddyRhim/assistant-candidature",
-    vid: "media/assistant-demo.mp4?v=1",
+    vid: TOON ? "media/assistant-demo.mp4?v=1" : null,
     imgs: ["media/assistant-2.jpg?v=3", "media/assistant-1.jpg?v=3"], side: -1, z: -48, win: [0.44, 0.60] },
   { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], stat: "st3", note: "note3",
     chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
     href: "https://github.com/TeddyRhim/ChatbotIA",
+    vid: TOON ? "media/chatbot-demo.mp4?v=1" : null,
     imgs: ["media/chatbot-1.jpg?v=3", "media/chatbot-2.jpg?v=3"], side: 1, z: -72, win: [0.68, 0.84] },
 ];
 
