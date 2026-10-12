@@ -26,6 +26,7 @@ Portfolio de développeur back-end, site statique sans étape de build, publié 
 - URL canoniques, `og:url`, `robots.txt` et `sitemap.xml` sont liés au chemin `/portofolie/` : ne pas les changer sans le chemin.
 - Les PDF sont des binaires à régénérer depuis `cv/cv-source*.html` (impression du navigateur) ; aucun script de génération n'est versionné.
 - Les captures de `media/` utilisent des données fictives, 1600 x 1000 : les refaire avec les mêmes conditions.
+- Ajouter ou retirer un projet 3D touche plusieurs constantes liées : `PROJECTS` (z de 24 m en 24 m, `win`), `.track` (1200 vh pour 4 projets), `SC`, `SP` et `WP`, les seuils `act` et `num` de la boucle, le bloc de défilement de 0,18 à partir de 0,19 dans `buildKeys` (`scene.js`), la longueur du couloir `L` (134 pour 4 tableaux) et la position du brasero (`z1 + 5`). Le projet Relais n'a pas de dépôt public : `href: null` masque le bouton « Voir le code » (3D) et `light.html` n'en a pas.
 - Dépendances externes : Three.js 0.160.0 via jsDelivr, polices Google Fonts. Rien d'autre.
 
 ## Données personnelles
