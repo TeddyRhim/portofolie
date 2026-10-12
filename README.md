@@ -25,7 +25,7 @@ Puis ouvrir <http://127.0.0.1:8766/>.
 - [cta-campaign-manager](https://github.com/TeddyRhim/cta-campaign-manager) : FastAPI, PostgreSQL, Next.js, TypeScript.
 - [assistant-candidature](https://github.com/TeddyRhim/assistant-candidature) : Python, Streamlit, SQLite.
 - [ChatbotIA](https://github.com/TeddyRhim/ChatbotIA) : RAG local avec Ollama et ChromaDB.
-- Relais : service de réception et de rejeu de webhooks multi-organisations (Laravel, PostgreSQL, Pest). Dépôt non publié pour l'instant, donc sans lien.
+- [Relais](https://github.com/TeddyRhim/relais) : service de réception et de rejeu de webhooks multi-organisations (Laravel, PostgreSQL, Pest).
 
 ## Licence
 
