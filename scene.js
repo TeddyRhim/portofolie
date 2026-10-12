@@ -298,7 +298,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
 
   world.add(TOON ? new THREE.HemisphereLight(0x3a4690, 0x080614, 0.58) : new THREE.HemisphereLight(0x4a2434, 0x0a0405, 0.85));
 
-  const L = 110, z0 = 14, z1 = z0 - L;
+  const L = 134, z0 = 14, z1 = z0 - L;   // couloir allongé de 24 m pour le quatrième tableau
   const midZ = (z0 + z1) / 2;
 
   /* Sol, murs, plafond */
@@ -598,7 +598,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
 
   /* ——— Brasero final ——— */
   const RIM = 2.3;
-  const bz = new THREE.Group(); bz.position.set(0, 0, -91); world.add(bz);
+  const bz = new THREE.Group(); bz.position.set(0, 0, z1 + 5); world.add(bz);
   const dais = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 0.3, 48), stone); dais.position.y = 0.15; bz.add(dais);
   const daisRing = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.035, 8, 72), patinaGold); daisRing.rotation.x = Math.PI / 2; daisRing.position.y = 0.31; bz.add(daisRing);
   const profile = [[0.001, 1.6], [0.4, 1.63], [0.8, 1.78], [1.08, 2.02], [1.24, 2.22], [1.32, 2.34], [1.26, 2.36], [1.18, 2.28]].map(([r, y]) => new THREE.Vector2(r, y));
@@ -890,17 +890,18 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     K(0.14, [1.7, 1.8, -3.2], [-4.9, 3.5, -10.5]);
     K(0.155, [1.8, 1.8, -3.8], [-4.9, 3.5, -10.5]);
     K(0.19, [0, 1.75, -12], [0, 1.7, -26]);
-    const stops = [[0.22, 0.34], [0.46, 0.58], [0.70, 0.82]];
-    const centers = [[0.40, -34], [0.64, -58], [0.88, -82]];
+    // un bloc de défilement par tableau : arrêt devant le tableau, puis passage au centre du couloir
+    const BLOCK = 0.18, START = 0.19;
     projects.forEach((pr, i) => {
       const camX = narrow ? -pr.side * 0.3 : -pr.side * 2.6, camZ = pr.z + (narrow ? 9.2 : 1.6);
       // on vise un peu au-delà du tableau : il se place du côté opposé au panneau de texte
       const pos = [camX, narrow ? 2.0 : 1.9, camZ], look = [pr.side * 4.9, narrow ? 1.3 : 2.7, narrow ? pr.z - 0.2 : pr.z - 3.1];
-      K(stops[i][0], pos, look); K(stops[i][1], pos, look);
-      K(centers[i][0], [0, 1.75, centers[i][1]], [0, 1.7, centers[i][1] - 14]);
+      const b = START + BLOCK * i, cz = pr.z - 10;
+      K(b + 0.0225, pos, look); K(b + 0.1125, pos, look);
+      K(b + 0.1575, [0, 1.75, cz], [0, 1.7, cz - 14]);
     });
-    K(0.93, [0, 1.9, -83.5], [0, 3.7, -91]);
-    K(1.00, [0, 1.95, -83.0], [0, 3.9, -91]);
+    K(0.93, [0, 1.9, z1 + 12.5], [0, 3.7, z1 + 5]);
+    K(1.00, [0, 1.95, z1 + 13], [0, 3.9, z1 + 5]);
     keys = k;
   }
   buildKeys();

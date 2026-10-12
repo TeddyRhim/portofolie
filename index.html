@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0b0709">
 <meta name="author" content="Teddy Rhim">
 <meta property="og:title" content="Teddy Rhim — Développeur back-end">
-<meta property="og:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
+<meta property="og:description" content="Portfolio en 3D : quatre projets, du backend à l'IA locale.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://teddyrhim.github.io/portofolie/">
 <meta property="og:site_name" content="Teddy Rhim">
@@ -21,7 +21,7 @@
 <meta property="og:image:alt" content="Une grande porte gothique en bois, éclairée aux bougies, et le nom Teddy Rhim.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Teddy Rhim — Développeur back-end">
-<meta name="twitter:description" content="Portfolio en 3D : trois projets, du backend à l'IA locale.">
+<meta name="twitter:description" content="Portfolio en 3D : quatre projets, du backend à l'IA locale.">
 <meta name="twitter:image" content="https://teddyrhim.github.io/portofolie/media/og.jpg">
 <script type="application/ld+json">
 { "@context": "https://schema.org", "@type": "Person", "name": "Teddy Rhim", "jobTitle": "Développeur back-end",
@@ -48,7 +48,7 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; }
 .vignette { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.6) 100%); }
-.track { height: 1000vh; position: relative; z-index: 2; }
+.track { height: 1200vh; position: relative; z-index: 2; }
 
 .top { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 18px var(--gutter); background: linear-gradient(to bottom, rgba(11,7,9,.8), transparent); }
 .mark { font-family: var(--serif); font-size: 22px; letter-spacing: .12em; color: var(--gold); text-decoration: none; }
@@ -261,7 +261,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=25")); }
+try { ({ startScene } = await import("./scene.js?v=26")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -269,7 +269,7 @@ const T = {
   fr: {
     role: "Développeur back-end", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)", sndOff: "Son : coupé", sndOn: "Son : activé",
-    nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
+    nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", n4: "Relais", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", aGit: "Voir mon GitHub", cv: "Télécharger mon CV",
     altv1: "Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
     capv1: "Démonstration : tableau de bord, campagnes, import d'un fichier CSV et contacts.",
@@ -291,12 +291,22 @@ const T = {
     st1: "11 migrations Alembic · 5 groupes de routes · JWT et rôles",
     st2: "7 sources d'offres · 273 tests automatisés",
     st3: "hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %",
+    l4: "Niveau IV · SaaS et webhooks",
+    p4: "Un service qui reçoit, conserve et rejoue des webhooks pour plusieurs organisations, avec quotas et API.",
+    p4a: "Réception de webhooks par adresse dédiée, signature HMAC vérifiée, rejeu par tâche en file avec nouvelles tentatives espacées.",
+    p4b: "Isolation entre clients par un scope global, et un test par route prouvant qu'une autre organisation n'y accède pas.",
+    p4c: "Plans avec quota mensuel, facturation derrière une interface avec un faux fournisseur (aucun paiement réel), API en lecture par clés.",
+    st4: "160 tests automatisés · 2 revues de sécurité assistées par IA · quota de 1 000 événements par mois en gratuit",
+    note4: "Captures : organisation et données fictives d'exemple.",
+    alt4: "Captures de Relais : tableau de bord avec la consommation du quota, détail d'un événement reçu et de ses rejeux.",
+    cap4_0: "Tableau de bord : plan, consommation du quota mensuel, nombre de sources et de rejeux.",
+    cap4_1: "Détail d'un événement : contenu, en-têtes, signature vérifiée et historique des rejeux.",
     aPitch: "Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
     a1: "PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
     a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
     a3: "Exploitation data et développement · 2 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.",
     a4: "Aussi : Python, PostgreSQL et MySQL, Docker, CI/CD, tests et revues de code, Agile/Scrum.",
-    aNote: "Trois projets vous attendent plus bas.",
+    aNote: "Quatre projets vous attendent plus bas.",
     l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale",
     p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
     p1a: "API REST FastAPI avec authentification JWT, rôles utilisateurs et routes protégées.",
@@ -316,7 +326,7 @@ const T = {
   en: {
     role: "Back-end developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)", sndOff: "Sound: off", sndOn: "Sound: on",
-    nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", nContact: "Contact", navLabel: "Sections",
+    nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", n4: "Relais", nContact: "Contact", navLabel: "Sections",
     lAbout: "Prologue", aTitle: "About", aSub: "What I work with", aGit: "See my GitHub", cv: "Download my CV",
     altv1: "Video demo of CTA Campaign Manager: dashboard, campaigns, CSV file import and contacts.",
     capv1: "Demo: dashboard, campaigns, CSV file import and contacts.",
@@ -338,12 +348,22 @@ const T = {
     st1: "11 Alembic migrations · 5 route groups · JWT and roles",
     st2: "7 job sources · 273 automated tests",
     st3: "hit@6 of 96% (hybrid) · 104 test questions, overall score 94%",
+    l4: "Level IV · SaaS and webhooks",
+    p4: "A service that receives, stores and replays webhooks for several organizations, with quotas and an API.",
+    p4a: "Webhook reception on a dedicated address, verified HMAC signature, queued replay with spaced retries.",
+    p4b: "Tenant isolation through a global scope, and one test per route proving another organization cannot reach it.",
+    p4c: "Plans with a monthly quota, billing behind an interface with a fake provider (no real payment), read-only API with keys.",
+    st4: "160 automated tests · 2 AI-assisted security reviews · free plan quota of 1,000 events per month",
+    note4: "Screenshots: sample fictional organization and data.",
+    alt4: "Screenshots of Relais: dashboard with quota usage, detail of a received event and its replays.",
+    cap4_0: "Dashboard: plan, monthly quota usage, number of sources and replays.",
+    cap4_1: "Event detail: body, headers, verified signature and replay history.",
     aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
     a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
     a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
     a3: "Data operations and development · 2 months: Next.js / FastAPI applications, automation, chatbot on a local LLM.",
     a4: "Also: Python, PostgreSQL and MySQL, Docker, CI/CD, tests and code reviews, Agile/Scrum.",
-    aNote: "Three projects await further down.",
+    aNote: "Four projects await further down.",
     l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI",
     p1: "A web application to track campaigns, manage contacts and import data.",
     p1a: "FastAPI REST API with JWT authentication, user roles and protected routes.",
@@ -369,17 +389,22 @@ const PROJECTS = [
     chips: ["FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "JWT", "Next.js", "TypeScript", "Tailwind"],
     href: "https://github.com/TeddyRhim/cta-campaign-manager",
     vid: TOON ? "media/cta-demo.mp4?v=1" : null,
-    imgs: ["media/cta-1.jpg?v=4", "media/cta-2.jpg?v=4", "media/cta-3.jpg?v=4"], side: 1, z: -24, win: [0.20, 0.36] },
+    imgs: ["media/cta-1.jpg?v=4", "media/cta-2.jpg?v=4", "media/cta-3.jpg?v=4"], side: 1, z: -24, win: [0.1975, 0.3175] },
   { id: "n2", num: "II", title: "Assistant candidatures", lvl: "l2", pitch: "p2", pts: ["p2a", "p2b", "p2c"], stat: "st2", note: "note2",
     chips: ["Python", "Streamlit", "SQLite", "REST APIs", "uv", "pytest", "ruff"],
     href: "https://github.com/TeddyRhim/assistant-candidature",
     vid: TOON ? "media/assistant-demo.mp4?v=1" : null,
-    imgs: ["media/assistant-2.jpg?v=3", "media/assistant-1.jpg?v=3"], side: -1, z: -48, win: [0.44, 0.60] },
+    imgs: ["media/assistant-2.jpg?v=3", "media/assistant-1.jpg?v=3"], side: -1, z: -48, win: [0.3775, 0.4975] },
   { id: "n3", num: "III", title: "Chatbot IA", lvl: "l3", pitch: "p3", pts: ["p3a", "p3b", "p3c"], stat: "st3", note: "note3",
     chips: ["Python", "Ollama", "ChromaDB", "RAG", "Embeddings", "Streamlit"],
     href: "https://github.com/TeddyRhim/ChatbotIA",
     vid: TOON ? "media/chatbot-demo.mp4?v=1" : null,
-    imgs: ["media/chatbot-1.jpg?v=3", "media/chatbot-2.jpg?v=3"], side: 1, z: -72, win: [0.68, 0.84] },
+    imgs: ["media/chatbot-1.jpg?v=3", "media/chatbot-2.jpg?v=3"], side: 1, z: -72, win: [0.5575, 0.6775] },
+  { id: "n4", num: "IV", title: "Relais", lvl: "l4", pitch: "p4", pts: ["p4a", "p4b", "p4c"], stat: "st4", note: "note4",
+    chips: ["PHP", "Laravel", "PostgreSQL", "Pest", "Sanctum", "Docker", "GitHub Actions"],
+    href: null,   // dépôt non publié : pas de bouton « Voir le code »
+    vid: null,
+    imgs: ["media/relais-1.jpg?v=1", "media/relais-2.jpg?v=1"], side: -1, z: -96, win: [0.7375, 0.8575] },
 ];
 
 const $ = id => document.getElementById(id);
@@ -399,7 +424,7 @@ const panels = PROJECTS.map(pr => {
     <p class="stats" data-t="${pr.stat}"></p>
     <div class="chips">${pr.chips.map(c => `<span>${c}</span>`).join("")}</div>
     <div class="row"><button type="button" class="btn" data-shots="${pr.id}" data-t="shots"></button>
-    <a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a></div>
+    ${pr.href ? `<a class="btn" href="${pr.href}" target="_blank" rel="noopener" data-t="code"></a>` : ""}</div>
     <p class="note" data-t="${pr.note}"></p>`;
   panelsEl.appendChild(el);
   return el;
@@ -417,9 +442,9 @@ aboutEl.innerHTML = `<div class="lvl" data-t="lAbout"></div><h2 id="aTitleH" dat
 panelsEl.prepend(aboutEl);   // ordre de lecture : À propos avant les projets
 
 /* Navigation : correspondance entre le défilement et la position dans la scène (une halte « à propos » est étirée) */
-const SC = [0, 0.10, 0.12, 0.17, 0.20, 1], SP = [0, 0.12, 0.14, 0.155, 0.19, 1];
+const SC = [0, 0.0833, 0.10, 0.1417, 0.1667, 1], SP = [0, 0.12, 0.14, 0.155, 0.19, 1];
 const interp = (x, xs, ys) => { let i = 0; while (i < xs.length - 2 && x > xs[i + 1]) i++; const t = clamp01((x - xs[i]) / (xs[i + 1] - xs[i])); return ys[i] + (ys[i + 1] - ys[i]) * t; };
-const WP = [["nAbout", 0.147], ["n1", 0.28], ["n2", 0.52], ["n3", 0.76], ["nContact", 0.97]];
+const WP = [["nAbout", 0.147], ["n1", 0.2575], ["n2", 0.4375], ["n3", 0.6175], ["n4", 0.7975], ["nContact", 0.97]];
 const wpEl = $("wp");
 const wpBtns = WP.map(([k, sp]) => {
   const b = document.createElement("button"); b.type = "button"; b.dataset.t = k;
@@ -543,7 +568,7 @@ try {
       tip.style.transform = `translate(${pointer.x + 16}px, ${pointer.y + 20}px)`;
       hero.style.opacity = String(clamp01(1 - p * 11));
       gFill.style.height = (p * 100) + "%";
-      gDepth.textContent = "−" + Math.round(p * 66) + " m";
+      gDepth.textContent = "−" + Math.round(p * 80) + " m";
       PROJECTS.forEach((pr, i) => {
         const o = win(p, pr.win[0], pr.win[1]), el = panels[i];
         el.style.opacity = o.toFixed(3);
@@ -552,15 +577,15 @@ try {
       });
       const ao = win(p, 0.12, 0.175, 0.02);
       aboutEl.style.opacity = ao.toFixed(3); aboutEl.style.visibility = ao > 0.01 ? "visible" : "hidden"; aboutEl.classList.toggle("live", ao > 0.7);
-      const act = p < 0.12 ? -1 : p < 0.21 ? 0 : p < 0.41 ? 1 : p < 0.63 ? 2 : p < 0.88 ? 3 : 4;
+      const act = p < 0.12 ? -1 : p < 0.20 ? 0 : p < 0.36 ? 1 : p < 0.54 ? 2 : p < 0.72 ? 3 : p < 0.90 ? 4 : 5;
       if (act !== lastAct) {
         lastAct = act; wpBtns.forEach((b, i) => b.setAttribute("aria-current", i === act ? "true" : "false"));
-        const names = [T[lang].aTitle, PROJECTS[0].title, PROJECTS[1].title, PROJECTS[2].title, T[lang].cTitle];
+        const names = [T[lang].aTitle, PROJECTS[0].title, PROJECTS[1].title, PROJECTS[2].title, PROJECTS[3].title, T[lang].cTitle];
         if (act >= 0) $("live").textContent = names[act];
       }
-      const num = p < 0.2 ? "0" : p < 0.4 ? "I" : p < 0.62 ? "II" : p < 0.86 ? "III" : "IV";
+      const num = p < 0.2 ? "0" : p < 0.36 ? "I" : p < 0.54 ? "II" : p < 0.72 ? "III" : p < 0.90 ? "IV" : "V";
       gNum.textContent = num;
-      const co = win(p, 0.9, 1.2, 0.04);
+      const co = win(p, 0.92, 1.2, 0.04);
       contact.style.opacity = co.toFixed(3);
       contact.style.visibility = co > 0.01 ? "visible" : "hidden";
       contact.classList.toggle("live", co > 0.7);

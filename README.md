@@ -1,6 +1,6 @@
 # Portfolio de Teddy Rhim
 
-Portfolio de développeur back-end : une descente en 3D dans un couloir gothique à la lueur des bougies, avec trois projets accrochés comme des tableaux et un brasero à la fin.
+Portfolio de développeur back-end : une descente en 3D dans un couloir gothique à la lueur des bougies, avec quatre projets accrochés comme des tableaux et un brasero à la fin.
 
 - **`index.html`** : version 3D (Three.js, WebGL), pilotée par le défilement.
 - **`light.html`** : version légère en 2D, utilisée automatiquement sur petit écran, sans WebGL ou avec « réduire les animations ». Accessible aussi via le lien « Version légère ».
@@ -25,6 +25,7 @@ Puis ouvrir <http://127.0.0.1:8766/>.
 - [cta-campaign-manager](https://github.com/TeddyRhim/cta-campaign-manager) : FastAPI, PostgreSQL, Next.js, TypeScript.
 - [assistant-candidature](https://github.com/TeddyRhim/assistant-candidature) : Python, Streamlit, SQLite.
 - [ChatbotIA](https://github.com/TeddyRhim/ChatbotIA) : RAG local avec Ollama et ChromaDB.
+- Relais : service de réception et de rejeu de webhooks multi-organisations (Laravel, PostgreSQL, Pest). Dépôt non publié pour l'instant, donc sans lien.
 
 ## Licence
 
