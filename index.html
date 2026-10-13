@@ -271,7 +271,7 @@ let startScene;
 // une seule scène ; le style « dessiné » (?toon) est un easter egg : triple clic sur T·R
 const q = new URLSearchParams(location.search);
 if (q.has("toon")) document.body.classList.add("toon");
-try { ({ startScene } = await import("./scene.js?v=26")); }
+try { ({ startScene } = await import("./scene.js?v=27")); }
 catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {}); }
 
 /* ——— Textes ——— */
@@ -569,7 +569,7 @@ const win = (p, a, b, f = 0.03) => clamp01((p - a) / f) * clamp01((b - p) / f);
 
 let first = true, lastAct = -2;
 try {
-  startScene({
+  const sc = startScene({
     canvas: $("gl"),
     projects: PROJECTS,
     getProgress: progress,
@@ -610,6 +610,7 @@ try {
       });
     },
   });
+  sc.ready.catch(e => { console.error(e); location.replace(LIGHT); });
 } catch (e) {
   console.error(e);
   location.replace(LIGHT);
