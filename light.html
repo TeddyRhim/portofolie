@@ -321,7 +321,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       <h1 class="name" id="nameH1" aria-label="Teddy Rhim"></h1>
       <p class="role hz" style="--d:4.5s" data-i18n="role">Développeur back-end</p>
       <p class="lead hz" style="--d:4.9s" data-i18n="lead">Je conçois des applications complètes, de l'interface à la base de données, et je m'intéresse aux modèles de langage qui tournent en local.</p>
-      <a class="cue hz" style="--d:5.3s" href="#about" data-i18n="cue">Descendre</a>
+      <a class="cue hz" style="--d:5.3s" href="#about" data-i18n="cueLink">Descendre</a>
     </div>
   </section>
 
@@ -331,15 +331,15 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
       <div class="arch rv"></div>
       <div class="level rv" data-i18n="lAbout">Prologue</div>
       <h2 class="rv d1" data-i18n="aTitle">À propos</h2>
-      <p class="pitch rv d2" data-i18n="aPitch"></p>
+      <p class="pitch rv d2" data-i18n="aPitch">Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.</p>
       <div class="grid">
         <div class="rv d2">
           <p class="sub" data-i18n="aSub">Ce que je maîtrise</p>
           <ul class="points">
-            <li data-i18n="a1"></li>
-            <li data-i18n="a2"></li>
-            <li data-i18n="a3"></li>
-            <li data-i18n="a4"></li>
+            <li data-i18n="a1">PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.</li>
+            <li data-i18n="a2">Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.</li>
+            <li data-i18n="a3">Exploitation data et développement · 2 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.</li>
+            <li data-i18n="a4">Aussi : Python, PostgreSQL et MySQL, Docker, CI/CD, tests et revues de code, Agile/Scrum.</li>
           </ul>
           <div class="chips"><span>PHP</span><span>Symfony</span><span>Python</span><span>FastAPI</span><span>Next.js</span><span>PostgreSQL</span><span>Docker</span><span>Vue.js</span></div>
           <div class="links"><a class="btn" href="cv/teddy-rhim-cv.pdf" data-cv download data-i18n="cv">Télécharger mon CV</a><a class="btn" href="https://www.linkedin.com/in/teddy-rhim" target="_blank" rel="noopener">LinkedIn</a></div>
@@ -361,14 +361,14 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
           <p class="sub" data-i18n="sub">Ce que j'ai construit</p>
           <ul class="points">
             <li data-i18n="p1a">API REST FastAPI avec authentification JWT, rôles utilisateurs et routes protégées.</li>
-            <li data-i18n="p1b">Backend en couches (routers, services, schémas, modèles) et migrations de base de données avec Alembic.</li>
-            <li data-i18n="p1c">Interface Next.js et TypeScript : tableau de bord, détail des campagnes, recherche de contacts, historique et import de fichiers rattachés à une campagne.</li>
+            <li data-i18n="p1b">Backend en couches (routers, services, schémas, modèles) et migrations avec Alembic.</li>
+            <li data-i18n="p1c">Interface Next.js et TypeScript : tableau de bord, détail des campagnes, recherche de contacts, imports.</li>
           </ul>
           <p class="stats" data-i18n="st1">11 migrations Alembic · 5 groupes de routes · JWT et rôles</p>
           <div class="chips"><span>FastAPI</span><span>PostgreSQL</span><span>SQLAlchemy</span><span>Alembic</span><span>JWT</span><span>Next.js</span><span>TypeScript</span><span>Tailwind</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/cta-campaign-manager" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-vidalt="Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts" data-img="media/cta-1.jpg?v=4,media/cta-2.jpg?v=4,media/cta-3.jpg?v=4" data-alt="Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note1"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="" data-vidalt="Démonstration vidéo de CTA Campaign Manager : tableau de bord, campagnes, import d'un fichier CSV et contacts" data-img="media/cta-1.jpg?v=4,media/cta-2.jpg?v=4,media/cta-3.jpg?v=4" data-alt="Captures de CTA Campaign Manager : liste des campagnes, détail d'une campagne, tableau de bord"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note1">Captures : données fictives.</p></div>
       </div>
     </div>
   </section>
@@ -385,15 +385,15 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
         <div class="rv d2">
           <p class="sub" data-i18n="sub">Ce que j'ai construit</p>
           <ul class="points">
-            <li data-i18n="p2a">Connecteurs vers plusieurs sources d'offres (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), avec compteur de quota pour les API limitées.</li>
-            <li data-i18n="p2b">Génération d'un CV ciblé et d'une lettre en PDF pour chaque offre, à partir d'un CV de référence, sans rien inventer.</li>
+            <li data-i18n="p2a">Connecteurs vers plusieurs sources d'offres (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), avec compteur de quota.</li>
+            <li data-i18n="p2b">CV ciblé et lettre en PDF pour chaque offre, à partir d'un CV de référence, sans rien inventer.</li>
             <li data-i18n="p2c">Suivi des candidatures par statut avec relances. Tout reste sur la machine, rien n'est envoyé automatiquement.</li>
           </ul>
           <p class="stats" data-i18n="st2">7 sources d'offres · 273 tests automatisés</p>
           <div class="chips"><span>Python</span><span>Streamlit</span><span>SQLite</span><span>REST APIs</span><span>uv</span><span>pytest</span><span>ruff</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/assistant-candidature" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-vidalt="Démonstration vidéo de l'assistant candidatures : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi" data-img="media/assistant-2.jpg?v=3,media/assistant-1.jpg?v=3" data-alt="Captures de l'assistant candidatures : offres classées par correspondance avec le profil, suivi des candidatures"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note2"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="" data-vidalt="Démonstration vidéo de l'assistant candidatures : tableau de bord du jour, offres classées par correspondance, CV ciblé et file d'envoi" data-img="media/assistant-2.jpg?v=3,media/assistant-1.jpg?v=3" data-alt="Captures de l'assistant candidatures : offres classées par correspondance avec le profil, suivi des candidatures"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note2">Captures : profil et offres d'exemple, aucune donnée personnelle.</p></div>
       </div>
     </div>
   </section>
@@ -410,15 +410,15 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
         <div class="rv d2">
           <p class="sub" data-i18n="sub">Ce que j'ai construit</p>
           <ul class="points">
-            <li data-i18n="p3a">RAG 100 % local : Qwen2.5 7B via Ollama, embeddings multilingues dans ChromaDB, fusion hybride entre recherche par mots-clés et recherche par sens.</li>
-            <li data-i18n="p3b">Des réponses mesurées : jeu d'évaluation avec hit@k, MRR, abstention et ancrage dans les sources. Le bot répond « je ne sais pas » quand rien de pertinent n'est trouvé.</li>
-            <li data-i18n="p3c">Une base structurée en fiches avec liens entre elles, et une tentative de fine-tuning LoRA abandonnée en connaissance de cause (données trop limitées), conservée dans le dépôt.</li>
+            <li data-i18n="p3a">RAG 100 % local : Qwen2.5 7B via Ollama, embeddings multilingues dans ChromaDB, fusion hybride mots-clés et sens.</li>
+            <li data-i18n="p3b">Réponses mesurées : hit@k, MRR, abstention et ancrage dans les sources. Le bot répond « je ne sais pas » quand rien de pertinent n'est trouvé.</li>
+            <li data-i18n="p3c">Base structurée en fiches liées entre elles, et un fine-tuning LoRA abandonné en connaissance de cause (données trop limitées).</li>
           </ul>
           <p class="stats" data-i18n="st3">hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %</p>
           <div class="chips"><span>Python</span><span>Ollama</span><span>ChromaDB</span><span>RAG</span><span>Embeddings</span><span>Streamlit</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/ChatbotIA" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/chatbot-1.jpg?v=3,media/chatbot-2.jpg?v=3" data-alt="Captures du chatbot : réponse avec source et hypothèse signalée, réponse « je ne sais pas »"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note3"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/chatbot-1.jpg?v=3,media/chatbot-2.jpg?v=3" data-alt="Captures du chatbot : réponse avec source et hypothèse signalée, réponse « je ne sais pas »"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note3">Captures : univers fictif d'exemple.</p></div>
       </div>
     </div>
   </section>
@@ -435,15 +435,15 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
         <div class="rv d2">
           <p class="sub" data-i18n="sub">Ce que j'ai construit</p>
           <ul class="points">
-            <li data-i18n="p4a">Réception de webhooks par adresse dédiée, vérification de signature HMAC, stockage du contenu et des en-têtes, rejeu par tâche en file avec nouvelles tentatives espacées.</li>
-            <li data-i18n="p4b">Isolation entre clients : chaque donnée est filtrée par organisation par un scope global, et chaque route a un test qui prouve qu'une autre organisation n'y accède pas.</li>
-            <li data-i18n="p4c">Plans avec quota mensuel, facturation derrière une interface avec un faux fournisseur (aucun paiement réel), API en lecture par clés avec limitation de débit.</li>
+            <li data-i18n="p4a">Réception de webhooks par adresse dédiée, signature HMAC vérifiée, rejeu par tâche en file avec nouvelles tentatives espacées.</li>
+            <li data-i18n="p4b">Isolation entre clients par un scope global, et un test par route prouvant qu'une autre organisation n'y accède pas.</li>
+            <li data-i18n="p4c">Plans avec quota mensuel, facturation derrière une interface avec un faux fournisseur (aucun paiement réel), API en lecture par clés.</li>
           </ul>
-          <p class="stats" data-i18n="st4">167 tests automatisés · 2 revues de sécurité assistées par IA · quota de 1 000 événements par mois en gratuit</p>
+          <p class="stats" data-i18n="st4">168 tests automatisés · 2 revues de sécurité assistées par IA · quota de 1 000 événements par mois en gratuit</p>
           <div class="chips"><span>PHP</span><span>Laravel</span><span>PostgreSQL</span><span>Pest</span><span>Sanctum</span><span>Docker</span><span>GitHub Actions</span></div>
           <div class="links"><a class="btn" href="https://github.com/TeddyRhim/relais" target="_blank" rel="noopener" data-i18n="code">Voir le code</a></div>
         </div>
-        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/relais-1.jpg?v=2,media/relais-2.jpg?v=2,media/relais-3.jpg?v=2" data-alt="Captures de Relais : page d'accueil, tableau de bord avec la consommation du quota, détail d'un événement reçu et de ses rejeux"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note4"></p></div>
+        <div class="rv d3"><div class="demo ornate" data-video="" data-img="media/relais-1.jpg?v=2,media/relais-2.jpg?v=2,media/relais-3.jpg?v=2" data-alt="Captures de Relais : page d'accueil, tableau de bord avec la consommation du quota, détail d'un événement reçu et de ses rejeux"><div class="ph"><b></b><span data-i18n="demo">Démo à venir</span></div></div><p class="note" data-i18n="note4">Captures : organisation et données fictives d'exemple.</p></div>
       </div>
     </div>
   </section>
@@ -471,6 +471,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="lightbox" id="lb" hidden><img alt=""></div>
 
+<script src="./textes.js?v=1"></script>
 <script>
 (() => {
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -478,88 +479,7 @@ footer { position: relative; z-index: 3; padding: 18px var(--gutter) 26px; font-
   const clamp01 = v => Math.min(1, Math.max(0, v));
 
   /* ——— Textes FR / EN ——— */
-  const T = {
-    fr: {
-      role: "Développeur back-end",
-      lead: "Je conçois des applications complètes, de l'interface à la base de données, et je m'intéresse aux modèles de langage qui tournent en local.",
-      cue: "Descendre", sub: "Ce que j'ai construit", code: "Voir le code", demo: "Démo à venir",
-      lAbout: "Prologue", aTitle: "À propos", aSub: "Ce que je maîtrise", cv: "Télécharger mon CV", capA: "À propos",
-      aPitch: "Développeur back-end avec 7 ans d'expérience : API, intégrations et automatisation de processus métier, et de plus en plus d'IA exécutée en local.",
-      a1: "PHP / Symfony · 5 ans : CRM immobilier international, API REST (JWT, webhooks), Doctrine, optimisation SQL, migration vers Symfony 6.",
-      a2: "Missions freelance full-stack · 1 an (2 × 6 mois) : interface de benchmarking en Vue.js avec moteur IA, puis plateforme de centralisation de données.",
-      a3: "Exploitation data et développement · 2 mois : applications Next.js / FastAPI, automatisation, chatbot sur un LLM local.",
-      a4: "Aussi : Python, PostgreSQL et MySQL, Docker, CI/CD, tests et revues de code, Agile/Scrum.",
-      l1: "Niveau I · Interface et API", l2: "Niveau II · Données et automatisation", l3: "Niveau III · IA locale", l4: "Niveau IV · SaaS et webhooks",
-      p4: "Un service qui reçoit, conserve et rejoue des webhooks pour plusieurs organisations, avec quotas et API.",
-      p4a: "Réception de webhooks par adresse dédiée, vérification de signature HMAC, stockage du contenu et des en-têtes, rejeu par tâche en file avec nouvelles tentatives espacées.",
-      p4b: "Isolation entre clients : chaque donnée est filtrée par organisation par un scope global, et chaque route a un test qui prouve qu'une autre organisation n'y accède pas.",
-      p4c: "Plans avec quota mensuel, facturation derrière une interface avec un faux fournisseur (aucun paiement réel), API en lecture par clés avec limitation de débit.",
-      st4: "160 tests automatisés · 2 revues de sécurité assistées par IA · quota de 1 000 événements par mois en gratuit",
-      note4: "Captures : organisation et données fictives d'exemple.",
-      p1: "Une application web pour suivre des campagnes, gérer des contacts et importer des données.",
-      p1a: "API REST FastAPI avec authentification JWT, rôles utilisateurs et routes protégées.",
-      p1b: "Backend en couches (routers, services, schémas, modèles) et migrations de base de données avec Alembic.",
-      p1c: "Interface Next.js et TypeScript : tableau de bord, détail des campagnes, recherche de contacts, historique et import de fichiers rattachés à une campagne.",
-      p2: "Un outil local qui collecte des offres, les compare à mon profil et prépare des dossiers de candidature ciblés.",
-      p2a: "Connecteurs vers plusieurs sources d'offres (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), avec compteur de quota pour les API limitées.",
-      p2b: "Génération d'un CV ciblé et d'une lettre en PDF pour chaque offre, à partir d'un CV de référence, sans rien inventer.",
-      p2c: "Suivi des candidatures par statut avec relances. Tout reste sur la machine, rien n'est envoyé automatiquement.",
-      p3: "Un chatbot en français qui répond à partir d'une base de connaissances, en citant ses sources, avec un modèle qui tourne sur ma machine.",
-      p3a: "RAG 100 % local : Qwen2.5 7B via Ollama, embeddings multilingues dans ChromaDB, fusion hybride entre recherche par mots-clés et recherche par sens.",
-      p3b: "Des réponses mesurées : jeu d'évaluation avec hit@k, MRR, abstention et ancrage dans les sources. Le bot répond « je ne sais pas » quand rien de pertinent n'est trouvé.",
-      p3c: "Une base structurée en fiches avec liens entre elles, et une tentative de fine-tuning LoRA abandonnée en connaissance de cause (données trop limitées), conservée dans le dépôt.",
-      cTitle: "Approchez-vous du feu",
-      cLead: "Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.",
-      mail: "Écrire un e-mail",
-      st1: "11 migrations Alembic · 5 groupes de routes · JWT et rôles",
-      st2: "7 sources d'offres · 273 tests automatisés",
-      st3: "hit@6 de 96 % (hybride) · 104 questions de test, score global 94 %",
-      note1: "Captures : données fictives.",
-      note2: "Captures : profil et offres d'exemple, aucune donnée personnelle.",
-      note3: "Captures : univers fictif d'exemple.",
-      cap0: "Entrée", cap1: "Interface", cap2: "Données", cap3: "IA locale", cap4: "Webhooks", cap5: "Contact"
-    },
-    en: {
-      role: "Back-end developer",
-      lead: "I build complete applications, from the interface to the database, and I'm interested in language models that run locally.",
-      cue: "Descend", sub: "What I built", code: "View the code", demo: "Demo coming soon",
-      lAbout: "Prologue", aTitle: "About", aSub: "What I work with", cv: "Download my CV", capA: "About",
-      aPitch: "Back-end developer with 7 years of experience: APIs, integrations and business-process automation, and more and more AI running locally.",
-      a1: "PHP / Symfony · 5 years: international real-estate CRM, REST APIs (JWT, webhooks), Doctrine, SQL optimisation, migration to Symfony 6.",
-      a2: "Full-stack freelance missions · 1 year (2 × 6 months): Vue.js benchmarking interface with an AI engine, then a data-centralisation platform.",
-      a3: "Data operations and development · 2 months: Next.js / FastAPI applications, automation, chatbot on a local LLM.",
-      a4: "Also: Python, PostgreSQL and MySQL, Docker, CI/CD, tests and code reviews, Agile/Scrum.",
-      l1: "Level I · Interface and API", l2: "Level II · Data and automation", l3: "Level III · Local AI", l4: "Level IV · SaaS and webhooks",
-      p4: "A service that receives, stores and replays webhooks for several organizations, with quotas and an API.",
-      p4a: "Webhook reception on a dedicated address, HMAC signature verification, storage of body and headers, queued replay with spaced retries.",
-      p4b: "Tenant isolation: every record is filtered by organization through a global scope, and every route has a test proving another organization cannot reach it.",
-      p4c: "Plans with a monthly quota, billing behind an interface with a fake provider (no real payment), read-only API with keys and rate limiting.",
-      st4: "167 automated tests · 2 AI-assisted security reviews · free plan quota of 1,000 events per month",
-      note4: "Screenshots: sample fictional organization and data.",
-      p1: "A web application to track campaigns, manage contacts and import data.",
-      p1a: "FastAPI REST API with JWT authentication, user roles and protected routes.",
-      p1b: "Layered backend (routers, services, schemas, models) and database migrations with Alembic.",
-      p1c: "Next.js and TypeScript interface: dashboard, campaign details, contact search, import history and file imports linked to a campaign.",
-      p2: "A local tool that collects job offers, compares them with my profile and prepares targeted application files.",
-      p2a: "Connectors to several job sources (Adzuna, France Travail, Jooble, Himalayas, Remote OK, Greenhouse, Lever), with a quota counter for rate-limited APIs.",
-      p2b: "Generates a tailored CV and cover letter as PDF for each offer from a reference CV, without making anything up.",
-      p2c: "Application tracking by status with reminders. Everything stays on the machine and nothing is sent automatically.",
-      p3: "A French-language chatbot that answers from a knowledge base and cites its sources, using a model that runs on my own machine.",
-      p3a: "100% local RAG: Qwen2.5 7B via Ollama, multilingual embeddings in ChromaDB, hybrid fusion of keyword and semantic search.",
-      p3b: "Measured answers: an evaluation set with hit@k, MRR, abstention and source grounding. The bot says \"I don't know\" when nothing relevant is found.",
-      p3c: "A knowledge base structured as linked entries, and a LoRA fine-tuning attempt deliberately dropped (too little data), kept in the repository.",
-      cTitle: "Come closer to the fire",
-      cLead: "A project, an opportunity, a technical question: write to me, I'd be glad to talk.",
-      mail: "Send an email",
-      st1: "11 Alembic migrations · 5 route groups · JWT and roles",
-      st2: "7 job sources · 273 automated tests",
-      st3: "hit@6 of 96% (hybrid) · 104 test questions, overall score 94%",
-      note1: "Screenshots: fictional data.",
-      note2: "Screenshots: sample profile and offers, no personal data.",
-      note3: "Screenshots: sample fictional universe.",
-      cap0: "Entrance", cap1: "Interface", cap2: "Data", cap3: "Local AI", cap4: "Webhooks", cap5: "Contact"
-    }
-  };
+  const T = window.PORTFOLIO_TEXTES;  // textes.js, partagé avec index.html
   let lang = "fr";
   const sections = [...document.querySelectorAll("main > section")];
   const gNum = document.getElementById("gNum"), gCap = document.getElementById("gCap"), gDepth = document.getElementById("gDepth");
