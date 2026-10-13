@@ -65,7 +65,8 @@ button.alt[aria-pressed="true"] { color: var(--gold); border-color: var(--gold);
 .hero h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(54px, 11vw, 128px); line-height: 1.02; text-shadow: 0 0 60px rgba(0,0,0,.9), 0 0 30px rgba(140,28,43,.5); }
 .hero h1 em { color: var(--blood-soft); font-style: italic; }
 .hero p { margin-top: 18px; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 3vw, 32px); color: var(--gold); text-shadow: 0 0 20px rgba(0,0,0,.9); }
-.hero small { display: block; margin-top: 44px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ivory-dim); }
+.hero .lead { margin: 18px auto 0; max-width: 560px; font-family: var(--sans); font-style: normal; font-size: clamp(15px, 1.25vw, 17px); line-height: 1.55; color: var(--ivory); text-shadow: 0 0 18px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.9); }
+.hero small { display: block; margin-top: 40px; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--ivory-dim); }
 
 .skip { position: fixed; left: 12px; top: -60px; z-index: 60; background: var(--gold); color: var(--bg); padding: 8px 14px; text-decoration: none; font-size: 13px; letter-spacing: .08em; transition: top .15s; }
 .skip:focus { top: 12px; }
@@ -100,7 +101,7 @@ button.alt[aria-pressed="true"] { color: var(--gold); border-color: var(--gold);
 .note { margin-top: 12px; font-size: 12px; color: var(--ivory-dim); font-style: italic; }
 
 /* Contact : éclairé par le brasero */
-.contact { position: fixed; left: 50%; top: 5vh; transform: translateX(-50%); z-index: 7; text-align: center; width: min(640px, 88vw); opacity: 0; visibility: hidden; pointer-events: none; }
+.contact { position: fixed; left: 50%; top: calc(72px + 2vh); transform: translateX(-50%); z-index: 7; text-align: center; width: min(640px, 88vw); opacity: 0; visibility: hidden; pointer-events: none; }
 .contact.live { pointer-events: auto; }
 .contact h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(32px, 4.4vw, 56px); line-height: 1.05; text-shadow: 0 0 40px rgba(0,0,0,.95); }
 .contact p { margin: 8px auto 0; max-width: 480px; color: var(--ivory-dim); text-shadow: 0 0 20px rgba(0,0,0,.95); }
@@ -183,6 +184,13 @@ body.toon .gal-head h2 { font-weight: 600; }
   .panel ul, .panel .sub { display: none; }
   .alt, .wp { display: none; }
 }
+@media (min-width: 861px) and (max-height: 820px) {
+  .panel { padding: 18px 24px 16px; max-height: calc(100vh - 88px); }
+  .panel h2 { font-size: clamp(28px, 3vw, 38px); margin: 6px 0; }
+  .panel .pitch { font-size: 17px; }
+  .panel .sub { margin-top: 10px; } .panel ul { gap: 6px; margin-top: 8px; font-size: 13.5px; line-height: 1.45; }
+  .panel .stats { margin-top: 10px; } .chips { margin: 10px 0; } .note { margin-top: 8px; }
+}
 @media (max-width: 1100px) { .wp button { padding: 6px 7px; letter-spacing: .08em; } }
 </style>
 </head>
@@ -200,6 +208,7 @@ body.toon .gal-head h2 { font-weight: 600; }
       <button type="button" data-lang="en" aria-pressed="false">EN</button>
     </div>
     <button type="button" class="alt" id="snd" aria-pressed="false" hidden></button>
+    <a class="alt" href="cv/teddy-rhim-cv.pdf" data-cv download data-t="cvTop"></a>
     <a class="alt" href="light.html" id="lightLink">Version légère</a>
   </div>
 </header>
@@ -208,6 +217,7 @@ body.toon .gal-head h2 { font-weight: 600; }
   <div>
     <h1>Teddy <em>Rhim</em></h1>
     <p id="role">Développeur back-end</p>
+    <p class="lead" data-t="lead"></p>
     <small id="cue">Faites défiler pour descendre</small>
   </div>
 </div>
@@ -267,6 +277,7 @@ catch (e) { console.error(e); location.replace(LIGHT); await new Promise(() => {
 /* ——— Textes ——— */
 const T = {
   fr: {
+    lead: "Je conçois des applications complètes, de l'interface à la base de données, et je m'intéresse aux modèles de langage qui tournent en local.", cvTop: "CV",
     role: "Développeur back-end", cue: "Faites défiler pour descendre", light: "Version légère", loading: "Allumage des bougies…",
     sub: "Ce que j'ai construit", code: "Voir le code", skip: "Passer à la version légère (texte seul)", sndOff: "Son : coupé", sndOn: "Son : activé",
     nAbout: "À propos", n1: "CTA", n2: "Assistant", n3: "Chatbot", n4: "Relais", nContact: "Contact", navLabel: "Sections",
@@ -325,6 +336,7 @@ const T = {
     cTitle: "Approchez-vous du feu", cLead: "Un projet, une opportunité, une question technique : écrivez-moi, la discussion sera la bienvenue.", mail: "Écrire un e-mail",
   },
   en: {
+    lead: "I build complete applications, from the interface to the database, and I'm interested in language models that run locally.", cvTop: "CV",
     role: "Back-end developer", cue: "Scroll to descend", light: "Light version", loading: "Lighting the candles…",
     sub: "What I built", code: "View the code", skip: "Skip to the light version (plain text)", sndOff: "Sound: off", sndOn: "Sound: on",
     nAbout: "About", n1: "CTA", n2: "Assistant", n3: "Chatbot", n4: "Relais", nContact: "Contact", navLabel: "Sections",
