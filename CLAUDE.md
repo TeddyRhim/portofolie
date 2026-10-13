@@ -4,14 +4,15 @@ Portfolio de développeur back-end, site statique sans étape de build, publié 
 
 ## Commandes
 - Prévisualiser (les modules ES exigent un serveur) : `python -m http.server 8766 --bind 127.0.0.1`, puis http://127.0.0.1:8766/.
-- Vérification automatique : `python scripts/check_refs.py` (fichiers référencés présents, même `?v=` partout pour un même fichier), lancée aussi par la CI. Pas de lint. Vérifier à la main : rendu 3D, version `light.html`, mode `?toon`, bouton son, galerie d'images, version anglaise.
+- Vérification automatique : `python scripts/check_textes.py` (clés FR/EN, textes sans dérive) et `python scripts/check_refs.py` (fichiers référencés présents, même `?v=` partout pour un même fichier), lancée aussi par la CI. Pas de lint. Vérifier à la main : rendu 3D, version `light.html`, mode `?toon`, bouton son, galerie d'images, version anglaise.
 - Vérifier le site en ligne : comparer `git log -1` avec la page publiée, ouvrir l'URL en rechargement forcé, contrôler les `?v=` des imports et des médias.
 
 ## Structure
-- `index.html` : page 3D (CSS, JSON-LD, textes FR et EN dans l'objet `T`, galerie, bouton son). Importe `scene.js?v=N` et `audio.js?v=N`.
+- `textes.js` : **source unique** des textes FR et EN des deux versions (`window.PORTFOLIO_TEXTES`, au format JSON). Modifier un texte ici seulement, puis incrémenter `textes.js?v=N` dans les deux pages.
+- `index.html` : page 3D (CSS, JSON-LD, galerie, bouton son). Charge `textes.js?v=N`, importe `scene.js?v=N` et `audio.js?v=N`.
 - `scene.js` : scène Three.js (porte, couloir, bannières, tableaux, brasero), textures procédurales, style toon.
 - `audio.js` : ambiance Web Audio entièrement synthétisée, sans fichier audio.
-- `light.html` : version 2D autonome (son propre CSS, JavaScript et textes).
+- `light.html` : version 2D autonome (son propre CSS et JavaScript ; textes dans `textes.js`). Le texte par défaut de chaque élément `data-i18n` (affiché sans JavaScript) doit être identique au français de `textes.js` : `python scripts/check_textes.py` le vérifie.
 - `cv/` : sources HTML du CV en français et en anglais, et les PDF correspondants. `media/` : captures des projets et image de partage.
 - `robots.txt`, `sitemap.xml`, `.nojekyll`, `README.md`, `LICENSE`.
 

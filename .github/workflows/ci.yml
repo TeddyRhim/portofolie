@@ -26,3 +26,5 @@ jobs:
           python-version: "3.11"
       - name: Fichiers référencés présents et numéros de cache cohérents
         run: python scripts/check_refs.py
+      - name: Textes FR/EN complets et sans dérive entre les deux versions
+        run: python scripts/check_textes.py
