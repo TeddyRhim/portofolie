@@ -376,14 +376,17 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     flames.push({ flame, halo, ph: Math.random() * 100, sp: rnd(.8, 1.4) });
   }
 
-  /* Toiles d'araignée dans les angles du plafond */
+  /* Toiles d'araignée tendues dans les angles du plafond (plans fixes : un sprite pivoterait avec la caméra) */
   if (!TOON) {
     const web = cobwebTexture(), webR = web.clone(); webR.repeat.x = -1; webR.offset.x = 1; webR.needsUpdate = true;
+    const webGeo = new THREE.PlaneGeometry(1, 1);
     for (let z = 12; z > z1 + 2; z -= 8) for (const side of [-1, 1]) {
       if (Math.random() < 0.4) continue;
-      const sz = rnd(2, 3.2);
-      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: side < 0 ? web : webR, transparent: true, opacity: rnd(0.3, 0.55), depthWrite: false }));
-      sp.scale.set(sz, sz, 1); sp.position.set(side * (4.9 - sz / 2), 11.4 - sz / 2, z + rnd(-2.5, 2.5)); world.add(sp);
+      const sz = rnd(2, 3.2), tilt = rnd(0.15, 0.45);   // légèrement en biais dans l'angle, comme une vraie toile
+      const m = new THREE.Mesh(webGeo, new THREE.MeshBasicMaterial({ map: side < 0 ? web : webR, transparent: true, opacity: rnd(0.3, 0.55), depthWrite: false, side: THREE.DoubleSide }));
+      m.scale.set(sz, sz, 1); m.rotation.y = side * tilt;
+      m.position.set(side * (4.98 - sz / 2 * Math.cos(tilt)), 11.5 - sz / 2, z + rnd(-2.5, 2.5));   // bord collé au mur malgré le biais
+      world.add(m);
     }
   }
 
@@ -747,7 +750,10 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
         const sharp = sm(0.18, 0.42, u) * (1 - sm(0.62, 0.92, u)) * 0.85;
         const blur = (sm(0.0, 0.14, u) * (1 - sm(0.14, 0.42, u)) + sm(0.55, 0.85, u) * (1 - sm(0.85, 1, u))) * 0.7;
         nameSharp.material.opacity = sharp; nameBlur.material.opacity = blur;
-        const y = RIM + 3.0 + sm(0, 0.35, u) * 0.7 + sm(0.55, 1, u) * 1.3, sc = 1.1 - sm(0, 0.4, u) * 0.1 + sm(0.6, 1, u) * 0.25;
+        // le nom reste bas, entre la flamme et les boutons de contact, au lieu de monter à travers le texte
+        // (plus bas sur les écrans peu hauts : le bloc de contact y occupe une plus grande part de l'image)
+        const lift = clamp01((innerHeight - 768) / 132), rise = 0.5 + 0.5 * lift;
+        const y = RIM + 2.05 + 0.5 * lift + (sm(0, 0.35, u) * 0.35 + sm(0.55, 1, u) * 0.45) * rise, sc = 0.95 - sm(0, 0.4, u) * 0.08 + sm(0.6, 1, u) * 0.18;
         for (const m of [nameSharp, nameBlur]) { m.position.y = y; m.scale.set(sc, sc, 1); m.rotation.y = Math.atan2(camera.position.x - bz.position.x, camera.position.z - bz.position.z); }
         if (u >= 1) { puffT = -1; nameSharp.material.opacity = 0; nameBlur.material.opacity = 0; }
       }
@@ -1009,10 +1015,17 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     ft += dt; fn++;
     if (fn === 90) { if (ft / fn > 0.026 && dpr > 1.1) { dpr = Math.max(1, dpr - 0.5); renderer.setPixelRatio(dpr); composer.setPixelRatio(dpr); composer.setSize(innerWidth, innerHeight); } ft = 0; fn = 0; }
     if (toonPass) toonPass.uniforms.uRes.value.set(innerWidth * dpr, innerHeight * dpr);
-    composer.render();
+    // galerie ouverte : elle recouvre la scène, inutile de la recalculer (la dernière image reste affichée)
+    if (!document.body.classList.contains("gal-open")) composer.render();
     onFrame && onFrame(cur, t);
   }
   const loop = () => { tick(); requestAnimationFrame(loop); };
-  loop();
-  return { renderer, scene, camera };
+  // compilation des shaders en parallèle (KHR_parallel_shader_compile) avant la première image :
+  // sans elle, le premier rendu attend chaque programme l'un après l'autre et fige la page plusieurs secondes
+  // (même cible que le vrai rendu, celle du post-traitement : sinon ce ne sont pas les mêmes variantes de shaders)
+  renderer.setRenderTarget(composer.readBuffer);
+  const compiling = renderer.compileAsync(scene, camera);
+  renderer.setRenderTarget(null);
+  const ready = compiling.catch(() => {}).then(loop);   // rejetée si la première image échoue
+  return { renderer, scene, camera, ready };
 }
