@@ -399,6 +399,35 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
   const loader = new THREE.TextureLoader();
   const loadTex = url => { const t = loader.load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 16; return t; };
   const darkLiner = new THREE.MeshStandardMaterial({ color: 0x120a07, roughness: 0.9 });
+  /* Toile : non éclairée, la courbe ACES appliquée à la fin du post-traitement est annulée ici
+     (sinon les captures sortent désaturées et leurs blancs passent le seuil du bloom) ;
+     le blanc est plafonné à 0,72 linéaire, juste sous ce seuil. En mode toon, pas de tone mapping à annuler. */
+  const EXPO = renderer.toneMappingExposure.toFixed(3);
+  const CANVAS_PARS = `uniform float uReveal, uHover, uSeed; varying vec2 vCanUv;
+    float cHash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float cNoise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+      return mix(mix(cHash(i), cHash(i + vec2(1, 0)), u.x), mix(cHash(i + vec2(0, 1)), cHash(i + vec2(1, 1)), u.x), u.y); }
+    vec3 undoAces(vec3 t){
+      const mat3 IN = mat3(0.59719, 0.07600, 0.02840, 0.35458, 0.90834, 0.13383, 0.04823, 0.01566, 0.83777);
+      const mat3 OUT = mat3(1.60475, -0.10208, -0.00327, -0.53108, 1.10813, -0.07276, -0.07367, -0.00605, 1.07602);
+      vec3 y = clamp(inverse(OUT) * t, 0., .98);
+      vec3 A = 1. - .983729 * y, B = .0245786 - .432951 * y, C = -(.000090537 + .238081 * y);
+      return max(inverse(IN) * ((-B + sqrt(B * B - 4. * A * C)) / (2. * A)), 0.) * (.6 / ${EXPO});
+    }`;
+  const CANVAS_MAIN = `{
+      vec2 q = abs(vCanUv - .5) * 2.;
+      // champ de brûlure : bords d'abord, front irrégulier
+      float f = max(q.x, q.y) * .7 + cNoise(vCanUv * vec2(8., 5.) + uSeed) * .4 + cNoise(vCanUv * 26. + uSeed) * .15;
+      float th = mix(1.3, -.1, uReveal);
+      float shown = smoothstep(th - .02, th + .02, f);
+      float ember = exp(-abs(f - th) * 55.) * step(uReveal, .999) * step(.001, uReveal);
+      vec3 charred = vec3(.010, .007, .005) + outgoingLight * .02;
+      ${TOON
+        ? "vec3 img = outgoingLight * vec3(.83, .82, .92) * (.8 + .07 * uHover);"
+        : "float lampL = 1. - .32 * smoothstep(.15, 1.05, length((vCanUv - vec2(.5, 1.05)) * vec2(.85, 1.))); vec3 img = undoAces(outgoingLight * vec3(1., .955, .89) * lampL * (.74 + .06 * uHover));"}
+      outgoingLight = mix(charred, img, shown) + ember * vec3(3.2, .62, .08);
+    }
+    `;
   const paintings = projects.map(pr => {
     const g = new THREE.Group();
     g.position.set(pr.side * 4.93, 2.7, pr.z);
@@ -425,10 +454,16 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     const jewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.17), patinaGold); jewel.scale.set(1, 1.5, .6); jewel.position.set(0, PH / 2 + FB + 0.78, 0.1); g.add(jewel);
     const drop = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), patinaGold); drop.scale.set(1, 1.6, .6); drop.position.set(0, -PH / 2 - FB - 0.22, 0.1); g.add(drop);
 
-    // toile (deux plans pour fondre d'une capture à l'autre)
+    // toile (deux plans pour fondre d'une capture à l'autre), révélée par une brûlure à l'arrivée de la caméra
     const texs = pr.imgs.map(loadTex);
+    const cu = { uReveal: { value: 0 }, uHover: { value: 0 }, uSeed: { value: rnd(0, 50) } };
     const mk = (map, opacity, z) => {
-      const m = TOON ? new THREE.MeshBasicMaterial({ map, color: 0xd4d2ea, transparent: opacity < 1, opacity }) : new THREE.MeshStandardMaterial({ map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.34, roughness: 0.75, transparent: opacity < 1, opacity });
+      const m = new THREE.MeshBasicMaterial({ map, transparent: opacity < 1, opacity });
+      m.onBeforeCompile = sh => {
+        Object.assign(sh.uniforms, cu);
+        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 vCanUv;").replace("#include <uv_vertex>", "#include <uv_vertex>\nvCanUv = uv;");
+        sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\n" + CANVAS_PARS).replace("#include <opaque_fragment>", CANVAS_MAIN + "#include <opaque_fragment>");
+      };
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), m); mesh.position.z = z; g.add(mesh); return m;
     };
     const base = mk(texs[0], 1, 0.07), over = mk(texs[Math.min(1, texs.length - 1)], 0, 0.075);
@@ -438,13 +473,31 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     const lampHead = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.24, 0.28, 14, 1, true), patinaGold); lampHead.position.set(0, PH / 2 + FB + 0.98, 1.5); g.add(lampHead);
     const bulb = new THREE.Sprite(new THREE.SpriteMaterial({ map: softDot("255,214,150", 1), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: .45 }));
     bulb.position.set(0, PH / 2 + FB + 0.9, 1.5); bulb.scale.set(0.45, 0.45, 1); bulb.material.opacity = 0.28; g.add(bulb);
-    const spot = new THREE.SpotLight(0xffd29a, 12, 14, 0.75, 0.8, 1.6);
-    spot.position.set(0, PH / 2 + FB + 0.95, 1.5);
-    const tgt = new THREE.Object3D(); tgt.position.set(0, -0.2, 0.1); g.add(tgt); spot.target = tgt; g.add(spot);
 
+    bulb.material.opacity = 0;   // lampe éteinte jusqu'à l'arrivée
     world.add(g);
-    return { texs, base, over, grp: g, hv: 0, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
+    return { texs, base, over, cu, bulb, lamp: 0, revealAt: -1, grp: g, hv: 0, i: 0, nextAt: 3 + Math.random() * 2, fade: -1 };
   });
+
+  /* Spots de tableaux mutualisés : deux lumières au lieu d'une par tableau. Le slot 0 sert les tableaux pairs,
+     le slot 1 les impairs : les deux tableaux les plus proches sont consécutifs, donc chacun a son spot,
+     et le troisième est assez loin pour disparaître dans le brouillard quand son spot est réattribué. */
+  const spotSlots = [0, 1].map(() => {
+    const spot = new THREE.SpotLight(0xffd29a, 0, 14, 0.75, 0.8, 1.6), tgt = new THREE.Object3D();
+    spot.target = tgt; world.add(spot, tgt); return { spot, tgt };
+  });
+  const spotOff = new THREE.Vector3(), tgtOff = new THREE.Vector3();
+  function updateSpots(camZ) {
+    spotSlots.forEach((sl, s) => {
+      let best = -1;
+      paintings.forEach((pt, k) => { if (k % 2 === s && (best < 0 || Math.abs(projects[k].z - camZ) < Math.abs(projects[best].z - camZ))) best = k; });
+      if (best < 0) { sl.spot.intensity = 0; return; }
+      const g = paintings[best].grp;
+      sl.spot.position.copy(spotOff.set(0, PH / 2 + FB + 0.95, 1.5).applyEuler(g.rotation).add(g.position));
+      sl.tgt.position.copy(tgtOff.set(0, -0.2, 0.1).applyEuler(g.rotation).add(g.position));
+      sl.spot.intensity = 12 * paintings[best].lamp;
+    });
+  }
 
   /* ——— Décor léger : tapis de velours et bannières ——— */
   const carpetTex = canvasTexture(256, 512, (g, w, h) => {
@@ -593,9 +646,103 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     doorDustGeo.attributes.position.needsUpdate = true;
   }
 
-  /* Fond du couloir */
-  const endWall = new THREE.Mesh(new THREE.PlaneGeometry(10, 14), new THREE.MeshStandardMaterial({ color: 0x090406, roughness: 1 }));
-  endWall.position.set(0, 6, z1); world.add(endWall);
+  /* Fond du couloir : grande fenêtre ogivale ouverte sur la nuit, la lune se lève à l'approche du brasero */
+  const WW = 3.3, WS = 1.2, WSP = 6.6, WH = 11.0;   // demi-largeur, appui, naissance de l'arc, sommet
+  const endShape = new THREE.Shape();
+  endShape.moveTo(-5, 0); endShape.lineTo(5, 0); endShape.lineTo(5, 14); endShape.lineTo(-5, 14); endShape.closePath();
+  const winHole = new THREE.Path();
+  winHole.moveTo(-WW, WS); winHole.lineTo(WW, WS); winHole.lineTo(WW, WSP);
+  winHole.bezierCurveTo(WW, 8.9, 1.4, 10.1, 0, WH); winHole.bezierCurveTo(-1.4, 10.1, -WW, 8.9, -WW, WSP); winHole.lineTo(-WW, WS);
+  endShape.holes.push(winHole);
+  const endWall = new THREE.Mesh(new THREE.ShapeGeometry(endShape, 24), stoneMat(1 / 6, 1 / 6));
+  endWall.position.set(0, 0, z1); world.add(endWall);
+  // encadrement et remplage : meneaux et rosace, en silhouette devant la lune
+  const winPath = new THREE.CurvePath(), V3 = (x, y) => new THREE.Vector3(x, y, 0);
+  winPath.add(new THREE.LineCurve3(V3(-WW, WS), V3(-WW, WSP)));
+  winPath.add(new THREE.CubicBezierCurve3(V3(-WW, WSP), V3(-WW, 8.9), V3(-1.4, 10.1), V3(0, WH)));
+  winPath.add(new THREE.CubicBezierCurve3(V3(0, WH), V3(1.4, 10.1), V3(WW, 8.9), V3(WW, WSP)));
+  winPath.add(new THREE.LineCurve3(V3(WW, WSP), V3(WW, WS)));
+  const traceryMat = new THREE.MeshStandardMaterial({ color: 0x2c2024, roughness: 0.85 });
+  const winFrame = new THREE.Mesh(new THREE.TubeGeometry(winPath, 90, 0.24, 10, false), traceryMat);
+  winFrame.position.z = z1 + 0.05; world.add(winFrame);
+  const sill = new THREE.Mesh(new THREE.BoxGeometry(WW * 2 + 0.7, 0.32, 0.7), traceryMat); sill.position.set(0, WS - 0.1, z1 + 0.2); world.add(sill);
+  for (const x of [-1.1, 1.1]) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, WSP + 0.6 - WS, 10), traceryMat); m.position.set(x, (WS + WSP + 0.6) / 2, z1); world.add(m); }
+  const rose = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.1, 8, 48), traceryMat); rose.position.set(0, 8.55, z1); world.add(rose);
+  for (let k = 0; k < 3; k++) {   // trois barres traversantes = six rayons
+    const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.1, 6), traceryMat);
+    sp.position.set(0, 8.55, z1); sp.rotation.z = k * Math.PI / 3; world.add(sp);
+  }
+  for (const s of [-1, 1]) {   // têtes de lancettes reliant les meneaux à l'arc
+    const head = new THREE.CubicBezierCurve3(V3(s * 1.1, WSP + 0.6, 0), V3(s * 1.1, 7.6, 0), V3(s * 2.2, 7.6, 0), V3(s * WW, WSP + 0.2, 0));
+    const mh = new THREE.Mesh(new THREE.TubeGeometry(head, 20, 0.09, 8, false), traceryMat); mh.position.z = z1; world.add(mh);
+    const mi = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CubicBezierCurve3(V3(s * 1.1, WSP + 0.6, 0), V3(s * 1.1, 7.4, 0), V3(s * 0.5, 7.6, 0), V3(0, 7.5, 0)), 20, 0.09, 8, false), traceryMat);
+    mi.position.z = z1; world.add(mi);
+  }
+
+  // ciel nocturne : un seul plan, tout est calculé dans le shader (dégradé, étoiles, nuages, horizon, lune)
+  const skyMat = new THREE.ShaderMaterial({
+    fog: false, depthWrite: false,
+    uniforms: { uTime: { value: 0 }, uRise: { value: 0 }, uVis: { value: 0 }, uToon: { value: TOON ? 1 : 0 } },
+    vertexShader: "varying vec2 vP; void main(){ vP = position.xy + vec2(0., 9.); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }",
+    fragmentShader: `precision highp float; varying vec2 vP; uniform float uTime, uRise, uVis, uToon;
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3. - 2. * f);
+        return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x), mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y); }
+      float fbm(vec2 p){ float v = 0., a = .5; for (int k = 0; k < 5; k++) { v += a * noise(p); p = p * 2.03 + 17.1; a *= .5; } return v; }
+      void main(){
+        vec2 p = vP;
+        vec3 moonCol = mix(vec3(1., .94, .82), vec3(.85, .13, .16), uToon);
+        float h = clamp((p.y - 2.) / 16., 0., 1.);
+        vec3 col = mix(mix(vec3(.022, .02, .05), vec3(.04, .03, .08), uToon), mix(vec3(.006, .008, .024), vec3(.01, .012, .04), uToon), pow(h, .5));
+        // étoiles, qui s'effacent près de la lune
+        vec2 mc = vec2(-1.5, mix(2., 10.8, uRise));
+        float d = length(p - mc), R = 2.1;
+        vec2 sg = floor(p * 5.), sf = fract(p * 5.) - .5 + (vec2(hash(sg + 1.), hash(sg + 2.)) - .5) * .6;
+        col += step(.985, hash(sg)) * smoothstep(.09, .0, length(sf)) * (.6 + .4 * sin(uTime * 1.7 + hash(sg + 3.) * 50.)) * .7 * h * smoothstep(4., 9., d);
+        // halo puis disque, avec mers et cratères
+        float e = max(d - R, 0.);
+        col += moonCol * .16 * exp(-e * 1.6);
+        vec2 q = (p - mc) / R;
+        float limb = sqrt(max(0., 1. - dot(q, q)));
+        float maria = fbm(q * 2.2 + 7.3), crat = noise(q * 11. + 3.);
+        vec3 disc = moonCol * .98 * (.72 + .28 * limb) * (1. - .3 * smoothstep(.46, .7, maria)) * (1. - .12 * smoothstep(.62, .82, crat));
+        col = mix(col, disc, smoothstep(R, R - .05, d));
+        // nuages qui défilent devant, ourlés de lumière près de la lune
+        float c = fbm(vec2(p.x * .16 + uTime * .022, p.y * .45 - 1.3));
+        float cl = smoothstep(.44, .7, c) * smoothstep(5., 9., p.y);
+        vec3 ccol = mix(vec3(.025, .02, .04), moonCol * .35, exp(-d * .4) * smoothstep(.5, .62, c) * (1. - smoothstep(.62, .78, c)) * 1.6 + exp(-d * .25) * .25);
+        col = mix(col, ccol, cl * .88);
+        // horizon : collines et flèches lointaines en silhouette
+        float ridge = 2.4 + 1.3 * fbm(vec2(p.x * .2, 3.1));
+        float sx = p.x * .9, id = floor(sx), f = abs(fract(sx) - .5) * 2.;
+        float hs = hash(vec2(id, 9.)), tower = step(.68, hs) * (.8 + 2.2 * hs) * step(f, .38) * (1. + .9 * smoothstep(.38, 0., f) * step(.85, hs));
+        col = mix(col, vec3(.01, .006, .012), step(p.y, ridge + tower));
+        gl_FragColor = vec4(col * uVis, 1.);
+      }`,
+  });
+  const sky = new THREE.Mesh(new THREE.PlaneGeometry(24, 24), skyMat);
+  sky.position.set(0, 9, z1 - 7); world.add(sky);
+  // faisceau de lune : plan additif incliné de la fenêtre vers le sol, rayé par l'ombre des meneaux
+  const shaftTex = canvasTexture(256, 256, (g, w, h) => {
+    for (let x = 0; x < w; x++) {
+      const u = x / w, lane = Math.abs(u - 0.5) < 0.16 || Math.abs(u - 0.5) > 0.2;   // ombre des meneaux à ±1,1 m
+      const edge = Math.min(1, Math.min(u, 1 - u) * 6), a = (lane ? 1 : 0.25) * edge;
+      const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = gr; g.fillRect(x, 0, 1, h);
+    }
+  }, 1, 1, false);
+  shaftTex.wrapS = shaftTex.wrapT = THREE.ClampToEdgeWrapping;
+  const shaftMat = new THREE.MeshBasicMaterial({ map: shaftTex, color: TOON ? 0xff4a4a : 0xb8c4ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide });
+  const shaft = new THREE.Mesh(new THREE.PlaneGeometry(WW * 2, Math.hypot(9, 7.2)), shaftMat);   // du haut de la fenêtre (y 7,2) au sol, 9 m plus près
+  shaft.position.set(0, 3.6, z1 + 4.5); shaft.rotation.x = -Math.atan2(9, 7.2); world.add(shaft);
+  const pondMat = new THREE.MeshBasicMaterial({ map: shaftTex, color: TOON ? 0xff4a4a : 0xb8c4ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  const pond = new THREE.Mesh(new THREE.PlaneGeometry(WW * 2, 9), pondMat);
+  pond.rotation.x = -Math.PI / 2; pond.position.set(0, 0.03, z1 + 4.5); world.add(pond);
+  function updateSky(t) {
+    const vis = smooth(clamp01((cur - 0.7) / 0.18)), rise = smooth(clamp01((cur - 0.78) / 0.19));
+    skyMat.uniforms.uTime.value = t; skyMat.uniforms.uVis.value = vis; skyMat.uniforms.uRise.value = rise;
+    shaftMat.opacity = 0.025 * rise; pondMat.opacity = 0.08 * rise;
+  }
   const endGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softDot("255,120,40", .8), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, fog: false, opacity: 0.55 }));
   endGlow.position.set(0, 3, z1 + 3); endGlow.scale.set(14, 14, 1); world.add(endGlow);
 
@@ -679,7 +826,8 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
   /* Fumée : volutes grises qui montent */
   const smokeTex = softDot("190,176,164", .55);
   const wisps = Array.from({ length: 16 }, (_, i) => {
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, transparent: true, depthWrite: false, opacity: 0, fog: false, blending: THREE.AdditiveBlending }));
+    // fumée sombre (mélange normal) : en additif, elle voilait le ciel de la fenêtre du fond
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: smokeTex, color: 0x2e221e, transparent: true, depthWrite: false, opacity: 0, fog: false }));
     bz.add(sp); return { sp, life: i / 16, max: rnd(4.5, 7), x: rnd(-.5, .5), ph: rnd(0, 6.28) };
   });
 
@@ -711,7 +859,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     const near = cur > 0.82;
     fireMats.forEach(m => { m.uniforms.uTime.value = t; });
     const fl = 0.88 + 0.12 * Math.sin(t * 9) * Math.sin(t * 3.7) + 0.05 * Math.sin(t * 23);
-    fireLight.intensity = 20 * fl; fireHalo.material.opacity = 0.12 + 0.07 * fl; endGlow.material.opacity = 0.22 + 0.08 * fl;
+    fireLight.intensity = 20 * fl; fireHalo.material.opacity = (0.12 + 0.07 * fl) * (1 - 0.6 * skyMat.uniforms.uVis.value); endGlow.material.opacity = (0.22 + 0.08 * fl) * (1 - 0.7 * skyMat.uniforms.uVis.value);
     // réaction au survol
     hoverHit = false; let tl = 0, tr = 1;
     if (near) {
@@ -740,7 +888,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
       const u = w.life;
       w.sp.position.set(w.x + Math.sin(t * 0.6 + w.ph) * (0.2 + u * 0.7), RIM + 2.2 + u * 3.4, Math.cos(t * 0.5 + w.ph) * 0.3);
       const s = 1.2 + u * 3.2; w.sp.scale.set(s, s, 1);
-      w.sp.material.opacity = Math.sin(Math.min(1, u * 1.15) * Math.PI) * 0.13;
+      w.sp.material.opacity = Math.sin(Math.min(1, u * 1.15) * Math.PI) * 0.2;
     });
     // nom
     if (nameSharp) {
@@ -802,13 +950,7 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
       world.add(frame, glassMesh);
     }
 
-    // lune de sang en croissant, au-dessus du brasero
-    const moon = new THREE.Mesh(new THREE.CircleGeometry(2.7, 56), new THREE.MeshBasicMaterial({ color: 0xb81d2c, fog: false }));
-    const moonBite = new THREE.Mesh(new THREE.CircleGeometry(2.45, 56), new THREE.MeshBasicMaterial({ color: 0x04050e, fog: false }));
-    const moonRing = new THREE.Mesh(new THREE.RingGeometry(2.7, 2.9, 56), new THREE.MeshBasicMaterial({ color: 0x03020a, fog: false }));
-    moon.position.set(0, 0, 0); moonBite.position.set(1.0, 0.6, 0.05); moonRing.position.set(0, 0, 0.02);
-    moon.userData.noInk = moonBite.userData.noInk = moonRing.userData.noInk = true;
-    const moonG = new THREE.Group(); moonG.add(moon, moonRing, moonBite); moonG.scale.setScalar(0.65); moonG.position.set(-3.2, 6.9, z1 + 0.2); world.add(moonG);
+    // la lune de sang est celle du ciel derrière la fenêtre du fond (teinte rouge du shader)
 
     // matériaux Standard → Toon (les peintures et le feu gardent leur matériau)
     const over = new Map([[patinaGold, 0x6a4a1c], [oldGold, 0x6a4a20], [gold, 0x9c6c28], [stone, 0x34346a]]);
@@ -981,21 +1123,27 @@ export function startScene({ canvas, projects, getProgress, onFrame, style, onPa
     const pk = pickPainting();
     if (pk !== hovIdx) { hovIdx = pk; document.body.style.cursor = pk >= 0 ? "pointer" : ""; onPaintingHover && onPaintingHover(pk); }
     paintings.forEach((pt, k) => {
-      pt.hv += ((k === hovIdx ? 1 : 0) - pt.hv) * 0.15;
-      if (TOON) { pt.base.color.setScalar(0.8 + 0.07 * pt.hv); pt.over.color.setScalar(0.8 + 0.07 * pt.hv); }
-      else { pt.base.emissiveIntensity = pt.over.emissiveIntensity = 0.34 + 0.07 * pt.hv; }
+      pt.hv += ((k === hovIdx ? 1 : 0) - pt.hv) * 0.15; pt.cu.uHover.value = pt.hv;
+      // révélation : la lampe s'allume en vacillant, puis la toile brûle des bords vers le centre
+      if (pt.revealAt < 0 && cur > projects[k].win[0] + 0.01) pt.revealAt = t;
+      if (pt.revealAt >= 0) {
+        const e = t - pt.revealAt;
+        const lamp = e < 0.55 ? (Math.sin(e * 61) > 0.1 ? e / 0.55 : 0.15) : 1 + 1.3 * Math.exp(-(e - 0.55) * 5);
+        pt.lamp = lamp; pt.bulb.material.opacity = 0.28 * Math.min(1.6, lamp);
+        pt.cu.uReveal.value = clamp01((e - 0.35) / 1.7);
+      }
     });
-    updateDoor(t); updateBrazier(t, dt);
+    updateSpots(pos.z); updateDoor(t); updateBrazier(t, dt); updateSky(t);
 
     // tableaux : fondu entre les captures
     paintings.forEach(p => {
       if (p.texs.length < 2) return;
-      if (p.fade < 0 && t > p.nextAt) { p.fade = 0; p.over.map = p.texs[(p.i + 1) % p.texs.length]; if (!TOON) p.over.emissiveMap = p.over.map; p.over.needsUpdate = true; }
+      if (p.fade < 0 && t > p.nextAt) { p.fade = 0; p.over.map = p.texs[(p.i + 1) % p.texs.length]; p.over.needsUpdate = true; }
       if (p.fade >= 0) {
         p.fade += 0.018; p.over.opacity = Math.min(1, p.fade);
         if (p.fade >= 1) {
           p.i = (p.i + 1) % p.texs.length;
-          p.base.map = p.texs[p.i]; if (!TOON) p.base.emissiveMap = p.base.map; p.base.needsUpdate = true;
+          p.base.map = p.texs[p.i]; p.base.needsUpdate = true;
           p.over.opacity = 0; p.fade = -1; p.nextAt = t + 3.6;
         }
       }
