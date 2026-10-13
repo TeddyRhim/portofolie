@@ -4,7 +4,7 @@ Portfolio de développeur back-end, site statique sans étape de build, publié 
 
 ## Commandes
 - Prévisualiser (les modules ES exigent un serveur) : `python -m http.server 8766 --bind 127.0.0.1`, puis http://127.0.0.1:8766/.
-- Pas de tests ni de lint. Vérifier à la main : rendu 3D, version `light.html`, mode `?toon`, bouton son, galerie d'images, version anglaise.
+- Vérification automatique : `python scripts/check_refs.py` (fichiers référencés présents, même `?v=` partout pour un même fichier), lancée aussi par la CI. Pas de lint. Vérifier à la main : rendu 3D, version `light.html`, mode `?toon`, bouton son, galerie d'images, version anglaise.
 - Vérifier le site en ligne : comparer `git log -1` avec la page publiée, ouvrir l'URL en rechargement forcé, contrôler les `?v=` des imports et des médias.
 
 ## Structure
